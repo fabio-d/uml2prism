@@ -17,11 +17,6 @@ UMLGraphicsScene::UMLGraphicsScene(Core::UMLDocument *doc, QObject *parent)
 : QGraphicsScene(parent), m_doc(doc)
 {
 	m_doc->setGuiProxy(this);
-
-	connect(this, &QGraphicsScene::changed, [=]()
-	{
-		//setSceneRect(itemsBoundingRect());
-	});
 }
 
 UMLGraphicsScene::~UMLGraphicsScene()
@@ -55,6 +50,22 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 		m_doc->addUMLElement(elem);
 	}
+	else if (elementTypeString == "DecisionNode")
+	{
+		Core::UMLDecisionNode *elem = new Core::UMLDecisionNode();
+		UMLGraphicsDecisionNodeItem *item = new UMLGraphicsDecisionNodeItem(scenePos);
+		item->bind(elem);
+
+		m_doc->addUMLElement(elem);
+	}
+	else if (elementTypeString == "MergeNode")
+	{
+		Core::UMLMergeNode *elem = new Core::UMLMergeNode();
+		UMLGraphicsMergeNodeItem *item = new UMLGraphicsMergeNodeItem(scenePos);
+		item->bind(elem);
+
+		m_doc->addUMLElement(elem);
+	}
 	else
 	{
 		QGraphicsSimpleTextItem *item = addSimpleText(
@@ -74,7 +85,8 @@ void UMLGraphicsScene::keyPressEvent(QKeyEvent *keyEvent)
 		foreach (QGraphicsItem *qtItem, selectedItems())
 		{
 			UMLGraphicsItem *item = UMLGraphicsItem::lookup(qtItem);
-			elementsToBeDeleted.append(item->coreItem());
+			if (item != nullptr)
+				elementsToBeDeleted.append(item->coreItem());
 		}
 
 		// Sort elementsToBeDeleted according to their type so
@@ -92,12 +104,15 @@ void UMLGraphicsScene::keyPressEvent(QKeyEvent *keyEvent)
 
 void UMLGraphicsScene::notifyElementAdded(Core::UMLElement *element)
 {
-	addItem(UMLGraphicsItem::lookup(element)->qtItem());
+	UMLGraphicsItem *item = UMLGraphicsItem::lookup(element);
+	item->refresh();
+	addItem(item->qtItem());
 }
 
 void UMLGraphicsScene::notifyElementChanged(Core::UMLElement *element)
 {
-	// TODO
+	UMLGraphicsItem *item = UMLGraphicsItem::lookup(element);
+	item->refresh();
 }
 
 void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)

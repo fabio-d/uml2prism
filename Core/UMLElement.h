@@ -2,6 +2,7 @@
 #define CORE_UMLELEMENT_H
 
 #include <QList>
+#include <QString>
 
 namespace Core
 {
@@ -10,7 +11,9 @@ namespace Core
 // other objects always come first
 enum class UMLElementType
 {
-	InitialNode
+	InitialNode,
+	DecisionNode,
+	MergeNode
 };
 
 class UMLElement
@@ -35,10 +38,34 @@ class UMLElement
 		void *m_guiProxyPointer;
 };
 
-class UMLInitialNode : public UMLElement
+class UMLNodeElement : public UMLElement
+{
+	public:
+		UMLNodeElement(UMLElementType type, const QString &nodeName);
+
+		void setNodeName(const QString &newName);
+		const QString &nodeName() const;
+
+	private:
+		QString m_nodeName;
+};
+
+class UMLInitialNode : public UMLNodeElement
 {
 	public:
 		UMLInitialNode();
+};
+
+class UMLDecisionNode : public UMLNodeElement
+{
+	public:
+		UMLDecisionNode();
+};
+
+class UMLMergeNode : public UMLNodeElement
+{
+	public:
+		UMLMergeNode();
 };
 
 }

@@ -1,31 +1,29 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 project(UMLEditor)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+find_package(Qt4 REQUIRED QtGui QtXml)
+#find_package(Qt5 REQUIRED Widgets)
 
 add_definitions(-std=c++11 -Wall)
-
-find_package(Qt5Widgets)
-
-qt5_add_resources(qrcfiles
-	resources.qrc
-)
-
-qt5_wrap_ui(uifiles
-	Gui/MainWindow.ui
-)
 
 add_executable(UMLEditor
 	Core/UMLDocument.cpp
 	Core/UMLElement.cpp
+	Gui/GraphicsLabelItem.cpp
 	Gui/MainWindow.cpp
 	Gui/UMLGraphicsItem.cpp
 	Gui/UMLGraphicsScene.cpp
 	Gui/UMLToolboxListWidget.cpp
 	main.cpp
-	${qrcfiles} ${uifiles}
+	resources.qrc
 )
 
-target_link_libraries(UMLEditor Qt5::Widgets)
+target_link_libraries(UMLEditor Qt4::QtGui Qt4::QtXml)
+#target_link_libraries(UMLEditor Qt5::Widgets)
+
 install(TARGETS UMLEditor DESTINATION bin)

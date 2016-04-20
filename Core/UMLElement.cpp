@@ -35,8 +35,33 @@ void UMLElement::topoSort(QList<UMLElement*> &list, bool reverse)
 	});
 }
 
+UMLNodeElement::UMLNodeElement(UMLElementType type, const QString &nodeName)
+: UMLElement(type), m_nodeName(nodeName)
+{
+}
+
+void UMLNodeElement::setNodeName(const QString &newName)
+{
+	m_nodeName = newName;
+}
+
+const QString &UMLNodeElement::nodeName() const
+{
+	return m_nodeName;
+}
+
 UMLInitialNode::UMLInitialNode()
-: UMLElement(UMLElementType::InitialNode)
+: UMLNodeElement(UMLElementType::InitialNode, "InitialNode")
+{
+}
+
+UMLDecisionNode::UMLDecisionNode()
+: UMLNodeElement(UMLElementType::DecisionNode, "DecisionNode")
+{
+}
+
+UMLMergeNode::UMLMergeNode()
+: UMLNodeElement(UMLElementType::MergeNode, "MergeNode")
 {
 }
 
