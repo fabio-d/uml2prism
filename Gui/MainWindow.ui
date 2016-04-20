@@ -16,7 +16,11 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QGraphicsView" name="graphicsView"/>
+     <widget class="QGraphicsView" name="umlGraphicsView">
+      <property name="dragMode">
+       <enum>QGraphicsView::ScrollHandDrag</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -66,7 +70,7 @@
           <string>Create new variable</string>
          </property>
          <property name="icon">
-          <iconset theme="list-add" resource="resources.qrc">
+          <iconset theme="list-add" resource="../resources.qrc">
            <normaloff>:/kde_icons/resources/kde_icons/list-add.png</normaloff>:/kde_icons/resources/kde_icons/list-add.png</iconset>
          </property>
          <property name="iconSize">
@@ -86,7 +90,7 @@
           <string>Delete variable</string>
          </property>
          <property name="icon">
-          <iconset theme="list-remove" resource="resources.qrc">
+          <iconset theme="list-remove" resource="../resources.qrc">
            <normaloff>:/kde_icons/resources/kde_icons/list-remove.png</normaloff>:/kde_icons/resources/kde_icons/list-remove.png</iconset>
          </property>
          <property name="iconSize">
@@ -200,15 +204,12 @@
    <widget class="QWidget" name="dockWidgetContents_4">
     <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
-      <widget class="QListWidget" name="listWidget">
+      <widget class="Gui::UMLToolboxListWidget" name="listWidget">
        <property name="dragEnabled">
         <bool>true</bool>
        </property>
        <property name="dragDropMode">
         <enum>QAbstractItemView::DragOnly</enum>
-       </property>
-       <property name="defaultDropAction">
-        <enum>Qt::MoveAction</enum>
        </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::SingleSelection</enum>
@@ -216,96 +217,6 @@
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
-       <item>
-        <property name="text">
-         <string>Initial node</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/InitialNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/InitialNode_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Decision node</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/DecisionNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/DecisionNode_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Merge node</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/MergeNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/MergeNode_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Fork node</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/ForkNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/ForkNode_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Join node</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/JoinNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/JoinNode_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Final Node</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/ActivityFinalNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/ActivityFinalNode_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Control Flow</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/ControlFlow_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/ControlFlow_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Signal / Object Flow</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Input Pin</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/InputPin_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/InputPin_24.gif</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Output Pin</string>
-        </property>
-        <property name="icon">
-         <iconset resource="resources.qrc">
-          <normaloff>:/topcased_icons/resources/topcased_icons/OutputPin_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/OutputPin_24.gif</iconset>
-        </property>
-       </item>
       </widget>
      </item>
     </layout>
@@ -331,7 +242,7 @@
           <string>Create new type</string>
          </property>
          <property name="icon">
-          <iconset theme="list-add" resource="resources.qrc">
+          <iconset theme="list-add" resource="../resources.qrc">
            <normaloff>:/kde_icons/resources/kde_icons/list-add.png</normaloff>:/kde_icons/resources/kde_icons/list-add.png</iconset>
          </property>
          <property name="iconSize">
@@ -351,7 +262,7 @@
           <string>Delete type</string>
          </property>
          <property name="icon">
-          <iconset theme="list-remove" resource="resources.qrc">
+          <iconset theme="list-remove" resource="../resources.qrc">
            <normaloff>:/kde_icons/resources/kde_icons/list-remove.png</normaloff>:/kde_icons/resources/kde_icons/list-remove.png</iconset>
          </property>
          <property name="iconSize">
@@ -485,7 +396,7 @@
   </widget>
   <action name="actionNew">
    <property name="icon">
-    <iconset theme="document-new" resource="resources.qrc">
+    <iconset theme="document-new" resource="../resources.qrc">
      <normaloff>:/kde_icons/resources/kde_icons/document-new.png</normaloff>:/kde_icons/resources/kde_icons/document-new.png</iconset>
    </property>
    <property name="text">
@@ -494,7 +405,7 @@
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset theme="document-open" resource="resources.qrc">
+    <iconset theme="document-open" resource="../resources.qrc">
      <normaloff>:/kde_icons/resources/kde_icons/document-open.png</normaloff>:/kde_icons/resources/kde_icons/document-open.png</iconset>
    </property>
    <property name="text">
@@ -503,7 +414,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save" resource="resources.qrc">
+    <iconset theme="document-save" resource="../resources.qrc">
      <normaloff>:/kde_icons/resources/kde_icons/document-save.png</normaloff>:/kde_icons/resources/kde_icons/document-save.png</iconset>
    </property>
    <property name="text">
@@ -512,7 +423,7 @@
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset theme="document-save-as" resource="resources.qrc">
+    <iconset theme="document-save-as" resource="../resources.qrc">
      <normaloff>:/kde_icons/resources/kde_icons/document-save-as.png</normaloff>:/kde_icons/resources/kde_icons/document-save-as.png</iconset>
    </property>
    <property name="text">
@@ -521,7 +432,7 @@
   </action>
   <action name="actionClose">
    <property name="icon">
-    <iconset theme="window-close" resource="resources.qrc">
+    <iconset theme="window-close" resource="../resources.qrc">
      <normaloff>:/kde_icons/resources/kde_icons/window-close.png</normaloff>:/kde_icons/resources/kde_icons/window-close.png</iconset>
    </property>
    <property name="text">
@@ -530,7 +441,7 @@
   </action>
   <action name="actionQuit">
    <property name="icon">
-    <iconset theme="application-exit" resource="resources.qrc">
+    <iconset theme="application-exit" resource="../resources.qrc">
      <normaloff>:/kde_icons/resources/kde_icons/application-exit.png</normaloff>:/kde_icons/resources/kde_icons/application-exit.png</iconset>
    </property>
    <property name="text">
@@ -538,8 +449,15 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Gui::UMLToolboxListWidget</class>
+   <extends>QListWidget</extends>
+   <header>Gui/UMLToolboxListWidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections>
   <connection>

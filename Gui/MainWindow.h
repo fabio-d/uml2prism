@@ -5,6 +5,11 @@
 
 class Ui_MainWindow;
 
+namespace Gui
+{
+
+class UMLGraphicsScene;
+
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -14,7 +19,10 @@ class MainWindow : public QMainWindow
 		~MainWindow();
 
 	private:
-		Ui_MainWindow *ui;
+		Ui_MainWindow *m_ui;
+		UMLGraphicsScene *m_umlGraphicsScene;
 };
+
+}
 
 #endif // GUI_MAINWINDOW_H

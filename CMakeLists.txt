@@ -13,11 +13,13 @@ qt5_add_resources(qrcfiles
 )
 
 qt5_wrap_ui(uifiles
-	MainWindow.ui
+	Gui/MainWindow.ui
 )
 
 add_executable(UMLEditor
-	MainWindow.cpp
+	Gui/MainWindow.cpp
+	Gui/UMLGraphicsScene.cpp
+	Gui/UMLToolboxListWidget.cpp
 	main.cpp
 	${qrcfiles} ${uifiles}
 )
