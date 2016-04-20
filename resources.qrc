@@ -1,0 +1,24 @@
+<RCC>
+  <qresource prefix="topcased_icons">
+    <file>resources/topcased_icons/ActivityFinalNode_24.gif</file>
+    <file>resources/topcased_icons/ControlFlow_24.gif</file>
+    <file>resources/topcased_icons/DecisionNode_24.gif</file>
+    <file>resources/topcased_icons/ForkNode_24.gif</file>
+    <file>resources/topcased_icons/InitialNode_24.gif</file>
+    <file>resources/topcased_icons/InputPin_24.gif</file>
+    <file>resources/topcased_icons/JoinNode_24.gif</file>
+    <file>resources/topcased_icons/MergeNode_24.gif</file>
+    <file>resources/topcased_icons/ObjectFlow_24.gif</file>
+    <file>resources/topcased_icons/OutputPin_24.gif</file>
+  </qresource>
+  <qresource prefix="kde_icons">
+    <file>resources/kde_icons/application-exit.png</file>
+    <file>resources/kde_icons/window-close.png</file>
+    <file>resources/kde_icons/document-save-as.png</file>
+    <file>resources/kde_icons/document-save.png</file>
+    <file>resources/kde_icons/document-new.png</file>
+    <file>resources/kde_icons/document-open.png</file>
+    <file>resources/kde_icons/list-add.png</file>
+    <file>resources/kde_icons/list-remove.png</file>
+  </qresource>
+</RCC>

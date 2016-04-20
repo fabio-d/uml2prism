@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1466</width>
+    <height>1157</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QGraphicsView" name="graphicsView"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1466</width>
+     <height>43</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>Fi&amp;le</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <addaction name="menu_File"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="dockWidget_3">
+   <property name="windowTitle">
+    <string>&amp;Global variables</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QToolButton" name="toolButton_3">
+         <property name="toolTip">
+          <string>Create new variable</string>
+         </property>
+         <property name="text">
+          <string>Create new variable</string>
+         </property>
+         <property name="icon">
+          <iconset theme="list-add" resource="resources.qrc">
+           <normaloff>:/kde_icons/resources/kde_icons/list-add.png</normaloff>:/kde_icons/resources/kde_icons/list-add.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButton_4">
+         <property name="toolTip">
+          <string>Delete variable</string>
+         </property>
+         <property name="text">
+          <string>Delete variable</string>
+         </property>
+         <property name="icon">
+          <iconset theme="list-remove" resource="resources.qrc">
+           <normaloff>:/kde_icons/resources/kde_icons/list-remove.png</normaloff>:/kde_icons/resources/kde_icons/list-remove.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QTreeWidget" name="treeWidget">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Current value</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Initial value</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Persistent?</string>
+        </property>
+       </column>
+       <item>
+        <property name="text">
+         <string>mycert : Certificate</string>
+        </property>
+        <property name="text">
+         <string>(unict, SignCA)</string>
+        </property>
+        <property name="text">
+         <string>(unict, SignUnict)</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checkState">
+         <enum>Checked</enum>
+        </property>
+        <property name="flags">
+         <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+        </property>
+        <item>
+         <property name="text">
+          <string>domainName : Domain</string>
+         </property>
+         <property name="text">
+          <string>unict</string>
+         </property>
+         <property name="text">
+          <string>unict</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>sign : Signature</string>
+         </property>
+         <property name="text">
+          <string>SignCA</string>
+         </property>
+         <property name="text">
+          <string>SignUnict</string>
+         </property>
+        </item>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_4">
+   <property name="windowTitle">
+    <string>U&amp;ML Toolbox</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_4">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QListWidget" name="listWidget">
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::DragOnly</enum>
+       </property>
+       <property name="defaultDropAction">
+        <enum>Qt::MoveAction</enum>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <item>
+        <property name="text">
+         <string>Initial node</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/InitialNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/InitialNode_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Decision node</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/DecisionNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/DecisionNode_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Merge node</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/MergeNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/MergeNode_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Fork node</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/ForkNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/ForkNode_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Join node</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/JoinNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/JoinNode_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Final Node</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/ActivityFinalNode_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/ActivityFinalNode_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Control Flow</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/ControlFlow_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/ControlFlow_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Signal / Object Flow</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Input Pin</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/InputPin_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/InputPin_24.gif</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Output Pin</string>
+        </property>
+        <property name="icon">
+         <iconset resource="resources.qrc">
+          <normaloff>:/topcased_icons/resources/topcased_icons/OutputPin_24.gif</normaloff>:/topcased_icons/resources/topcased_icons/OutputPin_24.gif</iconset>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="windowTitle">
+    <string>Datat&amp;ypes</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QToolButton" name="toolButton">
+         <property name="toolTip">
+          <string>Create new type</string>
+         </property>
+         <property name="text">
+          <string>Create new type</string>
+         </property>
+         <property name="icon">
+          <iconset theme="list-add" resource="resources.qrc">
+           <normaloff>:/kde_icons/resources/kde_icons/list-add.png</normaloff>:/kde_icons/resources/kde_icons/list-add.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButton_2">
+         <property name="toolTip">
+          <string>Delete type</string>
+         </property>
+         <property name="text">
+          <string>Delete type</string>
+         </property>
+         <property name="icon">
+          <iconset theme="list-remove" resource="resources.qrc">
+           <normaloff>:/kde_icons/resources/kde_icons/list-remove.png</normaloff>:/kde_icons/resources/kde_icons/list-remove.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QTreeWidget" name="typeTreeWidget">
+       <property name="rootIsDecorated">
+        <bool>true</bool>
+       </property>
+       <property name="columnCount">
+        <number>1</number>
+       </property>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <item>
+        <property name="text">
+         <string>Built-in types</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>bool</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>int(from, to)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>enum(label1, label2, ...)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>set&lt;T&gt;</string>
+         </property>
+        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>Certificate (struct)</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>:/kde_icons/resources/kde_icons/format-list-unordered.png</normaloff>:/kde_icons/resources/kde_icons/format-list-unordered.png</iconset>
+        </property>
+        <item>
+         <property name="text">
+          <string>domainName : Domain</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>sign : Signature</string>
+         </property>
+        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>Domain : enum</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>unict</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>google</string>
+         </property>
+        </item>
+       </item>
+       <item>
+        <property name="text">
+         <string>Signature : enum</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>SignCA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SignUnict</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SignGoogle</string>
+         </property>
+        </item>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_5">
+   <property name="windowTitle">
+    <string>Eleme&amp;nt properties</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_5"/>
+  </widget>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset theme="document-new" resource="resources.qrc">
+     <normaloff>:/kde_icons/resources/kde_icons/document-new.png</normaloff>:/kde_icons/resources/kde_icons/document-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset theme="document-open" resource="resources.qrc">
+     <normaloff>:/kde_icons/resources/kde_icons/document-open.png</normaloff>:/kde_icons/resources/kde_icons/document-open.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open...</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset theme="document-save" resource="resources.qrc">
+     <normaloff>:/kde_icons/resources/kde_icons/document-save.png</normaloff>:/kde_icons/resources/kde_icons/document-save.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="icon">
+    <iconset theme="document-save-as" resource="resources.qrc">
+     <normaloff>:/kde_icons/resources/kde_icons/document-save-as.png</normaloff>:/kde_icons/resources/kde_icons/document-save-as.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save &amp;As...</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="icon">
+    <iconset theme="window-close" resource="resources.qrc">
+     <normaloff>:/kde_icons/resources/kde_icons/window-close.png</normaloff>:/kde_icons/resources/kde_icons/window-close.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Close</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset theme="application-exit" resource="resources.qrc">
+     <normaloff>:/kde_icons/resources/kde_icons/application-exit.png</normaloff>:/kde_icons/resources/kde_icons/application-exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>578</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
