@@ -1,6 +1,8 @@
-#include "MainWindow.h"
+#include "Gui/MainWindow.h"
 
-#include "UMLGraphicsScene.h"
+#include "Gui/UMLGraphicsScene.h"
+
+#include "Core/UMLDocument.h"
 
 #include "ui_MainWindow.h"
 
@@ -12,12 +14,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
 	m_ui->setupUi(this);
 
-	m_umlGraphicsScene = new UMLGraphicsScene(this);
+	m_doc = new Core::UMLDocument();
+
+	m_umlGraphicsScene = new UMLGraphicsScene(m_doc, this);
 	m_ui->umlGraphicsView->setScene(m_umlGraphicsScene);
 }
 
 MainWindow::~MainWindow()
 {
+	delete m_doc;
+
 	delete m_ui;
 }
 

@@ -1,4 +1,4 @@
-#include "UMLToolboxListWidget.h"
+#include "Gui/UMLToolboxListWidget.h"
 
 #include <QMimeData>
 

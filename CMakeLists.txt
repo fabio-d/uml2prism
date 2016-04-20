@@ -4,7 +4,7 @@ project(UMLEditor)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-add_definitions(-std=c++11)
+add_definitions(-std=c++11 -Wall)
 
 find_package(Qt5Widgets)
 
@@ -17,7 +17,10 @@ qt5_wrap_ui(uifiles
 )
 
 add_executable(UMLEditor
+	Core/UMLDocument.cpp
+	Core/UMLElement.cpp
 	Gui/MainWindow.cpp
+	Gui/UMLGraphicsItem.cpp
 	Gui/UMLGraphicsScene.cpp
 	Gui/UMLToolboxListWidget.cpp
 	main.cpp
