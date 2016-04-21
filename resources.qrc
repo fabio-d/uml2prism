@@ -13,6 +13,10 @@
   </qresource>
   <qresource prefix="kde_icons">
     <file>resources/kde_icons/edit-delete.png</file>
+    <file>resources/kde_icons/zoom-fit-best.png</file>
+    <file>resources/kde_icons/zoom-in.png</file>
+    <file>resources/kde_icons/zoom-original.png</file>
+    <file>resources/kde_icons/zoom-out.png</file>
     <file>resources/kde_icons/edit-rename.png</file>
     <file>resources/kde_icons/application-exit.png</file>
     <file>resources/kde_icons/window-close.png</file>

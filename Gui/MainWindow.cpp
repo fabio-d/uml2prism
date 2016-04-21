@@ -20,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent)
 	m_ui->actionSaveAs->setShortcut(QKeySequence::SaveAs);
 	m_ui->actionClose->setShortcut(QKeySequence::Close);
 	m_ui->actionQuit->setShortcut(QKeySequence::Quit);
+	m_ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
+	m_ui->actionZoomOut->setShortcut(QKeySequence::ZoomOut);
+	m_ui->actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
 
 	m_doc = new Core::UMLDocument();
 

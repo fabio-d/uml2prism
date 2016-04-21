@@ -16,6 +16,7 @@ add_executable(UMLEditor
 	Core/UMLElement.cpp
 	Gui/GraphicsLabelItem.cpp
 	Gui/MainWindow.cpp
+	Gui/UMLDocumentView.cpp
 	Gui/UMLElement.cpp
 	Gui/UMLGraphicsScene.cpp
 	Gui/UMLToolboxListWidget.cpp
