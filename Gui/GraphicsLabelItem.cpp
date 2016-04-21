@@ -13,7 +13,7 @@ GraphicsLabelItem::GraphicsLabelItem(QGraphicsItem *parent, bool onTheRightByDef
 	if (onTheRightByDefault)
 		setPos(parent->boundingRect().right(), -metrics.height() / 2);
 	else
-		setPos(0, -metrics.height() / 2);
+		setPos(0, parent->boundingRect().bottom());
 
 	setFlag(QGraphicsItem::ItemIsMovable, true);
 	setFlag(QGraphicsItem::ItemIsSelectable, true);

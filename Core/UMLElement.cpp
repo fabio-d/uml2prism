@@ -43,6 +43,7 @@ UMLNodeElement::UMLNodeElement(UMLElementType type, const QString &nodeName)
 void UMLNodeElement::setNodeName(const QString &newName)
 {
 	m_nodeName = newName;
+	emit changed();
 }
 
 const QString &UMLNodeElement::nodeName() const

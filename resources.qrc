@@ -12,6 +12,8 @@
     <file>resources/topcased_icons/OutputPin_24.gif</file>
   </qresource>
   <qresource prefix="kde_icons">
+    <file>resources/kde_icons/edit-delete.png</file>
+    <file>resources/kde_icons/edit-rename.png</file>
     <file>resources/kde_icons/application-exit.png</file>
     <file>resources/kde_icons/window-close.png</file>
     <file>resources/kde_icons/document-save-as.png</file>

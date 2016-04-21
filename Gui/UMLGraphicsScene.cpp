@@ -1,27 +1,167 @@
 #include "Gui/UMLGraphicsScene.h"
 
-#include "Gui/UMLGraphicsItem.h"
+#include "Gui/UMLElement.h"
 
 #include "Core/UMLDocument.h"
 #include "Core/UMLElement.h"
 
+#include <QAction>
+#include <QApplication>
+#include <QMenu>
+#include <QDebug>
+#include <QInputDialog>
 #include <QKeyEvent>
 #include <QMimeData>
 #include <QGraphicsSceneDragDropEvent>
+#include <QToolBar>
 
-#include <QGraphicsSimpleTextItem>
 namespace Gui
 {
 
 UMLGraphicsScene::UMLGraphicsScene(Core::UMLDocument *doc, QObject *parent)
 : QGraphicsScene(parent), m_doc(doc)
 {
+	m_actionRenameNode = new QAction(
+		QIcon(":/kde_icons/resources/kde_icons/edit-rename.png"),
+		"Rename node", this);
+	m_actionRenameNode->setShortcut(Qt::Key_F2);
+	connect(m_actionRenameNode, SIGNAL(triggered()), this, SLOT(slotRenameNode()));
+
+	m_actionDeleteSelection = new QAction(
+		QIcon(":/kde_icons/resources/kde_icons/edit-delete.png"),
+		"Delete selection", this);
+	m_actionDeleteSelection->setShortcut(QKeySequence::Delete);
+	connect(m_actionDeleteSelection, SIGNAL(triggered()), this, SLOT(slotDeleteSelection()));
+
+	connect(this, SIGNAL(selectionChanged()), this, SLOT(slotSelectionChanged()));
+	slotSelectionChanged();
+
 	m_doc->setGuiProxy(this);
 }
 
 UMLGraphicsScene::~UMLGraphicsScene()
 {
 	Q_ASSERT(items().isEmpty());
+}
+
+void UMLGraphicsScene::addActions(QMenu *target)
+{
+	target->addAction(m_actionRenameNode);
+	target->addAction(m_actionDeleteSelection);
+}
+
+void UMLGraphicsScene::addActions(QToolBar *target)
+{
+	target->addAction(m_actionRenameNode);
+	target->addAction(m_actionDeleteSelection);
+}
+
+void UMLGraphicsScene::slotSelectionChanged()
+{
+	m_strictSelection.clear();
+	m_relaxedSelection.clear();
+
+	foreach (QGraphicsItem *qtItem, selectedItems())
+	{
+		// Attemp strict lookup
+		UMLElement *item = UMLElement::lookup(qtItem, false);
+		if (item != nullptr)
+			m_strictSelection.append(item);
+		else // attempt relaxed lookup
+			item = UMLElement::lookup(qtItem);
+
+		if (!m_relaxedSelection.contains(item))
+			m_relaxedSelection.append(item);
+	}
+
+	if (m_relaxedSelection.count() == 1)
+	{
+		Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
+		Core::UMLNodeElement *nodeElem = dynamic_cast<Core::UMLNodeElement*>(elem);
+		m_actionRenameNode->setEnabled(nodeElem != nullptr);
+	}
+	else
+	{
+		m_actionRenameNode->setEnabled(false);
+	}
+
+	m_actionDeleteSelection->setEnabled((m_relaxedSelection.count() != 0 &&
+		m_relaxedSelection.count() == m_strictSelection.count()) ||
+		m_relaxedSelection.count() == 1);
+}
+
+void UMLGraphicsScene::slotRenameNode()
+{
+	if (m_relaxedSelection.count() != 1)
+		return;
+
+	Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
+	Core::UMLNodeElement *nodeElem = dynamic_cast<Core::UMLNodeElement*>(elem);
+
+	if (!nodeElem)
+		return;
+
+	bool ok;
+	const QString newLabel = QInputDialog::getText(
+		QApplication::activeWindow(), "Rename node", "New label",
+		QLineEdit::Normal, nodeElem->nodeName(), &ok);
+
+	if (ok)
+		nodeElem->setNodeName(newLabel);
+}
+
+void UMLGraphicsScene::slotDeleteSelection()
+{
+	QList<Core::UMLElement*> elementsToBeDeleted;
+
+	foreach (UMLElement *item, m_relaxedSelection)
+		elementsToBeDeleted.append(item->coreItem());
+
+	// Sort elementsToBeDeleted according to their type so
+	// that references are never broken during the deletion process
+	Core::UMLElement::topoSort(elementsToBeDeleted, true);
+
+	foreach (Core::UMLElement *elem, elementsToBeDeleted)
+		m_doc->deleteUMLElement(elem);
+}
+
+void UMLGraphicsScene::slotElementChanged()
+{
+	Core::UMLElement *element = qobject_cast<Core::UMLElement*>(QObject::sender());
+	UMLElement *item = UMLElement::lookup(element);
+	item->refresh();
+}
+
+void UMLGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent)
+{
+	QList<QGraphicsItem*> itemsUnderMouse = items(contextMenuEvent->scenePos());
+	bool atLeastOneItemIsSelected = false;
+	foreach (QGraphicsItem *qtItem, selectedItems())
+	{
+		if (itemsUnderMouse.contains(qtItem))
+		{
+			atLeastOneItemIsSelected = true;
+			break;
+		}
+	}
+
+	// If the user clicked on a non-selected item, clear current selection
+	// and select that item
+	if (atLeastOneItemIsSelected == false)
+	{
+		clearSelection();
+		if (!itemsUnderMouse.isEmpty())
+			itemsUnderMouse[0]->setSelected(true);
+	}
+
+	QMenu menu;
+	if (m_actionRenameNode->isEnabled())
+		menu.addAction(m_actionRenameNode);
+	if (m_actionDeleteSelection->isEnabled())
+		menu.addAction(m_actionDeleteSelection);
+
+	if (!menu.isEmpty())
+		menu.exec(contextMenuEvent->screenPos());
 }
 
 void UMLGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
@@ -45,7 +185,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 	if (elementTypeString == "InitialNode")
 	{
 		Core::UMLInitialNode *elem = new Core::UMLInitialNode();
-		UMLGraphicsInitialNodeItem *item = new UMLGraphicsInitialNodeItem(scenePos);
+		UMLInitialNode *item = new UMLInitialNode(scenePos);
 		item->bind(elem);
 
 		m_doc->addUMLElement(elem);
@@ -53,7 +193,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 	else if (elementTypeString == "DecisionNode")
 	{
 		Core::UMLDecisionNode *elem = new Core::UMLDecisionNode();
-		UMLGraphicsDecisionNodeItem *item = new UMLGraphicsDecisionNodeItem(scenePos);
+		UMLDecisionNode *item = new UMLDecisionNode(scenePos);
 		item->bind(elem);
 
 		m_doc->addUMLElement(elem);
@@ -61,7 +201,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 	else if (elementTypeString == "MergeNode")
 	{
 		Core::UMLMergeNode *elem = new Core::UMLMergeNode();
-		UMLGraphicsMergeNodeItem *item = new UMLGraphicsMergeNodeItem(scenePos);
+		UMLMergeNode *item = new UMLMergeNode(scenePos);
 		item->bind(elem);
 
 		m_doc->addUMLElement(elem);
@@ -76,48 +216,17 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 	}
 }
 
-void UMLGraphicsScene::keyPressEvent(QKeyEvent *keyEvent)
-{
-	if (keyEvent->matches(QKeySequence::Delete))
-	{
-		QList<Core::UMLElement*> elementsToBeDeleted;
-
-		foreach (QGraphicsItem *qtItem, selectedItems())
-		{
-			UMLGraphicsItem *item = UMLGraphicsItem::lookup(qtItem);
-			if (item != nullptr)
-				elementsToBeDeleted.append(item->coreItem());
-		}
-
-		// Sort elementsToBeDeleted according to their type so
-		// that references are never broken during the deletion process
-		Core::UMLElement::topoSort(elementsToBeDeleted, true);
-
-		foreach (Core::UMLElement *elem, elementsToBeDeleted)
-			m_doc->deleteUMLElement(elem);
-	}
-	else
-	{
-		QGraphicsScene::keyPressEvent(keyEvent);
-	}
-}
-
 void UMLGraphicsScene::notifyElementAdded(Core::UMLElement *element)
 {
-	UMLGraphicsItem *item = UMLGraphicsItem::lookup(element);
+	UMLElement *item = UMLElement::lookup(element);
+	connect(element, SIGNAL(changed()), this, SLOT(slotElementChanged()));
 	item->refresh();
 	addItem(item->qtItem());
 }
 
-void UMLGraphicsScene::notifyElementChanged(Core::UMLElement *element)
-{
-	UMLGraphicsItem *item = UMLGraphicsItem::lookup(element);
-	item->refresh();
-}
-
 void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)
 {
-	UMLGraphicsItem *item = UMLGraphicsItem::lookup(element);
+	UMLElement *item = UMLElement::lookup(element);
 	removeItem(item->qtItem());
 	delete item;
 }

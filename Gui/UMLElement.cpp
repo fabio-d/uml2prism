@@ -1,4 +1,4 @@
-#include "Gui/UMLGraphicsItem.h"
+#include "Gui/UMLElement.h"
 
 #include "Gui/GraphicsLabelItem.h"
 
@@ -9,7 +9,7 @@
 
 enum class GraphicsItemDataKey : int
 {
-	UMLGraphicsItemPtr // void* to corresponding UMLGraphicsItem object
+	UMLElementPtr // void* to corresponding Core::UMLElement object
 };
 
 static constexpr qreal InitialNodeRadius = 20;
@@ -21,66 +21,74 @@ static const QPolygonF DecisionMergeNodeShape = QPolygonF()
 namespace Gui
 {
 
-UMLGraphicsItem::UMLGraphicsItem()
+UMLElement::UMLElement()
 : m_coreItem(nullptr), m_qtItem(nullptr)
 {
 }
 
-UMLGraphicsItem::~UMLGraphicsItem()
+UMLElement::~UMLElement()
 {
 	qCritical() << "destr";
 	delete m_qtItem;
 }
 
-void UMLGraphicsItem::bind(Core::UMLElement *coreItem)
+void UMLElement::bind(Core::UMLElement *coreItem)
 {
 	Q_ASSERT(m_coreItem == nullptr);
 	m_coreItem = coreItem;
 	m_coreItem->setGuiProxyPointer(this);
 }
 
-void UMLGraphicsItem::bind(QGraphicsItem *qtItem)
+void UMLElement::bind(QGraphicsItem *qtItem)
 {
 	Q_ASSERT(m_qtItem == nullptr);
 	m_qtItem = qtItem;
-	m_qtItem->setData((int)GraphicsItemDataKey::UMLGraphicsItemPtr,
+	m_qtItem->setData((int)GraphicsItemDataKey::UMLElementPtr,
 		QVariant::fromValue<void*>(this));
 }
 
-Core::UMLElement *UMLGraphicsItem::coreItem() const
+Core::UMLElement *UMLElement::coreItem() const
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	return m_coreItem;
 }
 
-QGraphicsItem *UMLGraphicsItem::qtItem() const
+QGraphicsItem *UMLElement::qtItem() const
 {
 	Q_ASSERT(m_qtItem != nullptr);
 	return m_qtItem;
 }
 
-UMLGraphicsItem *UMLGraphicsItem::lookup(Core::UMLElement *coreItem)
+UMLElement *UMLElement::lookup(Core::UMLElement *coreItem)
 {
 	Q_ASSERT(coreItem->guiProxyPointer() != nullptr);
-	return reinterpret_cast<UMLGraphicsItem*>(coreItem->guiProxyPointer());
+	return reinterpret_cast<UMLElement*>(coreItem->guiProxyPointer());
 }
 
-UMLGraphicsItem *UMLGraphicsItem::lookup(QGraphicsItem *qtItem)
+UMLElement *UMLElement::lookup(QGraphicsItem *qtItem, bool relaxed)
 {
-	QVariant data = qtItem->data((int)GraphicsItemDataKey::UMLGraphicsItemPtr);
+	if (relaxed)
+	{
+		// If we are querying a child node, we actually want to get info about
+		// the main QGraphicsItem (i.e. tree root)
+		while (qtItem->parentItem() != nullptr)
+			qtItem = qtItem->parentItem();
+	}
+
+	QVariant data = qtItem->data((int)GraphicsItemDataKey::UMLElementPtr);
 	void *value = data.value<void*>();
 
 	if (value != nullptr)
-		return reinterpret_cast<UMLGraphicsItem*>(value);
+		return reinterpret_cast<UMLElement*>(value);
 	else
 		return nullptr; // this may happen with auxiliary QGraphicsItems
 }
 
-void UMLGraphicsItem::refresh()
+void UMLElement::refresh()
 {
 }
 
-UMLGraphicsInitialNodeItem::UMLGraphicsInitialNodeItem(const QPointF &centerPosition)
+UMLInitialNode::UMLInitialNode(const QPointF &centerPosition)
 {
 	m_qtItem = new QGraphicsEllipseItem(
 		-InitialNodeRadius / 2, -InitialNodeRadius / 2,
@@ -91,62 +99,64 @@ UMLGraphicsInitialNodeItem::UMLGraphicsInitialNodeItem(const QPointF &centerPosi
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
 	m_labelItem = new GraphicsLabelItem(m_qtItem, true);
-	UMLGraphicsItem::bind(m_qtItem);
+	UMLElement::bind(m_qtItem);
 }
 
-void UMLGraphicsInitialNodeItem::bind(Core::UMLInitialNode *coreItem)
+void UMLInitialNode::bind(Core::UMLInitialNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLGraphicsItem::bind(coreItem);
+	UMLElement::bind(coreItem);
 }
 
-void UMLGraphicsInitialNodeItem::refresh()
+void UMLInitialNode::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_labelItem->setText(m_coreItem->nodeName());
 }
 
-UMLGraphicsDecisionNodeItem::UMLGraphicsDecisionNodeItem(const QPointF &centerPosition)
+UMLDecisionNode::UMLDecisionNode(const QPointF &centerPosition)
 {
 	m_qtItem = new QGraphicsPolygonItem(DecisionMergeNodeShape);
 	m_qtItem->setPos(centerPosition);
+	m_qtItem->setBrush(Qt::white);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
 	m_labelItem = new GraphicsLabelItem(m_qtItem);
-	UMLGraphicsItem::bind(m_qtItem);
+	UMLElement::bind(m_qtItem);
 }
 
-void UMLGraphicsDecisionNodeItem::bind(Core::UMLDecisionNode *coreItem)
+void UMLDecisionNode::bind(Core::UMLDecisionNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLGraphicsItem::bind(coreItem);
+	UMLElement::bind(coreItem);
 }
 
-void UMLGraphicsDecisionNodeItem::refresh()
+void UMLDecisionNode::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_labelItem->setText(m_coreItem->nodeName());
 }
 
-UMLGraphicsMergeNodeItem::UMLGraphicsMergeNodeItem(const QPointF &centerPosition)
+UMLMergeNode::UMLMergeNode(const QPointF &centerPosition)
 {
 	m_qtItem = new QGraphicsPolygonItem(DecisionMergeNodeShape);
 	m_qtItem->setPos(centerPosition);
+	m_qtItem->setBrush(Qt::white);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
 	m_labelItem = new GraphicsLabelItem(m_qtItem);
-	UMLGraphicsItem::bind(m_qtItem);
+	UMLElement::bind(m_qtItem);
 }
 
-void UMLGraphicsMergeNodeItem::bind(Core::UMLMergeNode *coreItem)
+void UMLMergeNode::bind(Core::UMLMergeNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLGraphicsItem::bind(coreItem);
+	UMLElement::bind(coreItem);
 }
 
-void UMLGraphicsMergeNodeItem::refresh()
+void UMLMergeNode::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_labelItem->setText(m_coreItem->nodeName());

@@ -1,18 +1,18 @@
-#ifndef GUI_UMLGRAPHICSITEM_H
-#define GUI_UMLGRAPHICSITEM_H
+#ifndef GUI_UMLELEMENT_H
+#define GUI_UMLELEMENT_H
 
 #include <QGraphicsItem>
 
 /* For each graphical element, there are at least three distinct objects:
  *  1) a Core::UMLElement (actually one of its subclasses)
- *  2) a Gui::UMLGraphicsItem (actually one of its subclasses)
+ *  2) a Gui::UMLElement (actually one of its subclasses)
  *  3) the main QGraphicsItem (actually one of its subclasses)
  *
- * The Gui::UMLGraphicsItem object has methods to move to and from the other
+ * The Gui::UMLElement object has methods to move to and from the other
  * two related objects.
  *
- * Some nodes also have auxiliary QGraphicsItem that are not tracked by the
- * Gui::UMLGraphicsItem object.
+ * Nodes may also have auxiliary child QGraphicsItem objects that are not
+ * directly tracked by the Gui::UMLElement object.
  */
 
 namespace Core
@@ -28,23 +28,25 @@ namespace Gui
 
 class GraphicsLabelItem;
 
-class UMLGraphicsItem
+class UMLElement
 {
 	public:
-		// Get pointers from UMLGraphicsItem to the other two objects
+		// Get pointers from UMLElement to the other two objects
 		Core::UMLElement *coreItem() const;
 		QGraphicsItem *qtItem() const;
 
-		// Get pointer to the associated UMLGraphicsItem instance
-		static UMLGraphicsItem *lookup(Core::UMLElement *coreItem);
-		static UMLGraphicsItem *lookup(QGraphicsItem *qtItem);
+		// Get pointer to the associated UMLElement instance.
+		// If relaxed is set, lookup(QGraphicsItem*) also works with
+		// child nodes by climbing up to the root QGraphicsItem
+		static UMLElement *lookup(Core::UMLElement *coreItem);
+		static UMLElement *lookup(QGraphicsItem *qtItem, bool relaxed = true);
 
 		virtual void refresh();
 
-		virtual ~UMLGraphicsItem();
+		virtual ~UMLElement();
 
 	protected:
-		UMLGraphicsItem();
+		UMLElement();
 
 		// Both bind methods must be called to initialize this object
 		void bind(Core::UMLElement *coreItem);
@@ -55,10 +57,10 @@ class UMLGraphicsItem
 		QGraphicsItem *m_qtItem;
 };
 
-class UMLGraphicsInitialNodeItem : public UMLGraphicsItem
+class UMLInitialNode : public UMLElement
 {
 	public:
-		explicit UMLGraphicsInitialNodeItem(const QPointF &centerPosition);
+		explicit UMLInitialNode(const QPointF &centerPosition);
 		void bind(Core::UMLInitialNode *coreItem);
 
 		void refresh() override;
@@ -69,10 +71,10 @@ class UMLGraphicsInitialNodeItem : public UMLGraphicsItem
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLGraphicsDecisionNodeItem : public UMLGraphicsItem
+class UMLDecisionNode : public UMLElement
 {
 	public:
-		explicit UMLGraphicsDecisionNodeItem(const QPointF &centerPosition);
+		explicit UMLDecisionNode(const QPointF &centerPosition);
 		void bind(Core::UMLDecisionNode *coreItem);
 
 		void refresh() override;
@@ -83,10 +85,10 @@ class UMLGraphicsDecisionNodeItem : public UMLGraphicsItem
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLGraphicsMergeNodeItem : public UMLGraphicsItem
+class UMLMergeNode : public UMLElement
 {
 	public:
-		explicit UMLGraphicsMergeNodeItem(const QPointF &centerPosition);
+		explicit UMLMergeNode(const QPointF &centerPosition);
 		void bind(Core::UMLMergeNode *coreItem);
 
 		void refresh() override;
@@ -99,4 +101,4 @@ class UMLGraphicsMergeNodeItem : public UMLGraphicsItem
 
 }
 
-#endif // GUI_UMLGRAPHICSITEM_H
+#endif // GUI_UMLELEMENT_H

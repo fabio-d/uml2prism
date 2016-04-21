@@ -2,6 +2,7 @@
 #define CORE_UMLELEMENT_H
 
 #include <QList>
+#include <QObject>
 #include <QString>
 
 namespace Core
@@ -16,8 +17,10 @@ enum class UMLElementType
 	MergeNode
 };
 
-class UMLElement
+class UMLElement : public QObject
 {
+	Q_OBJECT
+
 	public:
 		virtual ~UMLElement();
 		UMLElementType type() const;
@@ -29,6 +32,9 @@ class UMLElement
 		// Sort list of elements according to their type (see
 		// comment in the definition of UMLElementType)
 		static void topoSort(QList<UMLElement*> &list, bool reverse = false);
+
+	signals:
+		void changed();
 
 	protected:
 		explicit UMLElement(UMLElementType type);

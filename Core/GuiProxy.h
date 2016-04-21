@@ -10,7 +10,6 @@ class GuiProxy
 {
 	public:
 		virtual void notifyElementAdded(UMLElement *element) = 0;
-		virtual void notifyElementChanged(UMLElement *element) = 0;
 		virtual void notifyElementRemoved(UMLElement *element) = 0;
 };
 
