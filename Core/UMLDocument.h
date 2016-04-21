@@ -1,6 +1,7 @@
 #ifndef CORE_UMLDOCUMENT_H
 #define CORE_UMLDOCUMENT_H
 
+#include <QObject>
 #include <QList>
 
 namespace Core
@@ -9,8 +10,10 @@ namespace Core
 class GuiProxy;
 class UMLElement;
 
-class UMLDocument
+class UMLDocument : public QObject
 {
+	Q_OBJECT
+
 	public:
 		UMLDocument();
 		~UMLDocument();
@@ -23,6 +26,9 @@ class UMLDocument
 		void addUMLElement(UMLElement *element);
 		bool deleteUMLElement(UMLElement *element);
 		void deleteAllElements();
+
+	private slots:
+		void slotElementChanged();
 
 	private:
 		GuiProxy *m_guiProxy;

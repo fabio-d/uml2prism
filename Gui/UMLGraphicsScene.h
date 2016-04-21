@@ -35,7 +35,6 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void slotSelectionChanged();
 		void slotRenameNode();
 		void slotDeleteSelection();
-		void slotElementChanged();
 
 	private:
 		void contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent) override;
@@ -43,6 +42,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void dropEvent(QGraphicsSceneDragDropEvent *event) override;
 
 		void notifyElementAdded(Core::UMLElement *element) override;
+		void notifyElementChanged(Core::UMLElement *element) override;
 		void notifyElementRemoved(Core::UMLElement *element) override;
 
 		// The UML document

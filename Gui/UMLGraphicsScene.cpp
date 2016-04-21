@@ -125,13 +125,6 @@ void UMLGraphicsScene::slotDeleteSelection()
 		m_doc->deleteUMLElement(elem);
 }
 
-void UMLGraphicsScene::slotElementChanged()
-{
-	Core::UMLElement *element = qobject_cast<Core::UMLElement*>(QObject::sender());
-	UMLElement *item = UMLElement::lookup(element);
-	item->refresh();
-}
-
 void UMLGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent)
 {
 	QList<QGraphicsItem*> itemsUnderMouse = items(contextMenuEvent->scenePos());
@@ -149,7 +142,8 @@ void UMLGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextM
 	// and select that item
 	if (atLeastOneItemIsSelected == false)
 	{
-		clearSelection();
+		if (!(contextMenuEvent->modifiers() & Qt::ControlModifier))
+			clearSelection();
 		if (!itemsUnderMouse.isEmpty())
 			itemsUnderMouse[0]->setSelected(true);
 	}
@@ -219,9 +213,14 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 void UMLGraphicsScene::notifyElementAdded(Core::UMLElement *element)
 {
 	UMLElement *item = UMLElement::lookup(element);
-	connect(element, SIGNAL(changed()), this, SLOT(slotElementChanged()));
 	item->refresh();
 	addItem(item->qtItem());
+}
+
+void UMLGraphicsScene::notifyElementChanged(Core::UMLElement *element)
+{
+	UMLElement *item = UMLElement::lookup(element);
+	item->refresh();
 }
 
 void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)

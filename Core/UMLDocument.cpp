@@ -33,12 +33,14 @@ void UMLDocument::addUMLElement(UMLElement *element)
 	if (m_guiProxy)
 		m_guiProxy->notifyElementAdded(element);
 
+	connect(element, SIGNAL(changed()), this, SLOT(slotElementChanged()));
 	m_elements.append(element);
 }
 
 bool UMLDocument::deleteUMLElement(UMLElement *element)
 {
 	Q_ASSERT(m_elements.contains(element) == true);
+	disconnect(element, SIGNAL(changed()), this, SLOT(slotElementChanged()));
 
 	if (m_guiProxy)
 		m_guiProxy->notifyElementRemoved(element);
@@ -57,6 +59,14 @@ void UMLDocument::deleteAllElements()
 		bool success = deleteUMLElement(m_elements.last());
 		Q_ASSERT(success);
 	}
+}
+
+void UMLDocument::slotElementChanged()
+{
+	Core::UMLElement *element = qobject_cast<UMLElement*>(QObject::sender());
+
+	if (m_guiProxy)
+		m_guiProxy->notifyElementChanged(element);
 }
 
 }
