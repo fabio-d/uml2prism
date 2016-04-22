@@ -15,6 +15,10 @@ UMLToolboxListWidget::UMLToolboxListWidget(QWidget *parent)
 		QIcon(":/topcased_icons/resources/topcased_icons/InitialNode_24.gif"),
 		"InitialNode");
 
+	addTool("Action Node",
+		QIcon(":/topcased_icons/resources/topcased_icons/OpaqueAction_24.gif"),
+		"ActionNode");
+
 	addTool("Decision Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/DecisionNode_24.gif"),
 		"DecisionNode");
@@ -70,6 +74,7 @@ QMimeData *UMLToolboxListWidget::mimeData(const QList<QListWidgetItem*> items) c
 void UMLToolboxListWidget::addTool(const QString &text, const QIcon &icon, const QByteArray &mimeData)
 {
         QListWidgetItem *item = new QListWidgetItem(icon, text, this);
+	item->setToolTip(text);
 	item->setData(Qt::UserRole, mimeData);
         addItem(item);
 }

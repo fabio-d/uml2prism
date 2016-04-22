@@ -73,7 +73,9 @@ void UMLDocumentView::mousePressEvent(QMouseEvent *event)
 			(event->buttons() & ~Qt::MidButton) | Qt::LeftButton,
 			event->modifiers());
 		setDragMode(QGraphicsView::ScrollHandDrag);
+		setInteractive(false);
 		QGraphicsView::mousePressEvent(&fakeEvent);
+		setInteractive(true);
 		event->setAccepted(fakeEvent.isAccepted());
 	}
 	else

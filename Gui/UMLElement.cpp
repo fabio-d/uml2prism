@@ -102,7 +102,7 @@ UMLInitialNode::UMLInitialNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem, true);
+	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheRight);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -118,6 +118,75 @@ void UMLInitialNode::refresh()
 	m_labelItem->setText(m_coreItem->nodeName());
 }
 
+UMLFinalNode::UMLFinalNode(const QPointF &centerPosition)
+{
+	m_qtItem = new QGraphicsEllipseItem(
+		-FinalNodeRadius / 2, -FinalNodeRadius / 2,
+		FinalNodeRadius, FinalNodeRadius);
+	m_qtItem->setPos(centerPosition);
+	m_qtItem->setBrush(Qt::white);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	QGraphicsEllipseItem *blackDot = new QGraphicsEllipseItem(
+		-InitialNodeRadius / 2, -InitialNodeRadius / 2,
+		InitialNodeRadius, InitialNodeRadius, m_qtItem);
+	blackDot->setBrush(Qt::black);
+
+	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheRight);
+	UMLElement::bind(m_qtItem);
+}
+
+void UMLFinalNode::bind(Core::UMLFinalNode *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLFinalNode::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_labelItem->setText(m_coreItem->nodeName());
+}
+
+UMLActionNode::UMLActionNode(const QPointF &centerPosition)
+{
+	m_qtItem = new QGraphicsPathItem();
+	m_qtItem->setPos(centerPosition);
+	m_qtItem->setBrush(Qt::white);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	setRectPath(QSizeF());
+
+	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::NonMovable);
+	UMLElement::bind(m_qtItem);
+}
+
+void UMLActionNode::bind(Core::UMLActionNode *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLActionNode::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_labelItem->setText(m_coreItem->nodeName());
+	setRectPath(m_labelItem->boundingRect().size());
+}
+
+void UMLActionNode::setRectPath(const QSizeF &size)
+{
+	const qreal roundedConterSize = 10;
+	const qreal width = size.width() + roundedConterSize * 2;
+	const qreal height = size.height() + roundedConterSize * 2;
+
+	QPainterPath p;
+	p.addRoundedRect(-width/2, -height/2, width, height, roundedConterSize, roundedConterSize);
+	m_qtItem->setPath(p);
+}
+
 UMLDecisionNode::UMLDecisionNode(const QPointF &centerPosition)
 {
 	m_qtItem = new QGraphicsPolygonItem(DecisionMergeNodeShape);
@@ -126,7 +195,7 @@ UMLDecisionNode::UMLDecisionNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem);
+	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -150,7 +219,7 @@ UMLMergeNode::UMLMergeNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem);
+	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -174,7 +243,7 @@ UMLForkNode::UMLForkNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem);
+	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -198,7 +267,7 @@ UMLJoinNode::UMLJoinNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem);
+	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -209,37 +278,6 @@ void UMLJoinNode::bind(Core::UMLJoinNode *coreItem)
 }
 
 void UMLJoinNode::refresh()
-{
-	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
-}
-
-UMLFinalNode::UMLFinalNode(const QPointF &centerPosition)
-{
-	m_qtItem = new QGraphicsEllipseItem(
-		-FinalNodeRadius / 2, -FinalNodeRadius / 2,
-		FinalNodeRadius, FinalNodeRadius);
-	m_qtItem->setPos(centerPosition);
-	m_qtItem->setBrush(Qt::white);
-	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
-	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-	QGraphicsEllipseItem *blackDot = new QGraphicsEllipseItem(
-		-InitialNodeRadius / 2, -InitialNodeRadius / 2,
-		InitialNodeRadius, InitialNodeRadius, m_qtItem);
-	blackDot->setBrush(Qt::black);
-
-	m_labelItem = new GraphicsLabelItem(m_qtItem, true);
-	UMLElement::bind(m_qtItem);
-}
-
-void UMLFinalNode::bind(Core::UMLFinalNode *coreItem)
-{
-	m_coreItem = coreItem;
-	UMLElement::bind(coreItem);
-}
-
-void UMLFinalNode::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_labelItem->setText(m_coreItem->nodeName());

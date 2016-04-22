@@ -13,11 +13,12 @@ namespace Core
 enum class UMLElementType
 {
 	InitialNode,
+	FinalNode,
+	ActionNode,
 	DecisionNode,
 	MergeNode,
 	ForkNode,
-	JoinNode,
-	FinalNode
+	JoinNode
 };
 
 class UMLElement : public QObject
@@ -65,6 +66,18 @@ class UMLInitialNode : public UMLNodeElement
 		UMLInitialNode();
 };
 
+class UMLFinalNode : public UMLNodeElement
+{
+	public:
+		UMLFinalNode();
+};
+
+class UMLActionNode : public UMLNodeElement
+{
+	public:
+		UMLActionNode();
+};
+
 class UMLDecisionNode : public UMLNodeElement
 {
 	public:
@@ -87,12 +100,6 @@ class UMLJoinNode : public UMLNodeElement
 {
 	public:
 		UMLJoinNode();
-};
-
-class UMLFinalNode : public UMLNodeElement
-{
-	public:
-		UMLFinalNode();
 };
 
 }

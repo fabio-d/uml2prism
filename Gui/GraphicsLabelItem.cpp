@@ -5,18 +5,23 @@
 namespace Gui
 {
 
-GraphicsLabelItem::GraphicsLabelItem(QGraphicsItem *parent, bool onTheRightByDefault)
+GraphicsLabelItem::GraphicsLabelItem(QGraphicsItem *parent, Options options)
 : QGraphicsSimpleTextItem(parent)
 {
 	QFontMetricsF metrics(font());
 
-	if (onTheRightByDefault)
+	if (options.testFlag(InitiallyOnTheRight))
 		setPos(parent->boundingRect().right(), -metrics.height() / 2);
-	else
+	else if (options.testFlag(InitiallyOnTheBottom))
 		setPos(0, parent->boundingRect().bottom());
+	else /* initially centered */
+		setPos(0, -metrics.height() / 2);
 
-	setFlag(QGraphicsItem::ItemIsMovable, true);
-	setFlag(QGraphicsItem::ItemIsSelectable, true);
+	if (!options.testFlag(NonMovable))
+	{
+		setFlag(QGraphicsItem::ItemIsMovable, true);
+		setFlag(QGraphicsItem::ItemIsSelectable, true);
+	}
 }
 
 void GraphicsLabelItem::setText(const QString &text)

@@ -56,6 +56,16 @@ UMLInitialNode::UMLInitialNode()
 {
 }
 
+UMLFinalNode::UMLFinalNode()
+: UMLNodeElement(UMLElementType::FinalNode, "FinalNode")
+{
+}
+
+UMLActionNode::UMLActionNode()
+: UMLNodeElement(UMLElementType::ActionNode, "ActionNode")
+{
+}
+
 UMLDecisionNode::UMLDecisionNode()
 : UMLNodeElement(UMLElementType::DecisionNode, "DecisionNode")
 {
@@ -73,11 +83,6 @@ UMLForkNode::UMLForkNode()
 
 UMLJoinNode::UMLJoinNode()
 : UMLNodeElement(UMLElementType::JoinNode, "JoinNode")
-{
-}
-
-UMLFinalNode::UMLFinalNode()
-: UMLNodeElement(UMLElementType::FinalNode, "FinalNode")
 {
 }
 

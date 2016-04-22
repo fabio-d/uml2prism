@@ -17,6 +17,7 @@
 
 namespace Core
 {
+class UMLActionNode;
 class UMLDecisionNode;
 class UMLElement;
 class UMLFinalNode;
@@ -74,6 +75,36 @@ class UMLInitialNode : public UMLElement
 		GraphicsLabelItem *m_labelItem;
 };
 
+class UMLFinalNode : public UMLElement
+{
+	public:
+		explicit UMLFinalNode(const QPointF &centerPosition);
+		void bind(Core::UMLFinalNode *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLFinalNode *m_coreItem;
+		QGraphicsEllipseItem *m_qtItem;
+		GraphicsLabelItem *m_labelItem;
+};
+
+class UMLActionNode : public UMLElement
+{
+	public:
+		explicit UMLActionNode(const QPointF &centerPosition);
+		void bind(Core::UMLActionNode *coreItem);
+
+		void refresh() override;
+
+	private:
+		void setRectPath(const QSizeF &size);
+
+		Core::UMLActionNode *m_coreItem;
+		QGraphicsPathItem *m_qtItem;
+		GraphicsLabelItem *m_labelItem;
+};
+
 class UMLDecisionNode : public UMLElement
 {
 	public:
@@ -127,20 +158,6 @@ class UMLJoinNode : public UMLElement
 	private:
 		Core::UMLJoinNode *m_coreItem;
 		QGraphicsRectItem *m_qtItem;
-		GraphicsLabelItem *m_labelItem;
-};
-
-class UMLFinalNode : public UMLElement
-{
-	public:
-		explicit UMLFinalNode(const QPointF &centerPosition);
-		void bind(Core::UMLFinalNode *coreItem);
-
-		void refresh() override;
-
-	private:
-		Core::UMLFinalNode *m_coreItem;
-		QGraphicsEllipseItem *m_qtItem;
 		GraphicsLabelItem *m_labelItem;
 };
 

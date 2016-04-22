@@ -144,8 +144,22 @@ void UMLGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextM
 	{
 		if (!(contextMenuEvent->modifiers() & Qt::ControlModifier))
 			clearSelection();
-		if (!itemsUnderMouse.isEmpty())
-			itemsUnderMouse[0]->setSelected(true);
+
+		QGraphicsItem *itemUnderMouse = itemsUnderMouse.isEmpty() ?
+			nullptr : itemsUnderMouse.first();
+
+		// select the item if selectable, otherwise try to see if its
+		// parent can be selected
+		while (itemUnderMouse != nullptr)
+		{
+			if (itemUnderMouse->flags().testFlag(QGraphicsItem::ItemIsSelectable))
+			{
+				itemUnderMouse->setSelected(true);
+				break;
+			}
+
+			itemUnderMouse = itemUnderMouse->parentItem();
+		}
 	}
 
 	QMenu menu;
@@ -184,6 +198,22 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 		m_doc->addUMLElement(elem);
 	}
+	else if (elementTypeString == "FinalNode")
+	{
+		Core::UMLFinalNode *elem = new Core::UMLFinalNode();
+		UMLFinalNode *item = new UMLFinalNode(scenePos);
+		item->bind(elem);
+
+		m_doc->addUMLElement(elem);
+	}
+	else if (elementTypeString == "ActionNode")
+	{
+		Core::UMLActionNode *elem = new Core::UMLActionNode();
+		UMLActionNode *item = new UMLActionNode(scenePos);
+		item->bind(elem);
+
+		m_doc->addUMLElement(elem);
+	}
 	else if (elementTypeString == "DecisionNode")
 	{
 		Core::UMLDecisionNode *elem = new Core::UMLDecisionNode();
@@ -212,14 +242,6 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 	{
 		Core::UMLJoinNode *elem = new Core::UMLJoinNode();
 		UMLJoinNode *item = new UMLJoinNode(scenePos);
-		item->bind(elem);
-
-		m_doc->addUMLElement(elem);
-	}
-	else if (elementTypeString == "FinalNode")
-	{
-		Core::UMLFinalNode *elem = new Core::UMLFinalNode();
-		UMLFinalNode *item = new UMLFinalNode(scenePos);
 		item->bind(elem);
 
 		m_doc->addUMLElement(elem);
