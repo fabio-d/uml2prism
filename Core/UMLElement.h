@@ -14,7 +14,10 @@ enum class UMLElementType
 {
 	InitialNode,
 	DecisionNode,
-	MergeNode
+	MergeNode,
+	ForkNode,
+	JoinNode,
+	FinalNode
 };
 
 class UMLElement : public QObject
@@ -72,6 +75,24 @@ class UMLMergeNode : public UMLNodeElement
 {
 	public:
 		UMLMergeNode();
+};
+
+class UMLForkNode : public UMLNodeElement
+{
+	public:
+		UMLForkNode();
+};
+
+class UMLJoinNode : public UMLNodeElement
+{
+	public:
+		UMLJoinNode();
+};
+
+class UMLFinalNode : public UMLNodeElement
+{
+	public:
+		UMLFinalNode();
 };
 
 }

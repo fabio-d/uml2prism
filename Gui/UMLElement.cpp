@@ -18,6 +18,10 @@ static const QPolygonF DecisionMergeNodeShape = QPolygonF()
 	<< QPointF(-30, 0) << QPointF(0, -30)
 	<< QPointF(+30, 0) << QPointF(0, 30);
 
+static const QRectF ForkJoinNodeShape = QRectF(-30, -5, 60, 10);
+
+static constexpr qreal FinalNodeRadius = InitialNodeRadius + InitialNodeRadius / 2;
+
 namespace Gui
 {
 
@@ -157,6 +161,85 @@ void UMLMergeNode::bind(Core::UMLMergeNode *coreItem)
 }
 
 void UMLMergeNode::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_labelItem->setText(m_coreItem->nodeName());
+}
+
+UMLForkNode::UMLForkNode(const QPointF &centerPosition)
+{
+	m_qtItem = new QGraphicsRectItem(ForkJoinNodeShape);
+	m_qtItem->setPos(centerPosition);
+	m_qtItem->setBrush(Qt::black);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	m_labelItem = new GraphicsLabelItem(m_qtItem);
+	UMLElement::bind(m_qtItem);
+}
+
+void UMLForkNode::bind(Core::UMLForkNode *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLForkNode::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_labelItem->setText(m_coreItem->nodeName());
+}
+
+UMLJoinNode::UMLJoinNode(const QPointF &centerPosition)
+{
+	m_qtItem = new QGraphicsRectItem(ForkJoinNodeShape);
+	m_qtItem->setPos(centerPosition);
+	m_qtItem->setBrush(Qt::black);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	m_labelItem = new GraphicsLabelItem(m_qtItem);
+	UMLElement::bind(m_qtItem);
+}
+
+void UMLJoinNode::bind(Core::UMLJoinNode *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLJoinNode::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_labelItem->setText(m_coreItem->nodeName());
+}
+
+UMLFinalNode::UMLFinalNode(const QPointF &centerPosition)
+{
+	m_qtItem = new QGraphicsEllipseItem(
+		-FinalNodeRadius / 2, -FinalNodeRadius / 2,
+		FinalNodeRadius, FinalNodeRadius);
+	m_qtItem->setPos(centerPosition);
+	m_qtItem->setBrush(Qt::white);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	QGraphicsEllipseItem *blackDot = new QGraphicsEllipseItem(
+		-InitialNodeRadius / 2, -InitialNodeRadius / 2,
+		InitialNodeRadius, InitialNodeRadius, m_qtItem);
+	blackDot->setBrush(Qt::black);
+
+	m_labelItem = new GraphicsLabelItem(m_qtItem, true);
+	UMLElement::bind(m_qtItem);
+}
+
+void UMLFinalNode::bind(Core::UMLFinalNode *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLFinalNode::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_labelItem->setText(m_coreItem->nodeName());

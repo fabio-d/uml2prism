@@ -17,8 +17,13 @@ class UMLToolboxListWidget : public QListWidget
 		QStringList mimeTypes() const override;
 		QMimeData *mimeData(const QList<QListWidgetItem*> items) const override;
 
+	private slots:
+		void slotItemClick(QListWidgetItem *item);
+
 	private:
 		void addTool(const QString &text, const QIcon &icon, const QByteArray &mimeData);
+
+		QSize sizeHint() const override;
 };
 
 }

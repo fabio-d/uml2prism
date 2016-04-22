@@ -66,4 +66,19 @@ UMLMergeNode::UMLMergeNode()
 {
 }
 
+UMLForkNode::UMLForkNode()
+: UMLNodeElement(UMLElementType::ForkNode, "ForkNode")
+{
+}
+
+UMLJoinNode::UMLJoinNode()
+: UMLNodeElement(UMLElementType::JoinNode, "JoinNode")
+{
+}
+
+UMLFinalNode::UMLFinalNode()
+: UMLNodeElement(UMLElementType::FinalNode, "FinalNode")
+{
+}
+
 }

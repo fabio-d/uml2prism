@@ -8,6 +8,9 @@ namespace Gui
 UMLToolboxListWidget::UMLToolboxListWidget(QWidget *parent)
 : QListWidget(parent)
 {
+	connect(this, SIGNAL(itemClicked(QListWidgetItem*)),
+		this, SLOT(slotItemClick(QListWidgetItem*)));
+
 	addTool("Initial Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/InitialNode_24.gif"),
 		"InitialNode");
@@ -69,6 +72,18 @@ void UMLToolboxListWidget::addTool(const QString &text, const QIcon &icon, const
         QListWidgetItem *item = new QListWidgetItem(icon, text, this);
 	item->setData(Qt::UserRole, mimeData);
         addItem(item);
+}
+
+void UMLToolboxListWidget::slotItemClick(QListWidgetItem *item)
+{
+	startDrag(Qt::CopyAction);
+}
+
+QSize UMLToolboxListWidget::sizeHint() const
+{
+	return QSize(
+		sizeHintForColumn(0),
+		sizeHintForRow(0) * count());
 }
 
 }

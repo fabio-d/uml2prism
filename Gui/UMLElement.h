@@ -18,9 +18,12 @@
 namespace Core
 {
 class UMLDecisionNode;
-class UMLMergeNode;
 class UMLElement;
+class UMLFinalNode;
+class UMLForkNode;
+class UMLJoinNode;
 class UMLInitialNode;
+class UMLMergeNode;
 }
 
 namespace Gui
@@ -96,6 +99,48 @@ class UMLMergeNode : public UMLElement
 	private:
 		Core::UMLMergeNode *m_coreItem;
 		QGraphicsPolygonItem *m_qtItem;
+		GraphicsLabelItem *m_labelItem;
+};
+
+class UMLForkNode : public UMLElement
+{
+	public:
+		explicit UMLForkNode(const QPointF &centerPosition);
+		void bind(Core::UMLForkNode *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLForkNode *m_coreItem;
+		QGraphicsRectItem *m_qtItem;
+		GraphicsLabelItem *m_labelItem;
+};
+
+class UMLJoinNode : public UMLElement
+{
+	public:
+		explicit UMLJoinNode(const QPointF &centerPosition);
+		void bind(Core::UMLJoinNode *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLJoinNode *m_coreItem;
+		QGraphicsRectItem *m_qtItem;
+		GraphicsLabelItem *m_labelItem;
+};
+
+class UMLFinalNode : public UMLElement
+{
+	public:
+		explicit UMLFinalNode(const QPointF &centerPosition);
+		void bind(Core::UMLFinalNode *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLFinalNode *m_coreItem;
+		QGraphicsEllipseItem *m_qtItem;
 		GraphicsLabelItem *m_labelItem;
 };
 

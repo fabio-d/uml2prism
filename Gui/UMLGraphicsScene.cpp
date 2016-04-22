@@ -200,6 +200,30 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 		m_doc->addUMLElement(elem);
 	}
+	else if (elementTypeString == "ForkNode")
+	{
+		Core::UMLForkNode *elem = new Core::UMLForkNode();
+		UMLForkNode *item = new UMLForkNode(scenePos);
+		item->bind(elem);
+
+		m_doc->addUMLElement(elem);
+	}
+	else if (elementTypeString == "JoinNode")
+	{
+		Core::UMLJoinNode *elem = new Core::UMLJoinNode();
+		UMLJoinNode *item = new UMLJoinNode(scenePos);
+		item->bind(elem);
+
+		m_doc->addUMLElement(elem);
+	}
+	else if (elementTypeString == "FinalNode")
+	{
+		Core::UMLFinalNode *elem = new Core::UMLFinalNode();
+		UMLFinalNode *item = new UMLFinalNode(scenePos);
+		item->bind(elem);
+
+		m_doc->addUMLElement(elem);
+	}
 	else
 	{
 		QGraphicsSimpleTextItem *item = addSimpleText(

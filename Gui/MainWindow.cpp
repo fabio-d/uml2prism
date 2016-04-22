@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
 	m_ui->umlGraphicsView->setScene(m_umlGraphicsScene);
 
 	m_umlGraphicsScene->addActions(m_ui->menuEdit);
-	m_umlGraphicsScene->addActions(m_ui->toolBar);
+	m_umlGraphicsScene->addActions(m_ui->toolBarEdit);
 }
 
 MainWindow::~MainWindow()
