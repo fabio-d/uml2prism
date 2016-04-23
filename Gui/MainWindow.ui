@@ -13,37 +13,77 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="Gui::UMLDocumentView" name="umlGraphicsView">
-      <property name="mouseTracking">
-       <bool>true</bool>
-      </property>
-      <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
-      </property>
-      <property name="renderHints">
-       <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
-      </property>
-      <property name="dragMode">
-       <enum>QGraphicsView::RubberBandDrag</enum>
-      </property>
-      <property name="resizeAnchor">
-       <enum>QGraphicsView::AnchorViewCenter</enum>
-      </property>
-      <property name="viewportUpdateMode">
-       <enum>QGraphicsView::FullViewportUpdate</enum>
-      </property>
-      <property name="rubberBandSelectionMode">
-       <enum>Qt::ContainsItemShape</enum>
-      </property>
-     </widget>
-    </item>
-   </layout>
+  <widget class="QTabWidget" name="centralTabWidget">
+   <property name="tabPosition">
+    <enum>QTabWidget::North</enum>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="Gui::UMLDocumentView" name="umlGraphicsView">
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="renderHints">
+     <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
+    </property>
+    <property name="dragMode">
+     <enum>QGraphicsView::RubberBandDrag</enum>
+    </property>
+    <property name="resizeAnchor">
+     <enum>QGraphicsView::AnchorViewCenter</enum>
+    </property>
+    <property name="viewportUpdateMode">
+     <enum>QGraphicsView::FullViewportUpdate</enum>
+    </property>
+    <property name="rubberBandSelectionMode">
+     <enum>Qt::ContainsItemShape</enum>
+    </property>
+    <attribute name="title">
+     <string>Activity Diagram</string>
+    </attribute>
+   </widget>
+   <widget class="Gui::UMLDocumentView" name="tab2">
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
+    </property>
+    <property name="renderHints">
+     <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
+    </property>
+    <property name="dragMode">
+     <enum>QGraphicsView::RubberBandDrag</enum>
+    </property>
+    <property name="resizeAnchor">
+     <enum>QGraphicsView::AnchorViewCenter</enum>
+    </property>
+    <property name="viewportUpdateMode">
+     <enum>QGraphicsView::FullViewportUpdate</enum>
+    </property>
+    <property name="rubberBandSelectionMode">
+     <enum>Qt::ContainsItemShape</enum>
+    </property>
+    <attribute name="title">
+     <string>Custom datatypes (Class Diagram)</string>
+    </attribute>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -93,67 +133,10 @@
     <string>&amp;Global variables</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>2</number>
+    <number>8</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_3">
     <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item>
-        <widget class="QToolButton" name="toolButton_3">
-         <property name="toolTip">
-          <string>Create new variable</string>
-         </property>
-         <property name="text">
-          <string>Create new variable</string>
-         </property>
-         <property name="icon">
-          <iconset theme="list-add" resource="../resources.qrc">
-           <normaloff>:/kde_icons/resources/kde_icons/list-add.png</normaloff>:/kde_icons/resources/kde_icons/list-add.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>16</width>
-           <height>16</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="toolButton_4">
-         <property name="toolTip">
-          <string>Delete variable</string>
-         </property>
-         <property name="text">
-          <string>Delete variable</string>
-         </property>
-         <property name="icon">
-          <iconset theme="list-remove" resource="../resources.qrc">
-           <normaloff>:/kde_icons/resources/kde_icons/list-remove.png</normaloff>:/kde_icons/resources/kde_icons/list-remove.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>16</width>
-           <height>16</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
      <item>
       <widget class="QTreeWidget" name="treeWidget">
        <property name="alternatingRowColors">
@@ -229,6 +212,63 @@
        </item>
       </widget>
      </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QToolButton" name="toolButton_3">
+         <property name="toolTip">
+          <string>Create new variable</string>
+         </property>
+         <property name="text">
+          <string>Create new variable</string>
+         </property>
+         <property name="icon">
+          <iconset theme="list-add" resource="../resources.qrc">
+           <normaloff>:/kde_icons/resources/kde_icons/list-add.png</normaloff>:/kde_icons/resources/kde_icons/list-add.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="toolButton_4">
+         <property name="toolTip">
+          <string>Delete variable</string>
+         </property>
+         <property name="text">
+          <string>Delete variable</string>
+         </property>
+         <property name="icon">
+          <iconset theme="list-remove" resource="../resources.qrc">
+           <normaloff>:/kde_icons/resources/kde_icons/list-remove.png</normaloff>:/kde_icons/resources/kde_icons/list-remove.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>16</width>
+           <height>16</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
     </layout>
    </widget>
   </widget>
@@ -237,12 +277,31 @@
     <string>U&amp;ML Toolbox</string>
    </property>
    <attribute name="dockWidgetArea">
-    <number>1</number>
+    <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents_4">
-    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="Gui::UMLToolboxListWidget" name="listWidget">
+      <widget class="Gui::UMLActivityDiagramToolboxListWidget" name="listWidgetActivityToolbox">
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::DragOnly</enum>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="Gui::UMLClassDiagramToolboxListWidget" name="listWidgetClassToolbox">
        <property name="horizontalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
        </property>
@@ -262,178 +321,6 @@
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget">
-   <property name="windowTitle">
-    <string>Datat&amp;ypes</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QToolButton" name="toolButton">
-         <property name="toolTip">
-          <string>Create new type</string>
-         </property>
-         <property name="text">
-          <string>Create new type</string>
-         </property>
-         <property name="icon">
-          <iconset theme="list-add" resource="../resources.qrc">
-           <normaloff>:/kde_icons/resources/kde_icons/list-add.png</normaloff>:/kde_icons/resources/kde_icons/list-add.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>16</width>
-           <height>16</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="toolButton_2">
-         <property name="toolTip">
-          <string>Delete type</string>
-         </property>
-         <property name="text">
-          <string>Delete type</string>
-         </property>
-         <property name="icon">
-          <iconset theme="list-remove" resource="../resources.qrc">
-           <normaloff>:/kde_icons/resources/kde_icons/list-remove.png</normaloff>:/kde_icons/resources/kde_icons/list-remove.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>16</width>
-           <height>16</height>
-          </size>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QTreeWidget" name="typeTreeWidget">
-       <property name="rootIsDecorated">
-        <bool>true</bool>
-       </property>
-       <property name="columnCount">
-        <number>1</number>
-       </property>
-       <column>
-        <property name="text">
-         <string>Name</string>
-        </property>
-       </column>
-       <item>
-        <property name="text">
-         <string>Built-in types</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>bool</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>int(from, to)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>enum(label1, label2, ...)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>set&lt;T&gt;</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>Certificate (struct)</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>:/kde_icons/resources/kde_icons/format-list-unordered.png</normaloff>:/kde_icons/resources/kde_icons/format-list-unordered.png</iconset>
-        </property>
-        <item>
-         <property name="text">
-          <string>domainName : Domain</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>sign : Signature</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>Domain : enum</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>unict</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>google</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>Signature : enum</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>SignCA</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>SignUnict</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>SignGoogle</string>
-         </property>
-        </item>
-       </item>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dockWidget_5">
-   <property name="windowTitle">
-    <string>Eleme&amp;nt properties</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_5"/>
   </widget>
   <widget class="QToolBar" name="toolBarFile">
    <property name="windowTitle">
@@ -583,7 +470,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Gui::UMLToolboxListWidget</class>
+   <class>Gui::UMLActivityDiagramToolboxListWidget</class>
    <extends>QListWidget</extends>
    <header>Gui/UMLToolboxListWidget.h</header>
   </customwidget>
@@ -597,6 +484,11 @@
     <slot>zoomOriginal()</slot>
     <slot>zoomFit()</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>Gui::UMLClassDiagramToolboxListWidget</class>
+   <extends>QListWidget</extends>
+   <header>Gui/UMLToolboxListWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -683,5 +575,24 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>centralTabWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slotTabSwitched()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>596</x>
+     <y>478</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>578</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>slotTabSwitched()</slot>
+ </slots>
 </ui>

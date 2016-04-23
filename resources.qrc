@@ -1,8 +1,10 @@
 <RCC>
   <qresource prefix="topcased_icons">
     <file>resources/topcased_icons/ActivityFinalNode_24.gif</file>
+    <file>resources/topcased_icons/Class_24.gif</file>
     <file>resources/topcased_icons/ControlFlow_24.gif</file>
     <file>resources/topcased_icons/DecisionNode_24.gif</file>
+    <file>resources/topcased_icons/Enumeration_24.gif</file>
     <file>resources/topcased_icons/ForkNode_24.gif</file>
     <file>resources/topcased_icons/InitialNode_24.gif</file>
     <file>resources/topcased_icons/JoinNode_24.gif</file>

@@ -10,21 +10,32 @@ class UMLToolboxListWidget : public QListWidget
 {
 	Q_OBJECT
 
-	public:
+	protected:
 		explicit UMLToolboxListWidget(QWidget *parent = nullptr);
 
-	protected:
 		QStringList mimeTypes() const override;
 		QMimeData *mimeData(const QList<QListWidgetItem*> items) const override;
+
+		void addTool(const QString &text, const QIcon &icon,
+			const QByteArray &mimeType, const QByteArray &mimeData);
 
 	private slots:
 		void slotItemClick(QListWidgetItem *item);
 
 	private:
-		void addTool(const QString &text, const QIcon &icon,
-			const QByteArray &mimeType, const QByteArray &mimeData);
-
 		QSize sizeHint() const override;
+};
+
+class UMLActivityDiagramToolboxListWidget : public UMLToolboxListWidget
+{
+	public:
+		explicit UMLActivityDiagramToolboxListWidget(QWidget *parent = nullptr);
+};
+
+class UMLClassDiagramToolboxListWidget : public UMLToolboxListWidget
+{
+	public:
+		explicit UMLClassDiagramToolboxListWidget(QWidget *parent = nullptr);
 };
 
 }

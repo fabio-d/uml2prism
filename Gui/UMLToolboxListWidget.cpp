@@ -10,42 +10,6 @@ UMLToolboxListWidget::UMLToolboxListWidget(QWidget *parent)
 {
 	connect(this, SIGNAL(itemClicked(QListWidgetItem*)),
 		this, SLOT(slotItemClick(QListWidgetItem*)));
-
-	addTool("Initial Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/InitialNode_24.gif"),
-		"application/x-uml-create-node", "InitialNode");
-
-	addTool("Action Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/OpaqueAction_24.gif"),
-		"application/x-uml-create-node", "ActionNode");
-
-	addTool("Decision Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/DecisionNode_24.gif"),
-		"application/x-uml-create-node", "DecisionNode");
-
-	addTool("Merge Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/MergeNode_24.gif"),
-		"application/x-uml-create-node", "MergeNode");
-
-	addTool("Fork Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/ForkNode_24.gif"),
-		"application/x-uml-create-node", "ForkNode");
-
-	addTool("Join Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/JoinNode_24.gif"),
-		"application/x-uml-create-node", "JoinNode");
-
-	addTool("Final Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/ActivityFinalNode_24.gif"),
-		"application/x-uml-create-node", "FinalNode");
-
-	addTool("Control Flow",
-		QIcon(":/topcased_icons/resources/topcased_icons/ControlFlow_24.gif"),
-		"application/x-uml-create-flow", "ControlFlow");
-
-	addTool("Signal / Object Flow",
-		QIcon(":/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif"),
-		"application/x-uml-create-flow", "ObjectFlow");
 }
 
 QStringList UMLToolboxListWidget::mimeTypes() const
@@ -87,6 +51,58 @@ QSize UMLToolboxListWidget::sizeHint() const
 	return QSize(
 		sizeHintForColumn(0),
 		sizeHintForRow(0) * count());
+}
+
+UMLActivityDiagramToolboxListWidget::UMLActivityDiagramToolboxListWidget(QWidget *parent)
+: UMLToolboxListWidget(parent)
+{
+	addTool("Initial Node",
+		QIcon(":/topcased_icons/resources/topcased_icons/InitialNode_24.gif"),
+		"application/x-uml-create-node", "InitialNode");
+
+	addTool("Action Node",
+		QIcon(":/topcased_icons/resources/topcased_icons/OpaqueAction_24.gif"),
+		"application/x-uml-create-node", "ActionNode");
+
+	addTool("Decision Node",
+		QIcon(":/topcased_icons/resources/topcased_icons/DecisionNode_24.gif"),
+		"application/x-uml-create-node", "DecisionNode");
+
+	addTool("Merge Node",
+		QIcon(":/topcased_icons/resources/topcased_icons/MergeNode_24.gif"),
+		"application/x-uml-create-node", "MergeNode");
+
+	addTool("Fork Node",
+		QIcon(":/topcased_icons/resources/topcased_icons/ForkNode_24.gif"),
+		"application/x-uml-create-node", "ForkNode");
+
+	addTool("Join Node",
+		QIcon(":/topcased_icons/resources/topcased_icons/JoinNode_24.gif"),
+		"application/x-uml-create-node", "JoinNode");
+
+	addTool("Final Node",
+		QIcon(":/topcased_icons/resources/topcased_icons/ActivityFinalNode_24.gif"),
+		"application/x-uml-create-node", "FinalNode");
+
+	addTool("Control Flow",
+		QIcon(":/topcased_icons/resources/topcased_icons/ControlFlow_24.gif"),
+		"application/x-uml-create-flow", "ControlFlow");
+
+	addTool("Signal / Object Flow",
+		QIcon(":/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif"),
+		"application/x-uml-create-flow", "ObjectFlow");
+}
+
+UMLClassDiagramToolboxListWidget::UMLClassDiagramToolboxListWidget(QWidget *parent)
+: UMLToolboxListWidget(parent)
+{
+	addTool("Class",
+		QIcon(":/topcased_icons/resources/topcased_icons/Class_24.gif"),
+		"application/x-uml-create-type", "Class");
+
+	addTool("Enumeration",
+		QIcon(":/topcased_icons/resources/topcased_icons/Enumeration_24.gif"),
+		"application/x-uml-create-type", "Enumeration");
 }
 
 }

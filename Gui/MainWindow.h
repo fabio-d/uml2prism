@@ -23,6 +23,9 @@ class MainWindow : public QMainWindow
 		explicit MainWindow(QWidget *parent = nullptr);
 		~MainWindow();
 
+	private slots:
+		void slotTabSwitched();
+
 	private:
 		Ui_MainWindow *m_ui;
 

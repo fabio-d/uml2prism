@@ -31,13 +31,28 @@ MainWindow::MainWindow(QWidget *parent)
 
 	m_umlGraphicsScene->addActions(m_ui->menuEdit);
 	m_umlGraphicsScene->addActions(m_ui->toolBarEdit);
+
+	slotTabSwitched();
 }
 
 MainWindow::~MainWindow()
 {
 	delete m_doc;
-
 	delete m_ui;
+}
+
+void MainWindow::slotTabSwitched()
+{
+	if (m_ui->centralTabWidget->currentIndex() == 0)
+	{
+		m_ui->listWidgetActivityToolbox->setVisible(true);
+		m_ui->listWidgetClassToolbox->setVisible(false);
+	}
+	else
+	{
+		m_ui->listWidgetActivityToolbox->setVisible(false);
+		m_ui->listWidgetClassToolbox->setVisible(true);
+	}
 }
 
 }
