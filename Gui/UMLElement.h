@@ -32,6 +32,7 @@ namespace Gui
 {
 
 class GraphicsLabelItem;
+class GraphicsEdgeItem;
 
 class UMLElement
 {
@@ -202,7 +203,10 @@ class UMLControlFlowEdge : public UMLElement
 
 	private:
 		Core::UMLControlFlowEdge *m_coreItem;
-		QGraphicsLineItem *m_qtItem;
+		GraphicsEdgeItem *m_qtItem;
+		GraphicsLabelItem *m_labelItemFrom;
+		GraphicsLabelItem *m_labelItemTo;
+		QGraphicsPathItem *m_arrowItem;
 };
 
 }

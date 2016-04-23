@@ -29,6 +29,12 @@ static const QRectF ForkJoinNodeShape = QRectF(
 	-ForkJoinNodeHalfSideX, -ForkJoinNodeHalfSideY,
 	ForkJoinNodeHalfSideX * 2, ForkJoinNodeHalfSideY * 2);
 
+static constexpr qreal ArrowShapeSideX = 20;
+static constexpr qreal ArrowShapeSideY = 20;
+static const QPolygonF ArrowShape = QPolygonF()
+	<< QPointF(-ArrowShapeSideX, -ArrowShapeSideY/2) << QPointF(0, 0)
+	<< QPointF(-ArrowShapeSideX, +ArrowShapeSideY/2);
+
 namespace Gui
 {
 
@@ -180,7 +186,7 @@ UMLInitialNode::UMLInitialNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheRight);
+	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheRight, m_qtItem);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -217,7 +223,7 @@ UMLFinalNode::UMLFinalNode(const QPointF &centerPosition)
 		InitialNodeRadius * 2, InitialNodeRadius * 2, m_qtItem);
 	blackDot->setBrush(Qt::black);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheRight);
+	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheRight, m_qtItem);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -249,7 +255,7 @@ UMLActionNode::UMLActionNode(const QPointF &centerPosition)
 
 	setRectPath(QSizeF());
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::NonMovable);
+	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::NonMovable, m_qtItem);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -309,7 +315,7 @@ UMLDecisionNode::UMLDecisionNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
+	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheBottom, m_qtItem);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -345,7 +351,7 @@ UMLMergeNode::UMLMergeNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
+	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheBottom, m_qtItem);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -381,7 +387,7 @@ UMLForkNode::UMLForkNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
+	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheBottom, m_qtItem);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -412,7 +418,7 @@ UMLJoinNode::UMLJoinNode(const QPointF &centerPosition)
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
+	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheBottom, m_qtItem);
 	UMLElement::bind(m_qtItem);
 }
 
@@ -436,8 +442,15 @@ void UMLJoinNode::refresh()
 
 UMLControlFlowEdge::UMLControlFlowEdge()
 {
-	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsLineItem>(this);
+	m_qtItem = new GraphicsEdgeItem();
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	m_labelItemFrom = new GraphicsLabelItem(GraphicsLabelItem::NoOptions, m_qtItem->createPlaceholder(.2));
+	m_labelItemTo = new GraphicsLabelItem(GraphicsLabelItem::NoOptions, m_qtItem->createPlaceholder(.6));
+
+	QPainterPath path;
+	path.addPolygon(ArrowShape);
+	m_arrowItem = new QGraphicsPathItem(path, m_qtItem);
 
 	UMLElement::bind(m_qtItem);
 }
@@ -451,10 +464,19 @@ void UMLControlFlowEdge::bind(Core::UMLControlFlowEdge *coreItem)
 void UMLControlFlowEdge::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
-	m_qtItem->setLine(calcLineBetweenNodes(
+
+	QLineF line = calcLineBetweenNodes(
 		static_cast<UMLNodeElement*>(lookup(m_coreItem->from())),
-		static_cast<UMLNodeElement*>(lookup(m_coreItem->to()))
-	));
+		static_cast<UMLNodeElement*>(lookup(m_coreItem->to())));
+
+	m_qtItem->setPos(line.p1());
+	line.translate(-line.p1());
+	m_qtItem->setLine(line);
+	m_arrowItem->setPos(line.p2());
+	m_arrowItem->setRotation(-line.angle());
+
+	m_labelItemFrom->setText("[from]");
+	m_labelItemTo->setText("[to]");
 }
 
 QLineF UMLControlFlowEdge::calcLineBetweenNodes(UMLNodeElement *a, UMLNodeElement *b)

@@ -4,6 +4,7 @@
 #include "Gui/UMLGraphicsScene.h"
 
 #include <QGraphicsSimpleTextItem>
+#include <QMultiMap>
 
 namespace Gui
 {
@@ -22,7 +23,7 @@ class GraphicsLabelItem : public QGraphicsSimpleTextItem
 		};
 		Q_DECLARE_FLAGS(Options, Option)
 
-		GraphicsLabelItem(QGraphicsItem *parent, Options options);
+		explicit GraphicsLabelItem(Options options, QGraphicsItem *parent = nullptr);
 
 		void setText(const QString &text);
 };
@@ -57,6 +58,23 @@ class GraphicsPositionChangeSpyItem : public GraphicsItemType
 
 	private:
 		UMLElement *watchedElement;
+};
+
+class GraphicsEdgeItem : public QGraphicsLineItem
+{
+	public:
+		GraphicsEdgeItem(QGraphicsItem *parent = nullptr);
+
+		QRectF boundingRect() const override;
+		QPainterPath shape() const override;
+
+		QGraphicsItem *createPlaceholder(qreal atPercentage);
+
+		void setLine(const QLineF &line);
+		void setLine(qreal x1, qreal y1, qreal x2, qreal y2);
+
+	private:
+		QMultiMap<qreal, QGraphicsItem*> m_placeholders;
 };
 
 }
