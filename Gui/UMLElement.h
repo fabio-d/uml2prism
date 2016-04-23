@@ -18,6 +18,7 @@
 namespace Core
 {
 class UMLActionNode;
+class UMLControlFlowEdge;
 class UMLDecisionNode;
 class UMLElement;
 class UMLFinalNode;
@@ -61,11 +62,33 @@ class UMLElement
 		QGraphicsItem *m_qtItem;
 };
 
-class UMLInitialNode : public UMLElement
+class UMLNodeElement : public UMLElement
+{
+	public:
+		// Returns shape's contour point that is closest to p. In the
+		// two-arguments variant, *out_pIsInside is set to true if p in
+		// contained in the shape
+		QPointF closestOutlinePoint(const QPointF &p);
+		virtual QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) = 0;
+
+	protected:
+		UMLNodeElement() = default;
+
+		// Helper methods that subclasses can use to implement closestOutlinePoint
+		static QPointF circleClosestPoint(const QPointF &centerPos,
+			qreal radius, const QPointF &p, bool *out_pIsInside);
+		static QPointF segmentClosestPoint(const QPointF &segmA,
+			const QPointF &segmB, const QPointF &p);
+		static QPointF rectClosestPoint(const QRectF &rect,
+			const QPointF &p, bool *out_pIsInside);
+};
+
+class UMLInitialNode : public UMLNodeElement
 {
 	public:
 		explicit UMLInitialNode(const QPointF &centerPosition);
 		void bind(Core::UMLInitialNode *coreItem);
+		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
@@ -75,11 +98,12 @@ class UMLInitialNode : public UMLElement
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLFinalNode : public UMLElement
+class UMLFinalNode : public UMLNodeElement
 {
 	public:
 		explicit UMLFinalNode(const QPointF &centerPosition);
 		void bind(Core::UMLFinalNode *coreItem);
+		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
@@ -89,11 +113,12 @@ class UMLFinalNode : public UMLElement
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLActionNode : public UMLElement
+class UMLActionNode : public UMLNodeElement
 {
 	public:
 		explicit UMLActionNode(const QPointF &centerPosition);
 		void bind(Core::UMLActionNode *coreItem);
+		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
@@ -105,11 +130,12 @@ class UMLActionNode : public UMLElement
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLDecisionNode : public UMLElement
+class UMLDecisionNode : public UMLNodeElement
 {
 	public:
 		explicit UMLDecisionNode(const QPointF &centerPosition);
 		void bind(Core::UMLDecisionNode *coreItem);
+		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
@@ -119,11 +145,12 @@ class UMLDecisionNode : public UMLElement
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLMergeNode : public UMLElement
+class UMLMergeNode : public UMLNodeElement
 {
 	public:
 		explicit UMLMergeNode(const QPointF &centerPosition);
 		void bind(Core::UMLMergeNode *coreItem);
+		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
@@ -133,11 +160,12 @@ class UMLMergeNode : public UMLElement
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLForkNode : public UMLElement
+class UMLForkNode : public UMLNodeElement
 {
 	public:
 		explicit UMLForkNode(const QPointF &centerPosition);
 		void bind(Core::UMLForkNode *coreItem);
+		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
@@ -147,11 +175,12 @@ class UMLForkNode : public UMLElement
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLJoinNode : public UMLElement
+class UMLJoinNode : public UMLNodeElement
 {
 	public:
 		explicit UMLJoinNode(const QPointF &centerPosition);
 		void bind(Core::UMLJoinNode *coreItem);
+		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
@@ -159,6 +188,21 @@ class UMLJoinNode : public UMLElement
 		Core::UMLJoinNode *m_coreItem;
 		QGraphicsRectItem *m_qtItem;
 		GraphicsLabelItem *m_labelItem;
+};
+
+class UMLControlFlowEdge : public UMLElement
+{
+	public:
+		UMLControlFlowEdge();
+		void bind(Core::UMLControlFlowEdge *coreItem);
+
+		void refresh() override;
+
+		static QLineF calcLineBetweenNodes(UMLNodeElement *a, UMLNodeElement *b);
+
+	private:
+		Core::UMLControlFlowEdge *m_coreItem;
+		QGraphicsLineItem *m_qtItem;
 };
 
 }

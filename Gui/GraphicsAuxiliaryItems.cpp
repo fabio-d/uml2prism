@@ -1,7 +1,7 @@
-#include "Gui/GraphicsLabelItem.h"
+#include "Gui/GraphicsAuxiliaryItems.h"
 
 #include <QFontMetricsF>
-#include <QDebug>
+
 namespace Gui
 {
 

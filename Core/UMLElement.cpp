@@ -86,4 +86,19 @@ UMLJoinNode::UMLJoinNode()
 {
 }
 
+UMLControlFlowEdge::UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to)
+: UMLElement(UMLElementType::ControlFlowEdge), m_from(from), m_to(to)
+{
+}
+
+UMLNodeElement *UMLControlFlowEdge::from() const
+{
+	return m_from;
+}
+
+UMLNodeElement *UMLControlFlowEdge::to() const
+{
+	return m_to;
+}
+
 }

@@ -21,7 +21,8 @@ class UMLToolboxListWidget : public QListWidget
 		void slotItemClick(QListWidgetItem *item);
 
 	private:
-		void addTool(const QString &text, const QIcon &icon, const QByteArray &mimeData);
+		void addTool(const QString &text, const QIcon &icon,
+			const QByteArray &mimeType, const QByteArray &mimeData);
 
 		QSize sizeHint() const override;
 };

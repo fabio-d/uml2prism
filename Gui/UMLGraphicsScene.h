@@ -19,6 +19,7 @@ class UMLDocument;
 namespace Gui
 {
 class UMLElement;
+class UMLNodeElement;
 
 class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 {
@@ -31,15 +32,23 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void addActions(QMenu *target);
 		void addActions(QToolBar *target);
 
+		void notifyGeometryChanged(UMLElement *element);
+
 	private slots:
 		void slotSelectionChanged();
 		void slotRenameNode();
 		void slotDeleteSelection();
 
 	private:
+		UMLNodeElement *searchNodeElementAt(const QPointF &scenePos) const;
+
 		void contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent) override;
 		void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
+		void drawForeground(QPainter *painter, const QRectF &rect) override;
 		void dropEvent(QGraphicsSceneDragDropEvent *event) override;
+		void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
+		void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
+		void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 
 		void notifyElementAdded(Core::UMLElement *element) override;
 		void notifyElementChanged(Core::UMLElement *element) override;
@@ -56,6 +65,10 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		// m_relaxedSelection that only contains those items whose
 		// main UMLElement is selected.
 		QList<UMLElement*> m_strictSelection, m_relaxedSelection;
+
+		// When creating a flow element, this is the origin node
+		UMLNodeElement *m_createFlowOrigin;
+		QPointF m_mousePos;
 };
 
 }

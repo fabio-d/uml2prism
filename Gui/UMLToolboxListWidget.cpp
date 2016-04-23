@@ -13,52 +13,46 @@ UMLToolboxListWidget::UMLToolboxListWidget(QWidget *parent)
 
 	addTool("Initial Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/InitialNode_24.gif"),
-		"InitialNode");
+		"application/x-uml-create-node", "InitialNode");
 
 	addTool("Action Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/OpaqueAction_24.gif"),
-		"ActionNode");
+		"application/x-uml-create-node", "ActionNode");
 
 	addTool("Decision Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/DecisionNode_24.gif"),
-		"DecisionNode");
+		"application/x-uml-create-node", "DecisionNode");
 
 	addTool("Merge Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/MergeNode_24.gif"),
-		"MergeNode");
+		"application/x-uml-create-node", "MergeNode");
 
 	addTool("Fork Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/ForkNode_24.gif"),
-		"ForkNode");
+		"application/x-uml-create-node", "ForkNode");
 
 	addTool("Join Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/JoinNode_24.gif"),
-		"JoinNode");
+		"application/x-uml-create-node", "JoinNode");
 
 	addTool("Final Node",
 		QIcon(":/topcased_icons/resources/topcased_icons/ActivityFinalNode_24.gif"),
-		"FinalNode");
+		"application/x-uml-create-node", "FinalNode");
 
 	addTool("Control Flow",
 		QIcon(":/topcased_icons/resources/topcased_icons/ControlFlow_24.gif"),
-		"ControlFlow");
+		"application/x-uml-create-flow", "ControlFlow");
 
 	addTool("Signal / Object Flow",
 		QIcon(":/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif"),
-		"ObjectFlow");
-
-	addTool("Input Pin",
-		QIcon(":/topcased_icons/resources/topcased_icons/InputPin_24.gif"),
-		"InputPin");
-
-	addTool("Output Pin",
-		QIcon(":/topcased_icons/resources/topcased_icons/OutputPin_24.gif"),
-		"OutputPin");
+		"application/x-uml-create-flow", "ObjectFlow");
 }
 
 QStringList UMLToolboxListWidget::mimeTypes() const
 {
-	return QStringList() << "application/x-uml-create-element";
+	return QStringList()
+		<< "application/x-uml-create-flow"
+		<< "application/x-uml-create-node";
 }
 
 QMimeData *UMLToolboxListWidget::mimeData(const QList<QListWidgetItem*> items) const
@@ -67,15 +61,19 @@ QMimeData *UMLToolboxListWidget::mimeData(const QList<QListWidgetItem*> items) c
 		return nullptr;
 
 	QMimeData *mimeData = new QMimeData();
-	mimeData->setData("application/x-uml-create-element", items[0]->data(Qt::UserRole).toByteArray());
+	mimeData->setData(
+		items[0]->data(Qt::UserRole).toByteArray(),
+		items[0]->data(Qt::UserRole + 1).toByteArray());
 	return mimeData;
 }
 
-void UMLToolboxListWidget::addTool(const QString &text, const QIcon &icon, const QByteArray &mimeData)
+void UMLToolboxListWidget::addTool(const QString &text, const QIcon &icon,
+	const QByteArray &mimeType, const QByteArray &mimeData)
 {
         QListWidgetItem *item = new QListWidgetItem(icon, text, this);
 	item->setToolTip(text);
-	item->setData(Qt::UserRole, mimeData);
+	item->setData(Qt::UserRole, mimeType);
+	item->setData(Qt::UserRole + 1, mimeData);
         addItem(item);
 }
 

@@ -14,7 +14,7 @@ add_definitions(-std=c++11 -Wall)
 add_executable(UMLEditor
 	Core/UMLDocument.cpp
 	Core/UMLElement.cpp
-	Gui/GraphicsLabelItem.cpp
+	Gui/GraphicsAuxiliaryItems.cpp
 	Gui/MainWindow.cpp
 	Gui/UMLDocumentView.cpp
 	Gui/UMLElement.cpp

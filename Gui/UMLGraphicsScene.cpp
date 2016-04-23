@@ -9,17 +9,18 @@
 #include <QApplication>
 #include <QMenu>
 #include <QDebug>
+#include <QGraphicsSceneDragDropEvent>
 #include <QInputDialog>
 #include <QKeyEvent>
 #include <QMimeData>
-#include <QGraphicsSceneDragDropEvent>
+#include <QPainter>
 #include <QToolBar>
 
 namespace Gui
 {
 
 UMLGraphicsScene::UMLGraphicsScene(Core::UMLDocument *doc, QObject *parent)
-: QGraphicsScene(parent), m_doc(doc)
+: QGraphicsScene(parent), m_doc(doc), m_createFlowOrigin(nullptr)
 {
 	m_actionRenameNode = new QAction(
 		QIcon(":/kde_icons/resources/kde_icons/edit-rename.png"),
@@ -125,6 +126,30 @@ void UMLGraphicsScene::slotDeleteSelection()
 		m_doc->deleteUMLElement(elem);
 }
 
+UMLNodeElement *UMLGraphicsScene::searchNodeElementAt(const QPointF &scenePos) const
+{
+	foreach (QGraphicsItem *qtItem, items(scenePos))
+	{
+		UMLElement *elem = UMLElement::lookup(qtItem, false);
+		if (elem == nullptr)
+			continue;
+
+		Core::UMLElementType type = elem->coreItem()->type();
+		if (type == Core::UMLElementType::InitialNode
+			|| type == Core::UMLElementType::FinalNode
+			|| type == Core::UMLElementType::ActionNode
+			|| type == Core::UMLElementType::DecisionNode
+			|| type == Core::UMLElementType::MergeNode
+			|| type == Core::UMLElementType::ForkNode
+			|| type == Core::UMLElementType::JoinNode)
+		{
+			return static_cast<UMLNodeElement*>(elem);
+		}
+	}
+
+	return nullptr;
+}
+
 void UMLGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent)
 {
 	QList<QGraphicsItem*> itemsUnderMouse = items(contextMenuEvent->scenePos());
@@ -174,9 +199,15 @@ void UMLGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextM
 
 void UMLGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
-	if (event->mimeData()->formats().contains("application/x-uml-create-element"))
+	QList<QGraphicsItem*> itemsUnderMouse = items(event->scenePos());
+
+	if (event->mimeData()->formats().contains("application/x-uml-create-node"))
 	{
 		event->setAccepted(true);
+	}
+	else if (event->mimeData()->formats().contains("application/x-uml-create-flow"))
+	{
+		event->setAccepted(searchNodeElementAt(event->scenePos()) != nullptr);
 	}
 	else
 	{
@@ -184,76 +215,140 @@ void UMLGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 	}
 }
 
+void UMLGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
+{
+	painter->save();
+	if (m_createFlowOrigin != nullptr)
+	{
+		UMLNodeElement *itemUnderMouse = searchNodeElementAt(m_mousePos);
+		if (itemUnderMouse == nullptr)
+		{
+			painter->drawLine(m_createFlowOrigin->closestOutlinePoint(m_mousePos), m_mousePos);
+		}
+		else
+		{
+			painter->drawLine(UMLControlFlowEdge::calcLineBetweenNodes(
+				m_createFlowOrigin,
+				itemUnderMouse));
+		}
+	}
+	painter->restore();
+	QGraphicsScene::drawForeground(painter, rect);
+}
+
 void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
 	const QMimeData* mime = event->mimeData();
 	const QPointF scenePos = event->scenePos();
-	const QByteArray elementTypeString = mime->data("application/x-uml-create-element");
 
-	if (elementTypeString == "InitialNode")
-	{
-		Core::UMLInitialNode *elem = new Core::UMLInitialNode();
-		UMLInitialNode *item = new UMLInitialNode(scenePos);
-		item->bind(elem);
+	clearSelection();
 
-		m_doc->addUMLElement(elem);
-	}
-	else if (elementTypeString == "FinalNode")
+	if (mime->formats().contains("application/x-uml-create-node"))
 	{
-		Core::UMLFinalNode *elem = new Core::UMLFinalNode();
-		UMLFinalNode *item = new UMLFinalNode(scenePos);
-		item->bind(elem);
+		const QByteArray elementTypeString = mime->data("application/x-uml-create-node");
 
-		m_doc->addUMLElement(elem);
-	}
-	else if (elementTypeString == "ActionNode")
-	{
-		Core::UMLActionNode *elem = new Core::UMLActionNode();
-		UMLActionNode *item = new UMLActionNode(scenePos);
-		item->bind(elem);
+		if (elementTypeString == "InitialNode")
+		{
+			Core::UMLInitialNode *elem = new Core::UMLInitialNode();
+			UMLInitialNode *item = new UMLInitialNode(scenePos);
+			item->bind(elem);
 
-		m_doc->addUMLElement(elem);
-	}
-	else if (elementTypeString == "DecisionNode")
-	{
-		Core::UMLDecisionNode *elem = new Core::UMLDecisionNode();
-		UMLDecisionNode *item = new UMLDecisionNode(scenePos);
-		item->bind(elem);
+			m_doc->addUMLElement(elem);
+		}
+		else if (elementTypeString == "FinalNode")
+		{
+			Core::UMLFinalNode *elem = new Core::UMLFinalNode();
+			UMLFinalNode *item = new UMLFinalNode(scenePos);
+			item->bind(elem);
 
-		m_doc->addUMLElement(elem);
-	}
-	else if (elementTypeString == "MergeNode")
-	{
-		Core::UMLMergeNode *elem = new Core::UMLMergeNode();
-		UMLMergeNode *item = new UMLMergeNode(scenePos);
-		item->bind(elem);
+			m_doc->addUMLElement(elem);
+		}
+		else if (elementTypeString == "ActionNode")
+		{
+			Core::UMLActionNode *elem = new Core::UMLActionNode();
+			UMLActionNode *item = new UMLActionNode(scenePos);
+			item->bind(elem);
 
-		m_doc->addUMLElement(elem);
-	}
-	else if (elementTypeString == "ForkNode")
-	{
-		Core::UMLForkNode *elem = new Core::UMLForkNode();
-		UMLForkNode *item = new UMLForkNode(scenePos);
-		item->bind(elem);
+			m_doc->addUMLElement(elem);
+		}
+		else if (elementTypeString == "DecisionNode")
+		{
+			Core::UMLDecisionNode *elem = new Core::UMLDecisionNode();
+			UMLDecisionNode *item = new UMLDecisionNode(scenePos);
+			item->bind(elem);
 
-		m_doc->addUMLElement(elem);
-	}
-	else if (elementTypeString == "JoinNode")
-	{
-		Core::UMLJoinNode *elem = new Core::UMLJoinNode();
-		UMLJoinNode *item = new UMLJoinNode(scenePos);
-		item->bind(elem);
+			m_doc->addUMLElement(elem);
+		}
+		else if (elementTypeString == "MergeNode")
+		{
+			Core::UMLMergeNode *elem = new Core::UMLMergeNode();
+			UMLMergeNode *item = new UMLMergeNode(scenePos);
+			item->bind(elem);
 
-		m_doc->addUMLElement(elem);
+			m_doc->addUMLElement(elem);
+		}
+		else if (elementTypeString == "ForkNode")
+		{
+			Core::UMLForkNode *elem = new Core::UMLForkNode();
+			UMLForkNode *item = new UMLForkNode(scenePos);
+			item->bind(elem);
+
+			m_doc->addUMLElement(elem);
+		}
+		else if (elementTypeString == "JoinNode")
+		{
+			Core::UMLJoinNode *elem = new Core::UMLJoinNode();
+			UMLJoinNode *item = new UMLJoinNode(scenePos);
+			item->bind(elem);
+
+			m_doc->addUMLElement(elem);
+		}
 	}
-	else
+	else if (mime->formats().contains("application/x-uml-create-flow"))
 	{
-		QGraphicsSimpleTextItem *item = addSimpleText(
-			elementTypeString);
-		item->setPos(scenePos);
-		item->setFlag(QGraphicsItem::ItemIsMovable, true);
-		item->setFlag(QGraphicsItem::ItemIsSelectable, true);
+		m_createFlowOrigin = searchNodeElementAt(scenePos);
 	}
+}
+
+void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+	if (m_createFlowOrigin != nullptr)
+	{
+		UMLNodeElement *itemUnderMouse = searchNodeElementAt(m_mousePos);
+
+		if (itemUnderMouse != nullptr)
+		{
+			Core::UMLControlFlowEdge *elem = new Core::UMLControlFlowEdge(
+				static_cast<Core::UMLNodeElement*>(m_createFlowOrigin->coreItem()),
+				static_cast<Core::UMLNodeElement*>(itemUnderMouse->coreItem()));
+			UMLControlFlowEdge *item = new UMLControlFlowEdge();
+			item->bind(elem);
+
+			m_doc->addUMLElement(elem);
+		}
+
+		m_createFlowOrigin = nullptr;
+		emit changed(QList<QRectF>());
+		return;
+	}
+
+	QGraphicsScene::mousePressEvent(mouseEvent);
+}
+
+void UMLGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+	if (m_createFlowOrigin)
+	{
+		m_mousePos = mouseEvent->scenePos();
+		emit changed(QList<QRectF>());
+	}
+
+	QGraphicsScene::mouseMoveEvent(mouseEvent);
+}
+
+void UMLGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+	QGraphicsScene::mouseReleaseEvent(mouseEvent);
 }
 
 void UMLGraphicsScene::notifyElementAdded(Core::UMLElement *element)
@@ -274,6 +369,39 @@ void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)
 	UMLElement *item = UMLElement::lookup(element);
 	removeItem(item->qtItem());
 	delete item;
+}
+
+void UMLGraphicsScene::notifyGeometryChanged(UMLElement *element)
+{
+	Core::UMLElement *changedElement = element->coreItem();
+
+	// Re-route edges
+	foreach (QGraphicsItem *item, items())
+	{
+		UMLElement *e = UMLElement::lookup(item, false);
+		if (e == nullptr)
+			continue;
+
+		switch (e->coreItem()->type())
+		{
+			case Core::UMLElementType::ControlFlowEdge:
+			{
+				Core::UMLControlFlowEdge *coreEdge =
+					static_cast<Core::UMLControlFlowEdge*>(
+						e->coreItem());
+
+				if (coreEdge->from() == changedElement
+					|| coreEdge->to() == changedElement)
+				{
+					e->refresh();
+				}
+				break;
+			}
+			default:
+				// nop
+				break;
+		}
+	}
 }
 
 }

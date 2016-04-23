@@ -18,7 +18,8 @@ enum class UMLElementType
 	DecisionNode,
 	MergeNode,
 	ForkNode,
-	JoinNode
+	JoinNode,
+	ControlFlowEdge
 };
 
 class UMLElement : public QObject
@@ -100,6 +101,18 @@ class UMLJoinNode : public UMLNodeElement
 {
 	public:
 		UMLJoinNode();
+};
+
+class UMLControlFlowEdge : public UMLElement
+{
+	public:
+		UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to);
+
+		UMLNodeElement *from() const;
+		UMLNodeElement *to() const;
+
+	private:
+		UMLNodeElement *m_from, *m_to;
 };
 
 }

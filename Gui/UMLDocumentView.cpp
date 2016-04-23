@@ -95,7 +95,9 @@ void UMLDocumentView::mouseReleaseEvent(QMouseEvent *event)
 			Qt::LeftButton,
 			(event->buttons() & ~Qt::MidButton) | Qt::LeftButton,
 			event->modifiers());
+		setInteractive(false);
 		QGraphicsView::mouseReleaseEvent(&fakeEvent);
+		setInteractive(true);
 		event->setAccepted(fakeEvent.isAccepted());
 	}
 	else

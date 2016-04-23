@@ -5,11 +5,9 @@
     <file>resources/topcased_icons/DecisionNode_24.gif</file>
     <file>resources/topcased_icons/ForkNode_24.gif</file>
     <file>resources/topcased_icons/InitialNode_24.gif</file>
-    <file>resources/topcased_icons/InputPin_24.gif</file>
     <file>resources/topcased_icons/JoinNode_24.gif</file>
     <file>resources/topcased_icons/MergeNode_24.gif</file>
     <file>resources/topcased_icons/ObjectFlow_24.gif</file>
-    <file>resources/topcased_icons/OutputPin_24.gif</file>
     <file>resources/topcased_icons/OpaqueAction_24.gif</file>
   </qresource>
   <qresource prefix="kde_icons">
