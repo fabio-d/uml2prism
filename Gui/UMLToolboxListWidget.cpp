@@ -98,11 +98,11 @@ UMLClassDiagramToolboxListWidget::UMLClassDiagramToolboxListWidget(QWidget *pare
 {
 	addTool("Class",
 		QIcon(":/topcased_icons/resources/topcased_icons/Class_24.gif"),
-		"application/x-uml-create-type", "Class");
+		"application/x-uml-create-datatype", "Class");
 
 	addTool("Enumeration",
 		QIcon(":/topcased_icons/resources/topcased_icons/Enumeration_24.gif"),
-		"application/x-uml-create-type", "Enumeration");
+		"application/x-uml-create-datatype", "Enumeration");
 }
 
 }

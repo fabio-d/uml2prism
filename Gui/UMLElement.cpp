@@ -485,4 +485,27 @@ QLineF UMLControlFlowEdge::calcLineBetweenNodes(UMLNodeElement *a, UMLNodeElemen
 	return QLineF(a->closestOutlinePoint(midP), b->closestOutlinePoint(midP));
 }
 
+UMLClass::UMLClass(const QPointF &topMidPosition)
+{
+	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this);
+	m_qtItem->setPos(topMidPosition);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	UMLElement::bind(m_qtItem);
+}
+
+void UMLClass::bind(Core::UMLClass *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLClass::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_qtItem->setName(m_coreItem->className());
+	m_qtItem->setContents("Bla\nblabla\nblablablablablablablablabla");
+}
+
 }

@@ -77,6 +77,25 @@ class GraphicsEdgeItem : public QGraphicsLineItem
 		QMultiMap<qreal, QGraphicsItem*> m_placeholders;
 };
 
+class GraphicsDatatypeItem : public QGraphicsRectItem
+{
+	public:
+		explicit GraphicsDatatypeItem(QGraphicsItem *parent = nullptr);
+
+		void setName(const QString &text);
+		void setContents(const QString &text);
+
+		void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+			QWidget *widget = nullptr) override;
+
+	private:
+		void relayout();
+
+		QGraphicsSimpleTextItem *m_stereotype;
+		QGraphicsSimpleTextItem *m_name;
+		QGraphicsSimpleTextItem *m_contents;
+};
+
 }
 
 #endif // GUI_GRAPHICSAUXILIARYITEMS_H

@@ -45,13 +45,7 @@ UMLGraphicsScene::~UMLGraphicsScene()
 	Q_ASSERT(items().isEmpty());
 }
 
-void UMLGraphicsScene::addActions(QMenu *target)
-{
-	target->addAction(m_actionRenameNode);
-	target->addAction(m_actionDeleteSelection);
-}
-
-void UMLGraphicsScene::addActions(QToolBar *target)
+void UMLGraphicsScene::appendEditActions(QWidget *target)
 {
 	target->addAction(m_actionRenameNode);
 	target->addAction(m_actionDeleteSelection);
@@ -201,13 +195,20 @@ void UMLGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
 	QList<QGraphicsItem*> itemsUnderMouse = items(event->scenePos());
 
-	if (event->mimeData()->formats().contains("application/x-uml-create-node"))
+	if (m_doc->type() == Core::UMLDocument::Activity
+		&& event->mimeData()->formats().contains("application/x-uml-create-node"))
 	{
 		event->setAccepted(true);
 	}
-	else if (event->mimeData()->formats().contains("application/x-uml-create-flow"))
+	else if (m_doc->type() == Core::UMLDocument::Activity
+		&& event->mimeData()->formats().contains("application/x-uml-create-flow"))
 	{
 		event->setAccepted(searchNodeElementAt(event->scenePos()) != nullptr);
+	}
+	else if (m_doc->type() == Core::UMLDocument::Class
+		&& event->mimeData()->formats().contains("application/x-uml-create-datatype"))
+	{
+		event->setAccepted(true);
 	}
 	else
 	{
@@ -243,7 +244,8 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 	clearSelection();
 
-	if (mime->formats().contains("application/x-uml-create-node"))
+	if (m_doc->type() == Core::UMLDocument::Activity
+		&& mime->formats().contains("application/x-uml-create-node"))
 	{
 		const QByteArray elementTypeString = mime->data("application/x-uml-create-node");
 
@@ -304,9 +306,19 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 			m_doc->addUMLElement(elem);
 		}
 	}
-	else if (mime->formats().contains("application/x-uml-create-flow"))
+	else if (m_doc->type() == Core::UMLDocument::Activity
+		&& mime->formats().contains("application/x-uml-create-flow"))
 	{
 		m_createFlowOrigin = searchNodeElementAt(scenePos);
+	}
+	else if (m_doc->type() == Core::UMLDocument::Class
+		&& mime->formats().contains("application/x-uml-create-datatype"))
+	{
+		Core::UMLClass *elem = new Core::UMLClass();
+		UMLClass *item = new UMLClass(scenePos);
+		item->bind(elem);
+
+		m_doc->addUMLElement(elem);
 	}
 }
 

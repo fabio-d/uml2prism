@@ -16,6 +16,8 @@ class UMLDocumentView : public QGraphicsView
 	public:
 		explicit UMLDocumentView(QWidget *parent = nullptr);
 
+		void appendViewActions(QWidget *target);
+
 		void setScene(UMLGraphicsScene *scene);
 
 		void setScale(qreal newScale);
@@ -37,6 +39,12 @@ class UMLDocumentView : public QGraphicsView
 		qreal currentScale() const;
 
 		UMLGraphicsScene *m_scene;
+
+		// Some actions implemented by this class
+		QAction *m_actionZoomIn;
+		QAction *m_actionZoomOut;
+		QAction *m_actionZoomOriginal;
+		QAction *m_actionZoomFit;
 };
 
 }

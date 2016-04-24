@@ -29,8 +29,11 @@ class MainWindow : public QMainWindow
 	private:
 		Ui_MainWindow *m_ui;
 
-		Core::UMLDocument *m_doc;
-		UMLGraphicsScene *m_umlGraphicsScene;
+		Core::UMLDocument *m_activityDoc;
+		UMLGraphicsScene *m_umlGraphicsSceneActivity;
+
+		Core::UMLDocument *m_classDoc;
+		UMLGraphicsScene *m_umlGraphicsSceneClass;
 };
 
 }

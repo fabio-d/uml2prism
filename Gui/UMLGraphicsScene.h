@@ -29,8 +29,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		explicit UMLGraphicsScene(Core::UMLDocument *doc, QObject *parent = nullptr);
 		~UMLGraphicsScene();
 
-		void addActions(QMenu *target);
-		void addActions(QToolBar *target);
+		void appendEditActions(QWidget *target);
 
 		void notifyGeometryChanged(UMLElement *element);
 

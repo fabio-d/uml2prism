@@ -1,8 +1,11 @@
 #include "Gui/GraphicsAuxiliaryItems.h"
 
 #include <QFontMetricsF>
+#include <QPainter>
 
 static constexpr qreal MinLineShapeWidth = 10;
+
+const qreal DatatypeMargin = 7;
 
 namespace Gui
 {
@@ -94,6 +97,87 @@ void GraphicsEdgeItem::setLine(const QLineF &line)
 void GraphicsEdgeItem::setLine(qreal x1, qreal y1, qreal x2, qreal y2)
 {
 	setLine(QLine(x1, y1, x2, y2));
+}
+
+GraphicsDatatypeItem::GraphicsDatatypeItem(QGraphicsItem *parent)
+{
+	m_stereotype = new QGraphicsSimpleTextItem("<<example>>", this);
+	m_name = new QGraphicsSimpleTextItem(this);
+	m_contents = new QGraphicsSimpleTextItem(this);
+
+	setBrush(Qt::white);
+
+	QFont font = m_name->font();
+	QFontMetricsF metrics(font);
+
+	if (m_stereotype == nullptr)
+	{
+		m_contents->setPos(0, metrics.height() + 2*DatatypeMargin);
+	}
+	else
+	{
+		font.setItalic(true);
+		m_stereotype->setFont(font);
+		m_stereotype->setPos(-m_stereotype->boundingRect().size().width()/2, 0);
+		m_name->setPos(0, metrics.height());
+		m_contents->setPos(0, 2*metrics.height() + 2*DatatypeMargin);
+	}
+
+	relayout();
+}
+
+void GraphicsDatatypeItem::setName(const QString &text)
+{
+	m_name->setText(text);
+
+	relayout();
+}
+
+void GraphicsDatatypeItem::setContents(const QString &text)
+{
+	m_contents->setText(text);
+
+	relayout();
+}
+
+void GraphicsDatatypeItem::paint(QPainter *painter,
+	const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+	QGraphicsRectItem::paint(painter, option, widget);
+
+	painter->setPen(pen());
+
+	const qreal lineY = m_name->pos().y() + m_name->boundingRect().bottom() + DatatypeMargin;
+	const qreal lineHalfWidth = rect().right();
+	painter->drawLine(-lineHalfWidth, lineY, lineHalfWidth, lineY);
+}
+
+void GraphicsDatatypeItem::relayout()
+{
+	// Find longest line and total text height
+	qreal longestWidth = 0;
+	qreal totalHeight = 0;
+	auto processTextBox = [&](const QSizeF &textSize)
+	{
+		longestWidth = qMax(longestWidth, textSize.width());
+		totalHeight += textSize.height();
+	};
+
+	if (m_stereotype != nullptr)
+		processTextBox(m_stereotype->boundingRect().size());
+	processTextBox(m_name->boundingRect().size());
+	processTextBox(m_contents->boundingRect().size());
+
+	setRect(QRect(-longestWidth/2, 0, longestWidth, totalHeight)
+		.adjusted(-DatatypeMargin, -DatatypeMargin, DatatypeMargin, 3*DatatypeMargin));
+
+	m_name->setPos(
+		-m_name->boundingRect().size().width()/2,
+		m_name->pos().y());
+
+	m_contents->setPos(
+		-m_contents->boundingRect().size().width()/2,
+		m_contents->pos().y());
 }
 
 }

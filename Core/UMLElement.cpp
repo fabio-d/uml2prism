@@ -101,4 +101,19 @@ UMLNodeElement *UMLControlFlowEdge::to() const
 	return m_to;
 }
 
+UMLClass::UMLClass()
+: UMLElement(UMLElementType::Class), m_className("ClassName")
+{
+}
+
+void UMLClass::setClassName(const QString &newName)
+{
+	m_className = newName;
+}
+
+const QString &UMLClass::className() const
+{
+	return m_className;
+}
+
 }

@@ -12,6 +12,7 @@ namespace Core
 // other objects always come first
 enum class UMLElementType
 {
+	// Activity diagrams
 	InitialNode,
 	FinalNode,
 	ActionNode,
@@ -19,7 +20,10 @@ enum class UMLElementType
 	MergeNode,
 	ForkNode,
 	JoinNode,
-	ControlFlowEdge
+	ControlFlowEdge,
+
+	// Class diagrams
+	Class
 };
 
 class UMLElement : public QObject
@@ -113,6 +117,18 @@ class UMLControlFlowEdge : public UMLElement
 
 	private:
 		UMLNodeElement *m_from, *m_to;
+};
+
+class UMLClass : public UMLElement
+{
+	public:
+		UMLClass();
+
+		void setClassName(const QString &newName);
+		const QString &className() const;
+
+	private:
+		QString m_className;
 };
 
 }

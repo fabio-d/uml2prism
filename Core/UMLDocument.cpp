@@ -6,14 +6,19 @@
 namespace Core
 {
 
-UMLDocument::UMLDocument()
-: m_guiProxy(nullptr)
+UMLDocument::UMLDocument(Type type)
+: m_type(type), m_guiProxy(nullptr)
 {
 }
 
 UMLDocument::~UMLDocument()
 {
 	deleteAllElements();
+}
+
+UMLDocument::Type UMLDocument::type() const
+{
+	return m_type;
 }
 
 void UMLDocument::setGuiProxy(GuiProxy *guiProxy)

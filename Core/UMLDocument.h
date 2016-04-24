@@ -15,8 +15,12 @@ class UMLDocument : public QObject
 	Q_OBJECT
 
 	public:
-		UMLDocument();
+		enum Type { Activity, Class };
+
+		UMLDocument(Type type);
 		~UMLDocument();
+
+		Type type() const;
 
 		// The GuiProxy object receives notifications about events
 		void setGuiProxy(GuiProxy *guiProxy);
@@ -31,6 +35,7 @@ class UMLDocument : public QObject
 		void slotElementChanged();
 
 	private:
+		Type m_type;
 		GuiProxy *m_guiProxy;
 
 		// sorted by type

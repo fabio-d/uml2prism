@@ -2,8 +2,10 @@
 
 #include "Gui/UMLGraphicsScene.h"
 
+#include <QAction>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QIcon>
 
 namespace Gui
 {
@@ -11,6 +13,37 @@ namespace Gui
 UMLDocumentView::UMLDocumentView(QWidget *parent)
 : QGraphicsView(parent), m_scene(nullptr)
 {
+	m_actionZoomIn = new QAction(
+		QIcon(":/kde_icons/resources/kde_icons/zoom-in.png"),
+		"Zoom In", this);
+	m_actionZoomIn->setShortcut(QKeySequence::ZoomIn);
+	connect(m_actionZoomIn, SIGNAL(triggered()), this, SLOT(zoomIn()));
+
+	m_actionZoomOut = new QAction(
+		QIcon(":/kde_icons/resources/kde_icons/zoom-out.png"),
+		"Zoom Out", this);
+	m_actionZoomOut->setShortcut(QKeySequence::ZoomOut);
+	connect(m_actionZoomOut, SIGNAL(triggered()), this, SLOT(zoomOut()));
+
+	m_actionZoomOriginal = new QAction(
+		QIcon(":/kde_icons/resources/kde_icons/zoom-original.png"),
+		"Zoom 100%", this);
+	m_actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
+	connect(m_actionZoomOriginal, SIGNAL(triggered()), this, SLOT(zoomOriginal()));
+
+	m_actionZoomFit = new QAction(
+		QIcon(":/kde_icons/resources/kde_icons/zoom-fit-best.png"),
+		"Zoom Fit", this);
+	m_actionZoomFit->setShortcut(Qt::Key_F2);
+	connect(m_actionZoomFit, SIGNAL(triggered()), this, SLOT(zoomFit()));
+}
+
+void UMLDocumentView::appendViewActions(QWidget *target)
+{
+	target->addAction(m_actionZoomIn);
+	target->addAction(m_actionZoomOut);
+	target->addAction(m_actionZoomOriginal);
+	target->addAction(m_actionZoomFit);
 }
 
 void UMLDocumentView::setScene(UMLGraphicsScene *scene)

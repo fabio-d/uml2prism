@@ -18,6 +18,7 @@
 namespace Core
 {
 class UMLActionNode;
+class UMLClass;
 class UMLControlFlowEdge;
 class UMLDecisionNode;
 class UMLElement;
@@ -32,6 +33,7 @@ namespace Gui
 {
 
 class GraphicsLabelItem;
+class GraphicsDatatypeItem;
 class GraphicsEdgeItem;
 
 class UMLElement
@@ -207,6 +209,19 @@ class UMLControlFlowEdge : public UMLElement
 		GraphicsLabelItem *m_labelItemFrom;
 		GraphicsLabelItem *m_labelItemTo;
 		QGraphicsPathItem *m_arrowItem;
+};
+
+class UMLClass : public UMLElement
+{
+	public:
+		explicit UMLClass(const QPointF &topMidPosition);
+		void bind(Core::UMLClass *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLClass *m_coreItem;
+		GraphicsDatatypeItem *m_qtItem;
 };
 
 }

@@ -20,7 +20,7 @@
    <property name="currentIndex">
     <number>0</number>
    </property>
-   <widget class="Gui::UMLDocumentView" name="umlGraphicsView">
+   <widget class="Gui::UMLDocumentView" name="umlGraphicsViewActivity">
     <property name="mouseTracking">
      <bool>true</bool>
     </property>
@@ -52,7 +52,7 @@
      <string>Activity Diagram</string>
     </attribute>
    </widget>
-   <widget class="Gui::UMLDocumentView" name="tab2">
+   <widget class="Gui::UMLDocumentView" name="umlGraphicsViewClass">
     <property name="mouseTracking">
      <bool>true</bool>
     </property>
@@ -117,11 +117,6 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="actionZoomIn"/>
-    <addaction name="actionZoomOut"/>
-    <addaction name="separator"/>
-    <addaction name="actionZoomOriginal"/>
-    <addaction name="actionZoomFit"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuEdit"/>
@@ -339,9 +334,9 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
   </widget>
-  <widget class="QToolBar" name="toolBarZoom">
+  <widget class="QToolBar" name="toolBarView">
    <property name="windowTitle">
-    <string>Zoom</string>
+    <string>View</string>
    </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonFollowStyle</enum>
@@ -352,10 +347,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionZoomIn"/>
-   <addaction name="actionZoomOut"/>
-   <addaction name="actionZoomOriginal"/>
-   <addaction name="actionZoomFit"/>
   </widget>
   <widget class="QToolBar" name="toolBarEdit">
    <property name="windowTitle">
@@ -425,48 +416,6 @@
     <string>&amp;Quit</string>
    </property>
   </action>
-  <action name="actionZoomIn">
-   <property name="icon">
-    <iconset theme="zoom-in" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/zoom-in.png</normaloff>:/kde_icons/resources/kde_icons/zoom-in.png</iconset>
-   </property>
-   <property name="text">
-    <string>Zoom In</string>
-   </property>
-  </action>
-  <action name="actionZoomOut">
-   <property name="icon">
-    <iconset theme="zoom-out" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/zoom-out.png</normaloff>:/kde_icons/resources/kde_icons/zoom-out.png</iconset>
-   </property>
-   <property name="text">
-    <string>Zoom Out</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom Out</string>
-   </property>
-  </action>
-  <action name="actionZoomOriginal">
-   <property name="icon">
-    <iconset theme="zoom-original" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/zoom-original.png</normaloff>:/kde_icons/resources/kde_icons/zoom-original.png</iconset>
-   </property>
-   <property name="text">
-    <string>Zoom 100%</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom 100%</string>
-   </property>
-  </action>
-  <action name="actionZoomFit">
-   <property name="icon">
-    <iconset theme="zoom-fit-best" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/zoom-fit-best.png</normaloff>:/kde_icons/resources/kde_icons/zoom-fit-best.png</iconset>
-   </property>
-   <property name="text">
-    <string>Fit window</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -508,70 +457,6 @@
     <hint type="destinationlabel">
      <x>732</x>
      <y>578</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionZoomIn</sender>
-   <signal>triggered()</signal>
-   <receiver>umlGraphicsView</receiver>
-   <slot>zoomIn()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>732</x>
-     <y>613</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionZoomOut</sender>
-   <signal>triggered()</signal>
-   <receiver>umlGraphicsView</receiver>
-   <slot>zoomOut()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>732</x>
-     <y>613</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionZoomOriginal</sender>
-   <signal>triggered()</signal>
-   <receiver>umlGraphicsView</receiver>
-   <slot>zoomOriginal()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>732</x>
-     <y>613</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionZoomFit</sender>
-   <signal>triggered()</signal>
-   <receiver>umlGraphicsView</receiver>
-   <slot>zoomFit()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>732</x>
-     <y>613</y>
     </hint>
    </hints>
   </connection>

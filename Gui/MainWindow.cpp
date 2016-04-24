@@ -20,38 +20,51 @@ MainWindow::MainWindow(QWidget *parent)
 	m_ui->actionSaveAs->setShortcut(QKeySequence::SaveAs);
 	m_ui->actionClose->setShortcut(QKeySequence::Close);
 	m_ui->actionQuit->setShortcut(QKeySequence::Quit);
-	m_ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
-	m_ui->actionZoomOut->setShortcut(QKeySequence::ZoomOut);
-	m_ui->actionZoomOriginal->setShortcut(Qt::CTRL + Qt::Key_0);
 
-	m_doc = new Core::UMLDocument();
+	m_activityDoc = new Core::UMLDocument(Core::UMLDocument::Activity);
+	m_umlGraphicsSceneActivity = new UMLGraphicsScene(m_activityDoc, this);
+	m_ui->umlGraphicsViewActivity->setScene(m_umlGraphicsSceneActivity);
 
-	m_umlGraphicsScene = new UMLGraphicsScene(m_doc, this);
-	m_ui->umlGraphicsView->setScene(m_umlGraphicsScene);
-
-	m_umlGraphicsScene->addActions(m_ui->menuEdit);
-	m_umlGraphicsScene->addActions(m_ui->toolBarEdit);
+	m_classDoc = new Core::UMLDocument(Core::UMLDocument::Class);
+	m_umlGraphicsSceneClass = new UMLGraphicsScene(m_classDoc, this);
+	m_ui->umlGraphicsViewClass->setScene(m_umlGraphicsSceneClass);
 
 	slotTabSwitched();
 }
 
 MainWindow::~MainWindow()
 {
-	delete m_doc;
+	delete m_classDoc;
+	delete m_activityDoc;
 	delete m_ui;
 }
 
 void MainWindow::slotTabSwitched()
 {
+	m_ui->menuEdit->clear();
+	m_ui->toolBarEdit->clear();
+	m_ui->menuView->clear();
+	m_ui->toolBarView->clear();
+
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 	{
 		m_ui->listWidgetActivityToolbox->setVisible(true);
 		m_ui->listWidgetClassToolbox->setVisible(false);
+
+		m_umlGraphicsSceneActivity->appendEditActions(m_ui->menuEdit);
+		m_umlGraphicsSceneActivity->appendEditActions(m_ui->toolBarEdit);
+		m_ui->umlGraphicsViewActivity->appendViewActions(m_ui->menuView);
+		m_ui->umlGraphicsViewActivity->appendViewActions(m_ui->toolBarView);
 	}
 	else
 	{
 		m_ui->listWidgetActivityToolbox->setVisible(false);
 		m_ui->listWidgetClassToolbox->setVisible(true);
+
+		m_umlGraphicsSceneClass->appendEditActions(m_ui->menuEdit);
+		m_umlGraphicsSceneClass->appendEditActions(m_ui->toolBarEdit);
+		m_ui->umlGraphicsViewClass->appendViewActions(m_ui->menuView);
+		m_ui->umlGraphicsViewClass->appendViewActions(m_ui->toolBarView);
 	}
 }
 
