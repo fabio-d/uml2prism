@@ -51,6 +51,9 @@ void UMLDiagramView::setScene(UMLGraphicsScene *scene)
 	m_scene = scene;
 	QGraphicsView::setScene(scene);
 
+	connect(m_scene, SIGNAL(edgeConstructionStateChanged(bool)),
+		this, SLOT(slotEdgeConstructionStateChanged(bool)));
+
 	m_scene->setSceneRect(m_scene->itemsBoundingRect());
 	updateScene(QList<QRectF>());
 }
@@ -92,6 +95,15 @@ void UMLDiagramView::zoomFit()
 {
 	fitInView(m_scene->itemsBoundingRect(), Qt::KeepAspectRatio);
 	setScale(currentScale());
+}
+
+void UMLDiagramView::dropEvent(QDropEvent *event)
+{
+	// Just give us focus...
+	setFocus(Qt::MouseFocusReason);
+
+	// ...and let the scene do the actual work
+	QGraphicsView::dropEvent(event);
 }
 
 void UMLDiagramView::mousePressEvent(QMouseEvent *event)
@@ -138,7 +150,10 @@ void UMLDiagramView::mouseReleaseEvent(QMouseEvent *event)
 		QGraphicsView::mouseReleaseEvent(event);
 	}
 
-	setDragMode(QGraphicsView::RubberBandDrag);
+	if (m_edgeConstructionInProgress)
+		setDragMode(QGraphicsView::NoDrag);
+	else
+		setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 void UMLDiagramView::resizeEvent(QResizeEvent *event)
@@ -176,6 +191,16 @@ void UMLDiagramView::updateScene(const QList<QRectF> &)
 	}
 
 	viewport()->update();
+}
+
+void UMLDiagramView::slotEdgeConstructionStateChanged(bool inProgress)
+{
+	m_edgeConstructionInProgress = inProgress;
+
+	if (m_edgeConstructionInProgress)
+		setDragMode(QGraphicsView::NoDrag);
+	else
+		setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 }

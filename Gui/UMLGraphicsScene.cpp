@@ -184,6 +184,10 @@ void UMLGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextM
 
 void UMLGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
+	// Do not accept further drags while a path is being constructed
+	if (m_edgeConstructionOrigin != nullptr)
+		return;
+
 	QList<QGraphicsItem*> itemsUnderMouse = items(event->scenePos());
 
 	if (m_dia->type() == Core::UMLDiagram::Activity
@@ -216,7 +220,15 @@ void UMLGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 			painter->setPen(Qt::DashDotLine);
 
 		UMLNodeElement *itemUnderMouse = searchNodeElementAt(m_mousePos);
-		if (itemUnderMouse == nullptr)
+
+		// paths to self require at least two intermediate points
+		if (m_edgeConstructionOrigin == itemUnderMouse
+			&& m_edgeConstructionPoints.isEmpty())
+		{
+			// do not paint any path
+		}
+		else if (itemUnderMouse == nullptr || (m_edgeConstructionOrigin == itemUnderMouse
+			&& m_edgeConstructionPoints.count() == 1))
 		{
 			QPolygonF path = m_edgeConstructionPoints;
 			path.append(m_mousePos);
@@ -298,6 +310,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		m_edgeConstructionOrigin = searchNodeElementAt(scenePos);
 		m_edgeConstructionPoints.clear();
 		m_edgeConstructSignal = mime->data("application/x-uml-create-flow") == "Signal";
+		emit edgeConstructionStateChanged(true);
 	}
 	else if (m_dia->type() == Core::UMLDiagram::Class
 		&& mime->formats().contains("application/x-uml-create-datatype"))
@@ -325,14 +338,56 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 	}
 }
 
+void UMLGraphicsScene::keyPressEvent(QKeyEvent *keyEvent)
+{
+	// ESC stops edge construction
+	if (m_edgeConstructionOrigin != nullptr && keyEvent->key() == Qt::Key_Escape)
+	{
+		m_edgeConstructionOrigin = nullptr;
+		emit edgeConstructionStateChanged(false);
+		emit changed(QList<QRectF>());
+		keyEvent->accept();
+		return;
+	}
+
+	QGraphicsScene::keyPressEvent(keyEvent);
+}
+
+void UMLGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+	// ignore double-clicks while an edge is being constructed
+	if (m_edgeConstructionOrigin != nullptr)
+		return;
+
+	QGraphicsScene::mouseDoubleClickEvent(mouseEvent);
+}
+
 void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
+	const QPointF scenePos = mouseEvent->scenePos();
+
+	// Right click aborts edge creation
+	if (mouseEvent->button() == Qt::RightButton && m_edgeConstructionOrigin != nullptr)
+	{
+		m_edgeConstructionOrigin = nullptr;
+		emit edgeConstructionStateChanged(false);
+		emit changed(QList<QRectF>());
+	}
+
 	if (m_edgeConstructionOrigin != nullptr)
 	{
-		UMLNodeElement *itemUnderMouse = searchNodeElementAt(mouseEvent->scenePos());
+		UMLNodeElement *itemUnderMouse = searchNodeElementAt(scenePos);
 
 		if (itemUnderMouse != nullptr)
 		{
+			// paths to self look decent enough if there two
+			// intermediate points at least
+			if (m_edgeConstructionOrigin == itemUnderMouse &&
+				m_edgeConstructionPoints.count() < 2)
+			{
+				return;
+			}
+
 			Core::UMLNodeElement *from =
 				static_cast<Core::UMLNodeElement*>(m_edgeConstructionOrigin->coreItem());
 			Core::UMLNodeElement *to =
@@ -350,11 +405,13 @@ void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
 			m_dia->addUMLElement(elem);
 			m_edgeConstructionOrigin = nullptr;
+			emit edgeConstructionStateChanged(false);
 			emit changed(QList<QRectF>());
 		}
-		else
+		else if (m_edgeConstructionPoints.isEmpty()
+			|| m_edgeConstructionPoints.last() != scenePos)
 		{
-			m_edgeConstructionPoints.append(mouseEvent->scenePos());
+			m_edgeConstructionPoints.append(scenePos);
 			emit changed(QList<QRectF>());
 		}
 

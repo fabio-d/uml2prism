@@ -30,8 +30,10 @@ class UMLDiagramView : public QGraphicsView
 
 	private slots:
 		void updateScene(const QList<QRectF> &rect);
+		void slotEdgeConstructionStateChanged(bool inProgress);
 
 	private:
+		void dropEvent(QDropEvent *event) override;
 		void mousePressEvent(QMouseEvent *event) override;
 		void mouseReleaseEvent(QMouseEvent *event) override;
 		void resizeEvent(QResizeEvent *event) override;
@@ -45,6 +47,9 @@ class UMLDiagramView : public QGraphicsView
 		QAction *m_actionZoomOut;
 		QAction *m_actionZoomOriginal;
 		QAction *m_actionZoomFit;
+
+		// is the user constructing an edge?
+		bool m_edgeConstructionInProgress;
 };
 
 }

@@ -33,6 +33,9 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 
 		void notifyGeometryChanged(UMLElement *element);
 
+	signals:
+		void edgeConstructionStateChanged(bool inProgress);
+
 	private slots:
 		void slotSelectionChanged();
 		void slotRenameNode();
@@ -45,6 +48,8 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
 		void drawForeground(QPainter *painter, const QRectF &rect) override;
 		void dropEvent(QGraphicsSceneDragDropEvent *event) override;
+		void keyPressEvent(QKeyEvent *keyEvent) override;
+		void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 		void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 		void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
 		void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
