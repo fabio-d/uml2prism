@@ -57,39 +57,39 @@ UMLActivityDiagramToolboxListWidget::UMLActivityDiagramToolboxListWidget(QWidget
 : UMLToolboxListWidget(parent)
 {
 	addTool("Initial Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/InitialNode_24.gif"),
+		QIcon(":/topcased_icons/InitialNode_24.gif"),
 		"application/x-uml-create-node", "InitialNode");
 
 	addTool("Action Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/OpaqueAction_24.gif"),
+		QIcon(":/topcased_icons/OpaqueAction_24.gif"),
 		"application/x-uml-create-node", "ActionNode");
 
 	addTool("Decision Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/DecisionNode_24.gif"),
+		QIcon(":/topcased_icons/DecisionNode_24.gif"),
 		"application/x-uml-create-node", "DecisionNode");
 
 	addTool("Merge Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/MergeNode_24.gif"),
+		QIcon(":/topcased_icons/MergeNode_24.gif"),
 		"application/x-uml-create-node", "MergeNode");
 
 	addTool("Fork Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/ForkNode_24.gif"),
+		QIcon(":/topcased_icons/ForkNode_24.gif"),
 		"application/x-uml-create-node", "ForkNode");
 
 	addTool("Join Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/JoinNode_24.gif"),
+		QIcon(":/topcased_icons/JoinNode_24.gif"),
 		"application/x-uml-create-node", "JoinNode");
 
 	addTool("Final Node",
-		QIcon(":/topcased_icons/resources/topcased_icons/ActivityFinalNode_24.gif"),
+		QIcon(":/topcased_icons/ActivityFinalNode_24.gif"),
 		"application/x-uml-create-node", "FinalNode");
 
 	addTool("Control Flow",
-		QIcon(":/topcased_icons/resources/topcased_icons/ControlFlow_24.gif"),
+		QIcon(":/topcased_icons/ControlFlow_24.gif"),
 		"application/x-uml-create-flow", "ControlFlow");
 
 	addTool("Signal / Object Flow",
-		QIcon(":/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif"),
+		QIcon(":/topcased_icons/ObjectFlow_24.gif"),
 		"application/x-uml-create-flow", "Signal");
 }
 
@@ -97,11 +97,11 @@ UMLClassDiagramToolboxListWidget::UMLClassDiagramToolboxListWidget(QWidget *pare
 : UMLToolboxListWidget(parent)
 {
 	addTool("Class",
-		QIcon(":/topcased_icons/resources/topcased_icons/Class_24.gif"),
+		QIcon(":/topcased_icons/Class_24.gif"),
 		"application/x-uml-create-datatype", "Class");
 
 	addTool("Enumeration",
-		QIcon(":/topcased_icons/resources/topcased_icons/Enumeration_24.gif"),
+		QIcon(":/topcased_icons/Enumeration_24.gif"),
 		"application/x-uml-create-datatype", "Enumeration");
 }
 

@@ -226,8 +226,8 @@
           <string>Create new variable</string>
          </property>
          <property name="icon">
-          <iconset theme="list-add" resource="../resources.qrc">
-           <normaloff>:/kde_icons/resources/kde_icons/list-add.png</normaloff>:/kde_icons/resources/kde_icons/list-add.png</iconset>
+          <iconset theme="list-add" resource="../resources/resources.qrc">
+           <normaloff>:/kde_icons/list-add.png</normaloff>:/kde_icons/list-add.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -246,8 +246,8 @@
           <string>Delete variable</string>
          </property>
          <property name="icon">
-          <iconset theme="list-remove" resource="../resources.qrc">
-           <normaloff>:/kde_icons/resources/kde_icons/list-remove.png</normaloff>:/kde_icons/resources/kde_icons/list-remove.png</iconset>
+          <iconset theme="list-remove" resource="../resources/resources.qrc">
+           <normaloff>:/kde_icons/list-remove.png</normaloff>:/kde_icons/list-remove.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -379,8 +379,8 @@
   </widget>
   <action name="actionNew">
    <property name="icon">
-    <iconset theme="document-new" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/document-new.png</normaloff>:/kde_icons/resources/kde_icons/document-new.png</iconset>
+    <iconset theme="document-new" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/document-new.png</normaloff>:/kde_icons/document-new.png</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>
@@ -388,8 +388,8 @@
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset theme="document-open" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/document-open.png</normaloff>:/kde_icons/resources/kde_icons/document-open.png</iconset>
+    <iconset theme="document-open" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/document-open.png</normaloff>:/kde_icons/document-open.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Open...</string>
@@ -397,8 +397,8 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="document-save" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/document-save.png</normaloff>:/kde_icons/resources/kde_icons/document-save.png</iconset>
+    <iconset theme="document-save" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/document-save.png</normaloff>:/kde_icons/document-save.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -406,8 +406,8 @@
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset theme="document-save-as" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/document-save-as.png</normaloff>:/kde_icons/resources/kde_icons/document-save-as.png</iconset>
+    <iconset theme="document-save-as" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/document-save-as.png</normaloff>:/kde_icons/document-save-as.png</iconset>
    </property>
    <property name="text">
     <string>Save &amp;As...</string>
@@ -415,8 +415,8 @@
   </action>
   <action name="actionClose">
    <property name="icon">
-    <iconset theme="window-close" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/window-close.png</normaloff>:/kde_icons/resources/kde_icons/window-close.png</iconset>
+    <iconset theme="window-close" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/window-close.png</normaloff>:/kde_icons/window-close.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Close</string>
@@ -424,8 +424,8 @@
   </action>
   <action name="actionQuit">
    <property name="icon">
-    <iconset theme="application-exit" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/application-exit.png</normaloff>:/kde_icons/resources/kde_icons/application-exit.png</iconset>
+    <iconset theme="application-exit" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/application-exit.png</normaloff>:/kde_icons/application-exit.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -433,8 +433,8 @@
   </action>
   <action name="actionZoomIn">
    <property name="icon">
-    <iconset theme="zoom-in" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/zoom-in.png</normaloff>:/kde_icons/resources/kde_icons/zoom-in.png</iconset>
+    <iconset theme="zoom-in" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/zoom-in.png</normaloff>:/kde_icons/zoom-in.png</iconset>
    </property>
    <property name="text">
     <string>Zoom &amp;In</string>
@@ -442,8 +442,8 @@
   </action>
   <action name="actionZoomOut">
    <property name="icon">
-    <iconset theme="zoom-out" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/zoom-out.png</normaloff>:/kde_icons/resources/kde_icons/zoom-out.png</iconset>
+    <iconset theme="zoom-out" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/zoom-out.png</normaloff>:/kde_icons/zoom-out.png</iconset>
    </property>
    <property name="text">
     <string>Zoom &amp;Out</string>
@@ -454,8 +454,8 @@
   </action>
   <action name="actionZoomOriginal">
    <property name="icon">
-    <iconset theme="zoom-original" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/zoom-original.png</normaloff>:/kde_icons/resources/kde_icons/zoom-original.png</iconset>
+    <iconset theme="zoom-original" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/zoom-original.png</normaloff>:/kde_icons/zoom-original.png</iconset>
    </property>
    <property name="text">
     <string>Zoom &amp;100%</string>
@@ -469,8 +469,8 @@
   </action>
   <action name="actionZoomFit">
    <property name="icon">
-    <iconset theme="zoom-fit-best" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/zoom-fit-best.png</normaloff>:/kde_icons/resources/kde_icons/zoom-fit-best.png</iconset>
+    <iconset theme="zoom-fit-best" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/zoom-fit-best.png</normaloff>:/kde_icons/zoom-fit-best.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Fit Window</string>
@@ -478,8 +478,8 @@
   </action>
   <action name="actionEditItem">
    <property name="icon">
-    <iconset theme="document-properties" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/document-properties.png</normaloff>:/kde_icons/resources/kde_icons/document-properties.png</iconset>
+    <iconset theme="document-properties" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/document-properties.png</normaloff>:/kde_icons/document-properties.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Edit item...</string>
@@ -493,8 +493,8 @@
   </action>
   <action name="actionRenameItem">
    <property name="icon">
-    <iconset theme="edit-rename" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/edit-rename.png</normaloff>:/kde_icons/resources/kde_icons/edit-rename.png</iconset>
+    <iconset theme="edit-rename" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/edit-rename.png</normaloff>:/kde_icons/edit-rename.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Rename item...</string>
@@ -508,8 +508,8 @@
   </action>
   <action name="actionDeleteItem">
    <property name="icon">
-    <iconset theme="edit-delete" resource="../resources.qrc">
-     <normaloff>:/kde_icons/resources/kde_icons/edit-delete.png</normaloff>:/kde_icons/resources/kde_icons/edit-delete.png</iconset>
+    <iconset theme="edit-delete">
+     <normaloff>:/kde_icons/edit-delete.png</normaloff>:/kde_icons/edit-delete.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Delete item</string>
@@ -543,7 +543,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
  </resources>
  <connections>
   <connection>

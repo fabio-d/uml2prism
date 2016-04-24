@@ -1,0 +1,32 @@
+<RCC>
+  <qresource prefix="topcased_icons">
+    <file alias="ActivityFinalNode_24.gif">topcased_icons/ActivityFinalNode_24.gif</file>
+    <file alias="Class_24.gif">topcased_icons/Class_24.gif</file>
+    <file alias="ControlFlow_24.gif">topcased_icons/ControlFlow_24.gif</file>
+    <file alias="DecisionNode_24.gif">topcased_icons/DecisionNode_24.gif</file>
+    <file alias="Enumeration_24.gif">topcased_icons/Enumeration_24.gif</file>
+    <file alias="ForkNode_24.gif">topcased_icons/ForkNode_24.gif</file>
+    <file alias="InitialNode_24.gif">topcased_icons/InitialNode_24.gif</file>
+    <file alias="JoinNode_24.gif">topcased_icons/JoinNode_24.gif</file>
+    <file alias="MergeNode_24.gif">topcased_icons/MergeNode_24.gif</file>
+    <file alias="ObjectFlow_24.gif">topcased_icons/ObjectFlow_24.gif</file>
+    <file alias="OpaqueAction_24.gif">topcased_icons/OpaqueAction_24.gif</file>
+  </qresource>
+  <qresource prefix="kde_icons">
+    <file alias="edit-delete.png">kde_icons/edit-delete.png</file>
+    <file alias="zoom-fit-best.png">kde_icons/zoom-fit-best.png</file>
+    <file alias="zoom-in.png">kde_icons/zoom-in.png</file>
+    <file alias="zoom-original.png">kde_icons/zoom-original.png</file>
+    <file alias="zoom-out.png">kde_icons/zoom-out.png</file>
+    <file alias="document-properties.png">kde_icons/document-properties.png</file>
+    <file alias="edit-rename.png">kde_icons/edit-rename.png</file>
+    <file alias="application-exit.png">kde_icons/application-exit.png</file>
+    <file alias="window-close.png">kde_icons/window-close.png</file>
+    <file alias="document-save-as.png">kde_icons/document-save-as.png</file>
+    <file alias="document-save.png">kde_icons/document-save.png</file>
+    <file alias="document-new.png">kde_icons/document-new.png</file>
+    <file alias="document-open.png">kde_icons/document-open.png</file>
+    <file alias="list-add.png">kde_icons/list-add.png</file>
+    <file alias="list-remove.png">kde_icons/list-remove.png</file>
+  </qresource>
+</RCC>

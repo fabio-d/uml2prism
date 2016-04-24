@@ -20,8 +20,8 @@ add_executable(UMLEditor
 	Gui/UMLElement.cpp
 	Gui/UMLGraphicsScene.cpp
 	Gui/UMLToolboxListWidget.cpp
+	resources/resources.qrc
 	main.cpp
-	resources.qrc
 )
 
 target_link_libraries(UMLEditor Qt4::QtGui Qt4::QtXml)
