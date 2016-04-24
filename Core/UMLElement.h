@@ -18,14 +18,14 @@ enum class UMLElementType
 	InitialNode,
 	FinalNode,
 	ActionNode,
-	DecisionNode,
-	MergeNode,
-	ForkNode,
-	JoinNode,
+	DecisionMergeNode,
+	ForkJoinNode,
 	ControlFlowEdge,
+	SignalEdge,
 
 	// Class diagrams
-	Class
+	Class,
+	Enumeration
 };
 
 class UMLElement : public QObject
@@ -60,7 +60,7 @@ class UMLNodeElement : public UMLElement
 	friend class UMLDiagram;
 
 	public:
-		UMLNodeElement(UMLElementType type, const QString &nodeName);
+		explicit UMLNodeElement(UMLElementType type);
 		~UMLNodeElement();
 
 		void setNodeName(const QString &newName);
@@ -93,28 +93,16 @@ class UMLActionNode : public UMLNodeElement
 		UMLActionNode();
 };
 
-class UMLDecisionNode : public UMLNodeElement
+class UMLDecisionMergeNode : public UMLNodeElement
 {
 	public:
-		UMLDecisionNode();
+		UMLDecisionMergeNode();
 };
 
-class UMLMergeNode : public UMLNodeElement
+class UMLForkJoinNode : public UMLNodeElement
 {
 	public:
-		UMLMergeNode();
-};
-
-class UMLForkNode : public UMLNodeElement
-{
-	public:
-		UMLForkNode();
-};
-
-class UMLJoinNode : public UMLNodeElement
-{
-	public:
-		UMLJoinNode();
+		UMLForkJoinNode();
 };
 
 class UMLEdgeElement : public UMLElement
@@ -135,16 +123,34 @@ class UMLControlFlowEdge : public UMLEdgeElement
 		UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to);
 };
 
-class UMLClass : public UMLElement
+class UMLSignalEdge : public UMLEdgeElement
+{
+	public:
+		UMLSignalEdge(UMLNodeElement *from, UMLNodeElement *to);
+};
+
+class UMLDatatypeElement : public UMLElement
+{
+	public:
+		explicit UMLDatatypeElement(UMLElementType type);
+
+		void setDatatypeName(const QString &newName);
+		const QString &datatypeName() const;
+
+	private:
+		QString m_datatypeName;
+};
+
+class UMLClass : public UMLDatatypeElement
 {
 	public:
 		UMLClass();
+};
 
-		void setClassName(const QString &newName);
-		const QString &className() const;
-
-	private:
-		QString m_className;
+class UMLEnumeration : public UMLDatatypeElement
+{
+	public:
+		UMLEnumeration();
 };
 
 }

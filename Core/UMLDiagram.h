@@ -31,6 +31,9 @@ class UMLDiagram : public QObject
 		void deleteUMLElement(UMLElement *element);
 		void deleteAllElements();
 
+		// Generate a name that is not currently in use by any element
+		QString generateFreshName(const QString &prefix);
+
 	private slots:
 		void slotElementChanged();
 

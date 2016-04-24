@@ -35,29 +35,21 @@ void UMLDiagram::addUMLElement(UMLElement *element)
 {
 	Q_ASSERT(m_elements.contains(element) == false);
 
-	UMLNodeElement *edgeFrom, *edgeTo;
-	if (element->type() == UMLElementType::ControlFlowEdge)
+	UMLEdgeElement *elementAsEdge = dynamic_cast<UMLEdgeElement*>(element);
+	if (elementAsEdge != nullptr)
 	{
-		UMLEdgeElement *edge = static_cast<UMLEdgeElement*>(element);
-		edgeFrom = edge->from();
-		edgeTo = edge->to();
-		edgeFrom->m_outgoingEdges.append(edge);
-		edgeTo->m_incomingEdges.append(edge);
-	}
-	else
-	{
-		edgeFrom = edgeTo = nullptr;
+		elementAsEdge->from()->m_outgoingEdges.append(elementAsEdge);
+		elementAsEdge->to()->m_incomingEdges.append(elementAsEdge);
 	}
 
 	if (m_guiProxy)
 	{
 		m_guiProxy->notifyElementAdded(element);
 
-		if (edgeFrom != nullptr)
+		if (elementAsEdge != nullptr)
 		{
-			Q_ASSERT(edgeTo != nullptr);
-			m_guiProxy->notifyElementChanged(edgeFrom);
-			m_guiProxy->notifyElementChanged(edgeTo);
+			m_guiProxy->notifyElementChanged(elementAsEdge->from());
+			m_guiProxy->notifyElementChanged(elementAsEdge->to());
 		}
 	}
 
@@ -70,29 +62,21 @@ void UMLDiagram::deleteUMLElement(UMLElement *element)
 	Q_ASSERT(m_elements.contains(element) == true);
 	disconnect(element, SIGNAL(changed()), this, SLOT(slotElementChanged()));
 
-	UMLNodeElement *edgeFrom, *edgeTo;
-	if (element->type() == UMLElementType::ControlFlowEdge)
+	UMLEdgeElement *elementAsEdge = dynamic_cast<UMLEdgeElement*>(element);
+	if (elementAsEdge != nullptr)
 	{
-		UMLEdgeElement *edge = static_cast<UMLEdgeElement*>(element);
-		edgeFrom = edge->from();
-		edgeTo = edge->to();
-		edgeFrom->m_outgoingEdges.removeOne(edge);
-		edgeTo->m_incomingEdges.removeOne(edge);
-	}
-	else
-	{
-		edgeFrom = edgeTo = nullptr;
+		elementAsEdge->from()->m_outgoingEdges.removeOne(elementAsEdge);
+		elementAsEdge->to()->m_incomingEdges.removeOne(elementAsEdge);
 	}
 
 	if (m_guiProxy)
 	{
 		m_guiProxy->notifyElementRemoved(element);
 
-		if (edgeFrom != nullptr)
+		if (elementAsEdge != nullptr)
 		{
-			Q_ASSERT(edgeTo != nullptr);
-			m_guiProxy->notifyElementChanged(edgeFrom);
-			m_guiProxy->notifyElementChanged(edgeTo);
+			m_guiProxy->notifyElementChanged(elementAsEdge->from());
+			m_guiProxy->notifyElementChanged(elementAsEdge->to());
 		}
 	}
 
@@ -105,6 +89,12 @@ void UMLDiagram::deleteAllElements()
 	// free elements in reverse order to avoid breaking references
 	while (m_elements.size() != 0)
 		deleteUMLElement(m_elements.last());
+}
+
+QString UMLDiagram::generateFreshName(const QString &prefix)
+{
+	int seqNum = 1;
+	return QString("%1%2").arg(prefix).arg(seqNum);
 }
 
 void UMLDiagram::slotElementChanged()

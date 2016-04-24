@@ -90,7 +90,7 @@ UMLActivityDiagramToolboxListWidget::UMLActivityDiagramToolboxListWidget(QWidget
 
 	addTool("Signal / Object Flow",
 		QIcon(":/topcased_icons/resources/topcased_icons/ObjectFlow_24.gif"),
-		"application/x-uml-create-flow", "ObjectFlow");
+		"application/x-uml-create-flow", "Signal");
 }
 
 UMLClassDiagramToolboxListWidget::UMLClassDiagramToolboxListWidget(QWidget *parent)

@@ -119,9 +119,13 @@ QVariant GraphicsEdgeItem::itemChange(GraphicsItemChange change, const QVariant 
 	return QGraphicsPathItem::itemChange(change, value);
 }
 
-GraphicsDatatypeItem::GraphicsDatatypeItem(QGraphicsItem *parent)
+GraphicsDatatypeItem::GraphicsDatatypeItem(bool showEnumerationStereotype, QGraphicsItem *parent)
 {
-	m_stereotype = new QGraphicsSimpleTextItem("<<example>>", this);
+	if (showEnumerationStereotype)
+		m_stereotype = new QGraphicsSimpleTextItem("<<enumeration>>", this);
+	else
+		m_stereotype = nullptr;
+
 	m_name = new QGraphicsSimpleTextItem(this);
 	m_contents = new QGraphicsSimpleTextItem(this);
 

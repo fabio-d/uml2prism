@@ -21,14 +21,13 @@ namespace Core
 {
 class UMLActionNode;
 class UMLClass;
-class UMLControlFlowEdge;
-class UMLDecisionNode;
+class UMLDecisionMergeNode;
+class UMLEdgeElement;
 class UMLElement;
+class UMLEnumeration;
 class UMLFinalNode;
-class UMLForkNode;
-class UMLJoinNode;
+class UMLForkJoinNode;
 class UMLInitialNode;
-class UMLMergeNode;
 }
 
 namespace Gui
@@ -131,71 +130,41 @@ class UMLActionNode : public UMLNodeElement
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLDecisionNode : public UMLNodeElement
+class UMLDecisionMergeNode : public UMLNodeElement
 {
 	public:
-		explicit UMLDecisionNode(const QPointF &centerPosition);
-		void bind(Core::UMLDecisionNode *coreItem);
+		explicit UMLDecisionMergeNode(const QPointF &centerPosition);
+		void bind(Core::UMLDecisionMergeNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
 	private:
-		Core::UMLDecisionNode *m_coreItem;
+		Core::UMLDecisionMergeNode *m_coreItem;
 		QGraphicsPolygonItem *m_qtItem;
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLMergeNode : public UMLNodeElement
+class UMLForkJoinNode : public UMLNodeElement
 {
 	public:
-		explicit UMLMergeNode(const QPointF &centerPosition);
-		void bind(Core::UMLMergeNode *coreItem);
+		explicit UMLForkJoinNode(const QPointF &centerPosition);
+		void bind(Core::UMLForkJoinNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 		void refresh() override;
 
 	private:
-		Core::UMLMergeNode *m_coreItem;
-		QGraphicsPolygonItem *m_qtItem;
-		GraphicsLabelItem *m_labelItem;
-};
-
-class UMLForkNode : public UMLNodeElement
-{
-	public:
-		explicit UMLForkNode(const QPointF &centerPosition);
-		void bind(Core::UMLForkNode *coreItem);
-		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
-
-		void refresh() override;
-
-	private:
-		Core::UMLForkNode *m_coreItem;
+		Core::UMLForkJoinNode *m_coreItem;
 		QGraphicsRectItem *m_qtItem;
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLJoinNode : public UMLNodeElement
+class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveWatcher
 {
 	public:
-		explicit UMLJoinNode(const QPointF &centerPosition);
-		void bind(Core::UMLJoinNode *coreItem);
-		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
-
-		void refresh() override;
-
-	private:
-		Core::UMLJoinNode *m_coreItem;
-		QGraphicsRectItem *m_qtItem;
-		GraphicsLabelItem *m_labelItem;
-};
-
-class UMLControlFlowEdge : public UMLElement, private GraphicsEdgeItem::MoveWatcher
-{
-	public:
-		UMLControlFlowEdge();
-		void bind(Core::UMLControlFlowEdge *coreItem);
+		UMLEdgeElement();
+		void bind(Core::UMLEdgeElement *coreItem);
 
 		void setIntermediatePoints(const QPolygonF &intermediatePoints);
 		void refresh() override;
@@ -206,7 +175,7 @@ class UMLControlFlowEdge : public UMLElement, private GraphicsEdgeItem::MoveWatc
 	private:
 		void notifyEdgeMoved(const QPointF &delta) override;
 
-		Core::UMLControlFlowEdge *m_coreItem;
+		Core::UMLEdgeElement *m_coreItem;
 		GraphicsEdgeItem *m_qtItem;
 		GraphicsLabelItem *m_labelItemFrom;
 		GraphicsLabelItem *m_labelItemTo;
@@ -224,6 +193,19 @@ class UMLClass : public UMLElement
 
 	private:
 		Core::UMLClass *m_coreItem;
+		GraphicsDatatypeItem *m_qtItem;
+};
+
+class UMLEnumeration : public UMLElement
+{
+	public:
+		explicit UMLEnumeration(const QPointF &topMidPosition);
+		void bind(Core::UMLEnumeration *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLEnumeration *m_coreItem;
 		GraphicsDatatypeItem *m_qtItem;
 };
 

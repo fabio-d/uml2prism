@@ -35,8 +35,8 @@ void UMLElement::topoSort(QList<UMLElement*> &list, bool reverse)
 	});
 }
 
-UMLNodeElement::UMLNodeElement(UMLElementType type, const QString &nodeName)
-: UMLElement(type), m_nodeName(nodeName)
+UMLNodeElement::UMLNodeElement(UMLElementType type)
+: UMLElement(type)
 {
 }
 
@@ -68,37 +68,27 @@ const QList<UMLEdgeElement*> &UMLNodeElement::outgoingEdges() const
 }
 
 UMLInitialNode::UMLInitialNode()
-: UMLNodeElement(UMLElementType::InitialNode, "InitialNode")
+: UMLNodeElement(UMLElementType::InitialNode)
 {
 }
 
 UMLFinalNode::UMLFinalNode()
-: UMLNodeElement(UMLElementType::FinalNode, "FinalNode")
+: UMLNodeElement(UMLElementType::FinalNode)
 {
 }
 
 UMLActionNode::UMLActionNode()
-: UMLNodeElement(UMLElementType::ActionNode, "ActionNode")
+: UMLNodeElement(UMLElementType::ActionNode)
 {
 }
 
-UMLDecisionNode::UMLDecisionNode()
-: UMLNodeElement(UMLElementType::DecisionNode, "DecisionNode")
+UMLDecisionMergeNode::UMLDecisionMergeNode()
+: UMLNodeElement(UMLElementType::DecisionMergeNode)
 {
 }
 
-UMLMergeNode::UMLMergeNode()
-: UMLNodeElement(UMLElementType::MergeNode, "MergeNode")
-{
-}
-
-UMLForkNode::UMLForkNode()
-: UMLNodeElement(UMLElementType::ForkNode, "ForkNode")
-{
-}
-
-UMLJoinNode::UMLJoinNode()
-: UMLNodeElement(UMLElementType::JoinNode, "JoinNode")
+UMLForkJoinNode::UMLForkJoinNode()
+: UMLNodeElement(UMLElementType::ForkJoinNode)
 {
 }
 
@@ -122,19 +112,34 @@ UMLControlFlowEdge::UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to)
 {
 }
 
+UMLSignalEdge::UMLSignalEdge(UMLNodeElement *from, UMLNodeElement *to)
+: UMLEdgeElement(UMLElementType::SignalEdge, from, to)
+{
+}
+
+UMLDatatypeElement::UMLDatatypeElement(UMLElementType type)
+: UMLElement(type)
+{
+}
+
+void UMLDatatypeElement::setDatatypeName(const QString &newName)
+{
+	m_datatypeName = newName;
+}
+
+const QString &UMLDatatypeElement::datatypeName() const
+{
+	return m_datatypeName;
+}
+
 UMLClass::UMLClass()
-: UMLElement(UMLElementType::Class), m_className("ClassName")
+: UMLDatatypeElement(UMLElementType::Class)
 {
 }
 
-void UMLClass::setClassName(const QString &newName)
+UMLEnumeration::UMLEnumeration()
+: UMLDatatypeElement(UMLElementType::Enumeration)
 {
-	m_className = newName;
-}
-
-const QString &UMLClass::className() const
-{
-	return m_className;
 }
 
 }

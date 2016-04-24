@@ -65,9 +65,10 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		// main UMLElement is selected.
 		QList<UMLElement*> m_strictSelection, m_relaxedSelection;
 
-		// When creating a flow element, this is the origin node
-		UMLNodeElement *m_createFlowOrigin;
-		QPolygonF m_intermediatePoints;
+		// Information used to create graph edges
+		UMLNodeElement *m_edgeConstructionOrigin;
+		QPolygonF m_edgeConstructionPoints;
+		bool m_edgeConstructSignal; // false=control flow, true=signal
 		QPointF m_mousePos;
 };
 

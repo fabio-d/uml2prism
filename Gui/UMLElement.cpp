@@ -306,7 +306,7 @@ void UMLActionNode::setRectPath(const QSizeF &size)
 		static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(this);
 }
 
-UMLDecisionNode::UMLDecisionNode(const QPointF &centerPosition)
+UMLDecisionMergeNode::UMLDecisionMergeNode(const QPointF &centerPosition)
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsPolygonItem>(this,
 		DecisionMergeNodeShape);
@@ -319,13 +319,13 @@ UMLDecisionNode::UMLDecisionNode(const QPointF &centerPosition)
 	UMLElement::bind(m_qtItem);
 }
 
-void UMLDecisionNode::bind(Core::UMLDecisionNode *coreItem)
+void UMLDecisionMergeNode::bind(Core::UMLDecisionMergeNode *coreItem)
 {
 	m_coreItem = coreItem;
 	UMLElement::bind(coreItem);
 }
 
-QPointF UMLDecisionNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
+QPointF UMLDecisionMergeNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
 {
 	const QPointF centerPos = m_qtItem->pos();
 	*out_pIsInside = (p - centerPos).manhattanLength() <= DecisionMergeNodeHalfDiag;
@@ -336,49 +336,13 @@ QPointF UMLDecisionNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInsi
 		p);
 }
 
-void UMLDecisionNode::refresh()
+void UMLDecisionMergeNode::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_labelItem->setText(m_coreItem->nodeName());
 }
 
-UMLMergeNode::UMLMergeNode(const QPointF &centerPosition)
-{
-	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsPolygonItem>(this,
-		DecisionMergeNodeShape);
-	m_qtItem->setPos(centerPosition);
-	m_qtItem->setBrush(Qt::white);
-	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
-	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheBottom, m_qtItem);
-	UMLElement::bind(m_qtItem);
-}
-
-void UMLMergeNode::bind(Core::UMLMergeNode *coreItem)
-{
-	m_coreItem = coreItem;
-	UMLElement::bind(coreItem);
-}
-
-QPointF UMLMergeNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
-{
-	const QPointF centerPos = m_qtItem->pos();
-	*out_pIsInside = (p - centerPos).manhattanLength() <= DecisionMergeNodeHalfDiag;
-
-	return segmentClosestPoint(
-		centerPos + QPointF(DecisionMergeNodeHalfDiag * (p.x() < centerPos.x() ? -1 : +1), 0),
-		centerPos + QPointF(0, DecisionMergeNodeHalfDiag * (p.y() < centerPos.y() ? -1 : +1)),
-		p);
-}
-
-void UMLMergeNode::refresh()
-{
-	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
-}
-
-UMLForkNode::UMLForkNode(const QPointF &centerPosition)
+UMLForkJoinNode::UMLForkJoinNode(const QPointF &centerPosition)
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsRectItem>(this,
 		ForkJoinNodeShape);
@@ -391,56 +355,25 @@ UMLForkNode::UMLForkNode(const QPointF &centerPosition)
 	UMLElement::bind(m_qtItem);
 }
 
-void UMLForkNode::bind(Core::UMLForkNode *coreItem)
+void UMLForkJoinNode::bind(Core::UMLForkJoinNode *coreItem)
 {
 	m_coreItem = coreItem;
 	UMLElement::bind(coreItem);
 }
 
-QPointF UMLForkNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
+QPointF UMLForkJoinNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
 {
 	return rectClosestPoint(ForkJoinNodeShape.translated(m_qtItem->pos()),
 		p, out_pIsInside);
 }
 
-void UMLForkNode::refresh()
+void UMLForkJoinNode::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_labelItem->setText(m_coreItem->nodeName());
 }
 
-UMLJoinNode::UMLJoinNode(const QPointF &centerPosition)
-{
-	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsRectItem>(this,
-		ForkJoinNodeShape);
-	m_qtItem->setPos(centerPosition);
-	m_qtItem->setBrush(Qt::black);
-	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
-	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
-
-	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheBottom, m_qtItem);
-	UMLElement::bind(m_qtItem);
-}
-
-void UMLJoinNode::bind(Core::UMLJoinNode *coreItem)
-{
-	m_coreItem = coreItem;
-	UMLElement::bind(coreItem);
-}
-
-QPointF UMLJoinNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
-{
-	return rectClosestPoint(ForkJoinNodeShape.translated(m_qtItem->pos()),
-		p, out_pIsInside);
-}
-
-void UMLJoinNode::refresh()
-{
-	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
-}
-
-UMLControlFlowEdge::UMLControlFlowEdge()
+UMLEdgeElement::UMLEdgeElement()
 {
 	m_qtItem = new GraphicsEdgeItem();
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -456,13 +389,19 @@ UMLControlFlowEdge::UMLControlFlowEdge()
 	UMLElement::bind(m_qtItem);
 }
 
-void UMLControlFlowEdge::bind(Core::UMLControlFlowEdge *coreItem)
+void UMLEdgeElement::bind(Core::UMLEdgeElement *coreItem)
 {
 	m_coreItem = coreItem;
+	if (m_coreItem->type() == Core::UMLElementType::SignalEdge)
+	{
+		m_qtItem->setPen(Qt::DashDotLine);
+		m_arrowItem->setPen(Qt::DashDotLine);
+	}
+
 	UMLElement::bind(coreItem);
 }
 
-void UMLControlFlowEdge::setIntermediatePoints(const QPolygonF &intermediatePoints)
+void UMLEdgeElement::setIntermediatePoints(const QPolygonF &intermediatePoints)
 {
 	m_intermediatePoints = intermediatePoints;
 	refresh();
@@ -472,7 +411,7 @@ void UMLControlFlowEdge::setIntermediatePoints(const QPolygonF &intermediatePoin
 		static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(this);
 }
 
-void UMLControlFlowEdge::refresh()
+void UMLEdgeElement::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 
@@ -490,12 +429,12 @@ void UMLControlFlowEdge::refresh()
 	m_labelItemTo->setText("[to]");
 }
 
-void UMLControlFlowEdge::notifyEdgeMoved(const QPointF &delta)
+void UMLEdgeElement::notifyEdgeMoved(const QPointF &delta)
 {
 	setIntermediatePoints(m_intermediatePoints.translated(delta));
 }
 
-QPolygonF UMLControlFlowEdge::calcPathBetweenNodes(UMLNodeElement *a, UMLNodeElement *b, const QPolygonF &intermediatePoints)
+QPolygonF UMLEdgeElement::calcPathBetweenNodes(UMLNodeElement *a, UMLNodeElement *b, const QPolygonF &intermediatePoints)
 {
 	QPolygonF res;
 
@@ -517,7 +456,7 @@ QPolygonF UMLControlFlowEdge::calcPathBetweenNodes(UMLNodeElement *a, UMLNodeEle
 
 UMLClass::UMLClass(const QPointF &topMidPosition)
 {
-	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this);
+	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this, false);
 	m_qtItem->setPos(topMidPosition);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -534,7 +473,30 @@ void UMLClass::bind(Core::UMLClass *coreItem)
 void UMLClass::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
-	m_qtItem->setName(m_coreItem->className());
+	m_qtItem->setName(m_coreItem->datatypeName());
+	m_qtItem->setContents("Bla\nblabla\nblablablablablablablablabla");
+}
+
+UMLEnumeration::UMLEnumeration(const QPointF &topMidPosition)
+{
+	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this, true);
+	m_qtItem->setPos(topMidPosition);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	UMLElement::bind(m_qtItem);
+}
+
+void UMLEnumeration::bind(Core::UMLEnumeration *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLEnumeration::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_qtItem->setName(m_coreItem->datatypeName());
 	m_qtItem->setContents("Bla\nblabla\nblablablablablablablablabla");
 }
 

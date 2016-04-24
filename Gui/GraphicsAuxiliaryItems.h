@@ -91,7 +91,7 @@ class GraphicsEdgeItem : public QGraphicsPathItem
 class GraphicsDatatypeItem : public QGraphicsRectItem
 {
 	public:
-		explicit GraphicsDatatypeItem(QGraphicsItem *parent = nullptr);
+		explicit GraphicsDatatypeItem(bool showEnumerationStereotype, QGraphicsItem *parent = nullptr);
 
 		void setName(const QString &text);
 		void setContents(const QString &text);
