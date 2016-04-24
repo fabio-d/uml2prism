@@ -40,6 +40,12 @@ UMLNodeElement::UMLNodeElement(UMLElementType type, const QString &nodeName)
 {
 }
 
+UMLNodeElement::~UMLNodeElement()
+{
+	Q_ASSERT(m_incomingEdges.isEmpty());
+	Q_ASSERT(m_outgoingEdges.isEmpty());
+}
+
 void UMLNodeElement::setNodeName(const QString &newName)
 {
 	m_nodeName = newName;
@@ -49,6 +55,16 @@ void UMLNodeElement::setNodeName(const QString &newName)
 const QString &UMLNodeElement::nodeName() const
 {
 	return m_nodeName;
+}
+
+const QList<UMLEdgeElement*> &UMLNodeElement::incomingEdges() const
+{
+	return m_incomingEdges;
+}
+
+const QList<UMLEdgeElement*> &UMLNodeElement::outgoingEdges() const
+{
+	return m_outgoingEdges;
 }
 
 UMLInitialNode::UMLInitialNode()
@@ -86,19 +102,24 @@ UMLJoinNode::UMLJoinNode()
 {
 }
 
-UMLControlFlowEdge::UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to)
-: UMLElement(UMLElementType::ControlFlowEdge), m_from(from), m_to(to)
+UMLEdgeElement::UMLEdgeElement(UMLElementType type, UMLNodeElement *from, UMLNodeElement *to)
+: UMLElement(type), m_from(from), m_to(to)
 {
 }
 
-UMLNodeElement *UMLControlFlowEdge::from() const
+UMLNodeElement *UMLEdgeElement::from() const
 {
 	return m_from;
 }
 
-UMLNodeElement *UMLControlFlowEdge::to() const
+UMLNodeElement *UMLEdgeElement::to() const
 {
 	return m_to;
+}
+
+UMLControlFlowEdge::UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to)
+: UMLEdgeElement(UMLElementType::ControlFlowEdge, from, to)
+{
 }
 
 UMLClass::UMLClass()

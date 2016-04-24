@@ -8,6 +8,8 @@
 namespace Core
 {
 
+class UMLEdgeElement;
+
 // These types are listed in a order such that objects that can be referenced by
 // other objects always come first
 enum class UMLElementType
@@ -55,14 +57,22 @@ class UMLElement : public QObject
 
 class UMLNodeElement : public UMLElement
 {
+	friend class UMLDocument;
+
 	public:
 		UMLNodeElement(UMLElementType type, const QString &nodeName);
+		~UMLNodeElement();
 
 		void setNodeName(const QString &newName);
 		const QString &nodeName() const;
 
+		const QList<UMLEdgeElement*> &incomingEdges() const;
+		const QList<UMLEdgeElement*> &outgoingEdges() const;
+
 	private:
 		QString m_nodeName;
+		QList<UMLEdgeElement*> m_incomingEdges;
+		QList<UMLEdgeElement*> m_outgoingEdges;
 };
 
 class UMLInitialNode : public UMLNodeElement
@@ -107,16 +117,22 @@ class UMLJoinNode : public UMLNodeElement
 		UMLJoinNode();
 };
 
-class UMLControlFlowEdge : public UMLElement
+class UMLEdgeElement : public UMLElement
 {
 	public:
-		UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to);
+		UMLEdgeElement(UMLElementType type, UMLNodeElement *from, UMLNodeElement *to);
 
 		UMLNodeElement *from() const;
 		UMLNodeElement *to() const;
 
 	private:
 		UMLNodeElement *m_from, *m_to;
+};
+
+class UMLControlFlowEdge : public UMLEdgeElement
+{
+	public:
+		UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to);
 };
 
 class UMLClass : public UMLElement

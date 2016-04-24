@@ -28,7 +28,7 @@ class UMLDocument : public QObject
 
 		// Add/delete elements (delete methods also destroy the object)
 		void addUMLElement(UMLElement *element);
-		bool deleteUMLElement(UMLElement *element);
+		void deleteUMLElement(UMLElement *element);
 		void deleteAllElements();
 
 	private slots:
