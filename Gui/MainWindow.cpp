@@ -2,7 +2,7 @@
 
 #include "Gui/UMLGraphicsScene.h"
 
-#include "Core/UMLDocument.h"
+#include "Core/UMLDiagram.h"
 
 #include "ui_MainWindow.h"
 
@@ -21,11 +21,11 @@ MainWindow::MainWindow(QWidget *parent)
 	m_ui->actionClose->setShortcut(QKeySequence::Close);
 	m_ui->actionQuit->setShortcut(QKeySequence::Quit);
 
-	m_activityDoc = new Core::UMLDocument(Core::UMLDocument::Activity);
+	m_activityDoc = new Core::UMLDiagram(Core::UMLDiagram::Activity);
 	m_umlGraphicsSceneActivity = new UMLGraphicsScene(m_activityDoc, this);
 	m_ui->umlGraphicsViewActivity->setScene(m_umlGraphicsSceneActivity);
 
-	m_classDoc = new Core::UMLDocument(Core::UMLDocument::Class);
+	m_classDoc = new Core::UMLDiagram(Core::UMLDiagram::Class);
 	m_umlGraphicsSceneClass = new UMLGraphicsScene(m_classDoc, this);
 	m_ui->umlGraphicsViewClass->setScene(m_umlGraphicsSceneClass);
 

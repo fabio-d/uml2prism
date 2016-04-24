@@ -1,4 +1,4 @@
-#include "Core/UMLDocument.h"
+#include "Core/UMLDiagram.h"
 
 #include "Core/GuiProxy.h"
 #include "Core/UMLElement.h"
@@ -6,32 +6,32 @@
 namespace Core
 {
 
-UMLDocument::UMLDocument(Type type)
+UMLDiagram::UMLDiagram(Type type)
 : m_type(type), m_guiProxy(nullptr)
 {
 }
 
-UMLDocument::~UMLDocument()
+UMLDiagram::~UMLDiagram()
 {
 	deleteAllElements();
 }
 
-UMLDocument::Type UMLDocument::type() const
+UMLDiagram::Type UMLDiagram::type() const
 {
 	return m_type;
 }
 
-void UMLDocument::setGuiProxy(GuiProxy *guiProxy)
+void UMLDiagram::setGuiProxy(GuiProxy *guiProxy)
 {
 	m_guiProxy = guiProxy;
 }
 
-GuiProxy *UMLDocument::guiProxy() const
+GuiProxy *UMLDiagram::guiProxy() const
 {
 	return m_guiProxy;
 }
 
-void UMLDocument::addUMLElement(UMLElement *element)
+void UMLDiagram::addUMLElement(UMLElement *element)
 {
 	Q_ASSERT(m_elements.contains(element) == false);
 
@@ -65,7 +65,7 @@ void UMLDocument::addUMLElement(UMLElement *element)
 	m_elements.append(element);
 }
 
-void UMLDocument::deleteUMLElement(UMLElement *element)
+void UMLDiagram::deleteUMLElement(UMLElement *element)
 {
 	Q_ASSERT(m_elements.contains(element) == true);
 	disconnect(element, SIGNAL(changed()), this, SLOT(slotElementChanged()));
@@ -100,14 +100,14 @@ void UMLDocument::deleteUMLElement(UMLElement *element)
 	delete element;
 }
 
-void UMLDocument::deleteAllElements()
+void UMLDiagram::deleteAllElements()
 {
 	// free elements in reverse order to avoid breaking references
 	while (m_elements.size() != 0)
 		deleteUMLElement(m_elements.last());
 }
 
-void UMLDocument::slotElementChanged()
+void UMLDiagram::slotElementChanged()
 {
 	Core::UMLElement *element = qobject_cast<UMLElement*>(QObject::sender());
 

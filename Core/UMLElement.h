@@ -57,7 +57,7 @@ class UMLElement : public QObject
 
 class UMLNodeElement : public UMLElement
 {
-	friend class UMLDocument;
+	friend class UMLDiagram;
 
 	public:
 		UMLNodeElement(UMLElementType type, const QString &nodeName);

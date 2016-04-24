@@ -13,7 +13,7 @@ class QToolBar;
 
 namespace Core
 {
-class UMLDocument;
+class UMLDiagram;
 }
 
 namespace Gui
@@ -26,7 +26,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 	Q_OBJECT
 
 	public:
-		explicit UMLGraphicsScene(Core::UMLDocument *doc, QObject *parent = nullptr);
+		explicit UMLGraphicsScene(Core::UMLDiagram *dia, QObject *parent = nullptr);
 		~UMLGraphicsScene();
 
 		void appendEditActions(QWidget *target);
@@ -53,8 +53,8 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void notifyElementChanged(Core::UMLElement *element) override;
 		void notifyElementRemoved(Core::UMLElement *element) override;
 
-		// The UML document
-		Core::UMLDocument *m_doc;
+		// The UML diagram
+		Core::UMLDiagram *m_dia;
 
 		// Some actions implemented by this class
 		QAction *m_actionRenameNode;

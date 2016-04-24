@@ -7,7 +7,7 @@ class Ui_MainWindow;
 
 namespace Core
 {
-class UMLDocument;
+class UMLDiagram;
 };
 
 namespace Gui
@@ -29,10 +29,10 @@ class MainWindow : public QMainWindow
 	private:
 		Ui_MainWindow *m_ui;
 
-		Core::UMLDocument *m_activityDoc;
+		Core::UMLDiagram *m_activityDoc;
 		UMLGraphicsScene *m_umlGraphicsSceneActivity;
 
-		Core::UMLDocument *m_classDoc;
+		Core::UMLDiagram *m_classDoc;
 		UMLGraphicsScene *m_umlGraphicsSceneClass;
 };
 

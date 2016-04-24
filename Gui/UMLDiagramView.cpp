@@ -1,4 +1,4 @@
-#include "Gui/UMLDocumentView.h"
+#include "Gui/UMLDiagramView.h"
 
 #include "Gui/UMLGraphicsScene.h"
 
@@ -10,7 +10,7 @@
 namespace Gui
 {
 
-UMLDocumentView::UMLDocumentView(QWidget *parent)
+UMLDiagramView::UMLDiagramView(QWidget *parent)
 : QGraphicsView(parent), m_scene(nullptr)
 {
 	m_actionZoomIn = new QAction(
@@ -38,7 +38,7 @@ UMLDocumentView::UMLDocumentView(QWidget *parent)
 	connect(m_actionZoomFit, SIGNAL(triggered()), this, SLOT(zoomFit()));
 }
 
-void UMLDocumentView::appendViewActions(QWidget *target)
+void UMLDiagramView::appendViewActions(QWidget *target)
 {
 	target->addAction(m_actionZoomIn);
 	target->addAction(m_actionZoomOut);
@@ -46,7 +46,7 @@ void UMLDocumentView::appendViewActions(QWidget *target)
 	target->addAction(m_actionZoomFit);
 }
 
-void UMLDocumentView::setScene(UMLGraphicsScene *scene)
+void UMLDiagramView::setScene(UMLGraphicsScene *scene)
 {
 	m_scene = scene;
 	QGraphicsView::setScene(scene);
@@ -55,7 +55,7 @@ void UMLDocumentView::setScene(UMLGraphicsScene *scene)
 	updateScene(QList<QRectF>());
 }
 
-void UMLDocumentView::setScale(qreal newScale)
+void UMLDiagramView::setScale(qreal newScale)
 {
 	qreal ratio = newScale / currentScale();
 	scale(ratio, ratio);
@@ -67,34 +67,34 @@ void UMLDocumentView::setScale(qreal newScale)
 	}
 }
 
-qreal UMLDocumentView::currentScale() const
+qreal UMLDiagramView::currentScale() const
 {
 	const QTransform t = transform();
 	return t.m11();
 }
 
-void UMLDocumentView::zoomIn()
+void UMLDiagramView::zoomIn()
 {
 	setScale(currentScale() * 1.1);
 }
 
-void UMLDocumentView::zoomOut()
+void UMLDiagramView::zoomOut()
 {
 	setScale(currentScale() / 1.1);
 }
 
-void UMLDocumentView::zoomOriginal()
+void UMLDiagramView::zoomOriginal()
 {
 	setScale(1);
 }
 
-void UMLDocumentView::zoomFit()
+void UMLDiagramView::zoomFit()
 {
 	fitInView(m_scene->itemsBoundingRect(), Qt::KeepAspectRatio);
 	setScale(currentScale());
 }
 
-void UMLDocumentView::mousePressEvent(QMouseEvent *event)
+void UMLDiagramView::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::MidButton)
 	{
@@ -117,7 +117,7 @@ void UMLDocumentView::mousePressEvent(QMouseEvent *event)
 	}
 }
 
-void UMLDocumentView::mouseReleaseEvent(QMouseEvent *event)
+void UMLDiagramView::mouseReleaseEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::MidButton)
 	{
@@ -141,7 +141,7 @@ void UMLDocumentView::mouseReleaseEvent(QMouseEvent *event)
 	setDragMode(QGraphicsView::RubberBandDrag);
 }
 
-void UMLDocumentView::resizeEvent(QResizeEvent *event)
+void UMLDiagramView::resizeEvent(QResizeEvent *event)
 {
 	QGraphicsView::resizeEvent(event);
 
@@ -152,7 +152,7 @@ void UMLDocumentView::resizeEvent(QResizeEvent *event)
 	}
 }
 
-void UMLDocumentView::updateScene(const QList<QRectF> &)
+void UMLDiagramView::updateScene(const QList<QRectF> &)
 {
 	Q_ASSERT(m_scene != nullptr);
 

@@ -2,7 +2,7 @@
 
 #include "Gui/UMLElement.h"
 
-#include "Core/UMLDocument.h"
+#include "Core/UMLDiagram.h"
 #include "Core/UMLElement.h"
 
 #include <QAction>
@@ -19,8 +19,8 @@
 namespace Gui
 {
 
-UMLGraphicsScene::UMLGraphicsScene(Core::UMLDocument *doc, QObject *parent)
-: QGraphicsScene(parent), m_doc(doc), m_createFlowOrigin(nullptr)
+UMLGraphicsScene::UMLGraphicsScene(Core::UMLDiagram *dia, QObject *parent)
+: QGraphicsScene(parent), m_dia(dia), m_createFlowOrigin(nullptr)
 {
 	m_actionRenameNode = new QAction(
 		QIcon(":/kde_icons/resources/kde_icons/edit-rename.png"),
@@ -37,7 +37,7 @@ UMLGraphicsScene::UMLGraphicsScene(Core::UMLDocument *doc, QObject *parent)
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(slotSelectionChanged()));
 	slotSelectionChanged();
 
-	m_doc->setGuiProxy(this);
+	m_dia->setGuiProxy(this);
 }
 
 UMLGraphicsScene::~UMLGraphicsScene()
@@ -117,7 +117,7 @@ void UMLGraphicsScene::slotDeleteSelection()
 	Core::UMLElement::topoSort(elementsToBeDeleted, true);
 
 	foreach (Core::UMLElement *elem, elementsToBeDeleted)
-		m_doc->deleteUMLElement(elem);
+		m_dia->deleteUMLElement(elem);
 }
 
 UMLNodeElement *UMLGraphicsScene::searchNodeElementAt(const QPointF &scenePos) const
@@ -195,17 +195,17 @@ void UMLGraphicsScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
 	QList<QGraphicsItem*> itemsUnderMouse = items(event->scenePos());
 
-	if (m_doc->type() == Core::UMLDocument::Activity
+	if (m_dia->type() == Core::UMLDiagram::Activity
 		&& event->mimeData()->formats().contains("application/x-uml-create-node"))
 	{
 		event->setAccepted(true);
 	}
-	else if (m_doc->type() == Core::UMLDocument::Activity
+	else if (m_dia->type() == Core::UMLDiagram::Activity
 		&& event->mimeData()->formats().contains("application/x-uml-create-flow"))
 	{
 		event->setAccepted(searchNodeElementAt(event->scenePos()) != nullptr);
 	}
-	else if (m_doc->type() == Core::UMLDocument::Class
+	else if (m_dia->type() == Core::UMLDiagram::Class
 		&& event->mimeData()->formats().contains("application/x-uml-create-datatype"))
 	{
 		event->setAccepted(true);
@@ -247,7 +247,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 	clearSelection();
 
-	if (m_doc->type() == Core::UMLDocument::Activity
+	if (m_dia->type() == Core::UMLDiagram::Activity
 		&& mime->formats().contains("application/x-uml-create-node"))
 	{
 		const QByteArray elementTypeString = mime->data("application/x-uml-create-node");
@@ -258,7 +258,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 			UMLInitialNode *item = new UMLInitialNode(scenePos);
 			item->bind(elem);
 
-			m_doc->addUMLElement(elem);
+			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "FinalNode")
 		{
@@ -266,7 +266,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 			UMLFinalNode *item = new UMLFinalNode(scenePos);
 			item->bind(elem);
 
-			m_doc->addUMLElement(elem);
+			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "ActionNode")
 		{
@@ -274,7 +274,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 			UMLActionNode *item = new UMLActionNode(scenePos);
 			item->bind(elem);
 
-			m_doc->addUMLElement(elem);
+			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "DecisionNode")
 		{
@@ -282,7 +282,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 			UMLDecisionNode *item = new UMLDecisionNode(scenePos);
 			item->bind(elem);
 
-			m_doc->addUMLElement(elem);
+			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "MergeNode")
 		{
@@ -290,7 +290,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 			UMLMergeNode *item = new UMLMergeNode(scenePos);
 			item->bind(elem);
 
-			m_doc->addUMLElement(elem);
+			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "ForkNode")
 		{
@@ -298,7 +298,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 			UMLForkNode *item = new UMLForkNode(scenePos);
 			item->bind(elem);
 
-			m_doc->addUMLElement(elem);
+			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "JoinNode")
 		{
@@ -306,23 +306,23 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 			UMLJoinNode *item = new UMLJoinNode(scenePos);
 			item->bind(elem);
 
-			m_doc->addUMLElement(elem);
+			m_dia->addUMLElement(elem);
 		}
 	}
-	else if (m_doc->type() == Core::UMLDocument::Activity
+	else if (m_dia->type() == Core::UMLDiagram::Activity
 		&& mime->formats().contains("application/x-uml-create-flow"))
 	{
 		m_createFlowOrigin = searchNodeElementAt(scenePos);
 		m_intermediatePoints.clear();
 	}
-	else if (m_doc->type() == Core::UMLDocument::Class
+	else if (m_dia->type() == Core::UMLDiagram::Class
 		&& mime->formats().contains("application/x-uml-create-datatype"))
 	{
 		Core::UMLClass *elem = new Core::UMLClass();
 		UMLClass *item = new UMLClass(scenePos);
 		item->bind(elem);
 
-		m_doc->addUMLElement(elem);
+		m_dia->addUMLElement(elem);
 	}
 }
 
@@ -341,7 +341,7 @@ void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 			item->bind(elem);
 			item->setIntermediatePoints(m_intermediatePoints);
 
-			m_doc->addUMLElement(elem);
+			m_dia->addUMLElement(elem);
 			m_createFlowOrigin = nullptr;
 			emit changed(QList<QRectF>());
 		}

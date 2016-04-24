@@ -1,5 +1,5 @@
-#ifndef GUI_UMLDOCUMENTVIEW_H
-#define GUI_UMLDOCUMENTVIEW_H
+#ifndef GUI_UMLDIAGRAMVIEW_H
+#define GUI_UMLDIAGRAMVIEW_H
 
 #include "Core/GuiProxy.h"
 
@@ -9,12 +9,12 @@ namespace Gui
 {
 class UMLGraphicsScene;
 
-class UMLDocumentView : public QGraphicsView
+class UMLDiagramView : public QGraphicsView
 {
 	Q_OBJECT
 
 	public:
-		explicit UMLDocumentView(QWidget *parent = nullptr);
+		explicit UMLDiagramView(QWidget *parent = nullptr);
 
 		void appendViewActions(QWidget *target);
 
@@ -49,4 +49,4 @@ class UMLDocumentView : public QGraphicsView
 
 }
 
-#endif // GUI_UMLDOCUMENTVIEW_H
+#endif // GUI_UMLDIAGRAMVIEW_H

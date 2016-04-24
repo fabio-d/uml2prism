@@ -1,5 +1,5 @@
-#ifndef CORE_UMLDOCUMENT_H
-#define CORE_UMLDOCUMENT_H
+#ifndef CORE_UMLDIAGRAM_H
+#define CORE_UMLDIAGRAM_H
 
 #include <QObject>
 #include <QList>
@@ -10,15 +10,15 @@ namespace Core
 class GuiProxy;
 class UMLElement;
 
-class UMLDocument : public QObject
+class UMLDiagram : public QObject
 {
 	Q_OBJECT
 
 	public:
 		enum Type { Activity, Class };
 
-		UMLDocument(Type type);
-		~UMLDocument();
+		UMLDiagram(Type type);
+		~UMLDiagram();
 
 		Type type() const;
 
@@ -44,4 +44,4 @@ class UMLDocument : public QObject
 
 }
 
-#endif // CORE_UMLDOCUMENT_H
+#endif // CORE_UMLDIAGRAM_H
