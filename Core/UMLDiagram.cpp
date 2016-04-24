@@ -91,7 +91,7 @@ void UMLDiagram::deleteAllElements()
 		deleteUMLElement(m_elements.last());
 }
 
-QString UMLDiagram::generateFreshName(const QString &prefix)
+QString UMLDiagram::generateFreshName(const QString &prefix) const
 {
 	int seqNum = 1;
 	return QString("%1%2").arg(prefix).arg(seqNum);

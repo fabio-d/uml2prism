@@ -17,7 +17,7 @@ class UMLDiagram : public QObject
 	public:
 		enum Type { Activity, Class };
 
-		UMLDiagram(Type type);
+		explicit UMLDiagram(Type type);
 		~UMLDiagram();
 
 		Type type() const;
@@ -32,7 +32,7 @@ class UMLDiagram : public QObject
 		void deleteAllElements();
 
 		// Generate a name that is not currently in use by any element
-		QString generateFreshName(const QString &prefix);
+		QString generateFreshName(const QString &prefix) const;
 
 	private slots:
 		void slotElementChanged();

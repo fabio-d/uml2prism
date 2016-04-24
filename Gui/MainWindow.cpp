@@ -2,7 +2,12 @@
 
 #include "Gui/UMLGraphicsScene.h"
 
+#include "Core/Document.h"
 #include "Core/UMLDiagram.h"
+
+#include <QCloseEvent>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include "ui_MainWindow.h"
 
@@ -26,16 +31,17 @@ MainWindow::MainWindow(QWidget *parent)
 	m_ui->actionZoomOut->setShortcut(QKeySequence::ZoomOut);
 	m_ui->actionDeleteItem->setShortcut(QKeySequence::Delete);
 
-	m_activityDoc = new Core::UMLDiagram(Core::UMLDiagram::Activity);
-	m_umlGraphicsSceneActivity = new UMLGraphicsScene(m_activityDoc, this);
+	connect(m_ui->actionQuit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
+
+	m_doc = new Core::Document();
+	m_umlGraphicsSceneActivity = new UMLGraphicsScene(m_doc->activityDiagram(), this);
 	connect(m_umlGraphicsSceneActivity, SIGNAL(actionsEnabledChanged(bool, bool)),
 		this, SLOT(slotActionsEnabledChanged(bool, bool)));
 	connect(m_umlGraphicsSceneActivity, SIGNAL(fillContextMenu(QMenu*)),
 		this, SLOT(slotFillContextMenu(QMenu*)));
 	m_ui->umlGraphicsViewActivity->setScene(m_umlGraphicsSceneActivity);
 
-	m_classDoc = new Core::UMLDiagram(Core::UMLDiagram::Class);
-	m_umlGraphicsSceneClass = new UMLGraphicsScene(m_classDoc, this);
+	m_umlGraphicsSceneClass = new UMLGraphicsScene(m_doc->classDiagram(), this);
 	connect(m_umlGraphicsSceneClass, SIGNAL(actionsEnabledChanged(bool, bool)),
 		this, SLOT(slotActionsEnabledChanged(bool, bool)));
 	connect(m_umlGraphicsSceneActivity, SIGNAL(fillContextMenu(QMenu*)),
@@ -47,9 +53,116 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-	delete m_classDoc;
-	delete m_activityDoc;
+	delete m_doc;
 	delete m_ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+	if (!queryClose())
+		event->ignore();
+}
+
+bool MainWindow::queryClose()
+{
+	// Se non ci sono cambiamenti non salvati
+	if (!m_ui->actionSave->isEnabled())
+		return true;
+
+	switch (QMessageBox::warning(this, "Close document",
+		"The document \"DocNameHere\" has been modified.\nDo you want to save your changes or discard them?",
+		QMessageBox::Discard | QMessageBox::Save | QMessageBox::Cancel))
+	{
+		case QMessageBox::Discard:
+			return true;
+		case QMessageBox::Save:
+			return slotSave();
+		case QMessageBox::Cancel:
+			return false;
+		default:
+			Q_ASSERT(false && "This should never happen");
+			return false;
+	}
+}
+
+bool MainWindow::loadFile(const QString &path)
+{
+	QFile file(path);
+	bool success;
+
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		QMessageBox::critical(this, "Open error", "Cannot read file " + path);
+		success = false;
+	}
+	else
+	{
+		success = m_doc->deserialize(file.readAll());
+		m_filename = path;
+		// TODO: clear undo history
+		if (!success)
+			QMessageBox::critical(this, "Open error", "Invalid file");
+		file.close();
+	}
+
+	if (!success)
+	{
+		m_doc->clear();
+		m_filename = QString();
+		// TODO: clear undo history
+	}
+
+	return success;
+}
+
+void MainWindow::slotNew()
+{
+	MainWindow *newWindow = new MainWindow();
+	newWindow->show();
+}
+
+void MainWindow::slotOpen()
+{
+	const QString selectedFileName = QFileDialog::getOpenFileName(this,
+		"Open document", m_filename, "XML Model (*.xmdl)");
+
+	if (selectedFileName.isEmpty())
+		return;
+
+	MainWindow *newWindow = new MainWindow();
+	newWindow->show();
+	newWindow->loadFile(selectedFileName);
+}
+
+bool MainWindow::slotSave()
+{
+	if (m_filename.isEmpty())
+		return slotSaveAs();
+
+	QFile file(m_filename);
+	if (!file.open(QIODevice::WriteOnly))
+	{
+		QMessageBox::critical(this, "Save error", "Cannot write file " + m_filename);
+		return false;
+	}
+
+	file.write(m_doc->serialize());
+	// TODO: mark undo history as clean
+	file.close();
+
+	return true;
+}
+
+bool MainWindow::slotSaveAs()
+{
+	const QString selectedFileName = QFileDialog::getSaveFileName(this,
+		"Save document", m_filename, "XML Model (*.xmdl)");
+
+	if (selectedFileName.isEmpty())
+		return false;
+
+	m_filename = selectedFileName;
+	return slotSave();
 }
 
 void MainWindow::slotTabSwitched()
