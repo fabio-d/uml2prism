@@ -60,21 +60,32 @@ class GraphicsPositionChangeSpyItem : public GraphicsItemType
 		UMLElement *watchedElement;
 };
 
-class GraphicsEdgeItem : public QGraphicsLineItem
+class GraphicsEdgeItem : public QGraphicsPathItem
 {
 	public:
+		class MoveWatcher
+		{
+			public:
+				virtual void notifyEdgeMoved(const QPointF &delta) = 0;
+		};
+
 		GraphicsEdgeItem(QGraphicsItem *parent = nullptr);
 
 		QRectF boundingRect() const override;
 		QPainterPath shape() const override;
 
-		QGraphicsItem *createPlaceholder(qreal atPercentage);
+		QGraphicsItem *createPlaceholder(qreal atPercent);
+		void setWatcher(MoveWatcher *watcher);
 
-		void setLine(const QLineF &line);
-		void setLine(qreal x1, qreal y1, qreal x2, qreal y2);
+		void setPolyline(const QPolygonF &polyline);
+
+	protected:
+		QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 
 	private:
 		QMultiMap<qreal, QGraphicsItem*> m_placeholders;
+		MoveWatcher *m_watcher;
+		QPointF m_lastKnownPos;
 };
 
 class GraphicsDatatypeItem : public QGraphicsRectItem

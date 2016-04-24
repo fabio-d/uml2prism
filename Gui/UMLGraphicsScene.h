@@ -67,6 +67,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 
 		// When creating a flow element, this is the origin node
 		UMLNodeElement *m_createFlowOrigin;
+		QPolygonF m_intermediatePoints;
 		QPointF m_mousePos;
 };
 

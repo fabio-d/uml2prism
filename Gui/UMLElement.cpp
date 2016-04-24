@@ -444,6 +444,7 @@ UMLControlFlowEdge::UMLControlFlowEdge()
 {
 	m_qtItem = new GraphicsEdgeItem();
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+	m_qtItem->setWatcher(this);
 
 	m_labelItemFrom = new GraphicsLabelItem(GraphicsLabelItem::NoOptions, m_qtItem->createPlaceholder(.2));
 	m_labelItemTo = new GraphicsLabelItem(GraphicsLabelItem::NoOptions, m_qtItem->createPlaceholder(.6));
@@ -461,28 +462,57 @@ void UMLControlFlowEdge::bind(Core::UMLControlFlowEdge *coreItem)
 	UMLElement::bind(coreItem);
 }
 
+void UMLControlFlowEdge::setIntermediatePoints(const QPolygonF &intermediatePoints)
+{
+	m_intermediatePoints = intermediatePoints;
+	refresh();
+
+	QGraphicsScene *sc = m_qtItem->scene();
+	if (sc != nullptr)
+		static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(this);
+}
+
 void UMLControlFlowEdge::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 
-	QLineF line = calcLineBetweenNodes(
+	QPolygonF path = calcPathBetweenNodes(
 		static_cast<UMLNodeElement*>(lookup(m_coreItem->from())),
-		static_cast<UMLNodeElement*>(lookup(m_coreItem->to())));
+		static_cast<UMLNodeElement*>(lookup(m_coreItem->to())),
+		m_intermediatePoints);
 
-	m_qtItem->setPos(line.p1());
-	line.translate(-line.p1());
-	m_qtItem->setLine(line);
-	m_arrowItem->setPos(line.p2());
-	m_arrowItem->setRotation(-line.angle());
+	path.translate(-m_qtItem->pos());
+	m_qtItem->setPolyline(path);
+	m_arrowItem->setPos(path.last());
+	m_arrowItem->setRotation(-m_qtItem->path().angleAtPercent(1));
 
 	m_labelItemFrom->setText("[from]");
 	m_labelItemTo->setText("[to]");
 }
 
-QLineF UMLControlFlowEdge::calcLineBetweenNodes(UMLNodeElement *a, UMLNodeElement *b)
+void UMLControlFlowEdge::notifyEdgeMoved(const QPointF &delta)
 {
-	QPointF midP = (a->qtItem()->pos() + b->qtItem()->pos()) / 2;
-	return QLineF(a->closestOutlinePoint(midP), b->closestOutlinePoint(midP));
+	setIntermediatePoints(m_intermediatePoints.translated(delta));
+}
+
+QPolygonF UMLControlFlowEdge::calcPathBetweenNodes(UMLNodeElement *a, UMLNodeElement *b, const QPolygonF &intermediatePoints)
+{
+	QPolygonF res;
+
+	if (intermediatePoints.isEmpty())
+	{
+		QPointF midP = (a->qtItem()->pos() + b->qtItem()->pos()) / 2;
+		res.append(a->closestOutlinePoint(midP));
+		res.append(b->closestOutlinePoint(midP));
+	}
+	else
+	{
+		res.append(a->closestOutlinePoint(intermediatePoints.first()));
+		res += intermediatePoints;
+		res.append(b->closestOutlinePoint(intermediatePoints.last()));
+	}
+
+	return res;
 }
 
 UMLClass::UMLClass(const QPointF &topMidPosition)

@@ -1,6 +1,8 @@
 #ifndef GUI_UMLELEMENT_H
 #define GUI_UMLELEMENT_H
 
+#include "Gui/GraphicsAuxiliaryItems.h"
+
 #include <QGraphicsItem>
 
 /* For each graphical element, there are at least three distinct objects:
@@ -31,10 +33,6 @@ class UMLMergeNode;
 
 namespace Gui
 {
-
-class GraphicsLabelItem;
-class GraphicsDatatypeItem;
-class GraphicsEdgeItem;
 
 class UMLElement
 {
@@ -193,22 +191,27 @@ class UMLJoinNode : public UMLNodeElement
 		GraphicsLabelItem *m_labelItem;
 };
 
-class UMLControlFlowEdge : public UMLElement
+class UMLControlFlowEdge : public UMLElement, private GraphicsEdgeItem::MoveWatcher
 {
 	public:
 		UMLControlFlowEdge();
 		void bind(Core::UMLControlFlowEdge *coreItem);
 
+		void setIntermediatePoints(const QPolygonF &intermediatePoints);
 		void refresh() override;
 
-		static QLineF calcLineBetweenNodes(UMLNodeElement *a, UMLNodeElement *b);
+		static QPolygonF calcPathBetweenNodes(UMLNodeElement *a, UMLNodeElement *b,
+			const QPolygonF &intermediatePoints = QPolygonF());
 
 	private:
+		void notifyEdgeMoved(const QPointF &delta) override;
+
 		Core::UMLControlFlowEdge *m_coreItem;
 		GraphicsEdgeItem *m_qtItem;
 		GraphicsLabelItem *m_labelItemFrom;
 		GraphicsLabelItem *m_labelItemTo;
 		QGraphicsPathItem *m_arrowItem;
+		QPolygonF m_intermediatePoints;
 };
 
 class UMLClass : public UMLElement

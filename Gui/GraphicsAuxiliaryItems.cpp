@@ -1,6 +1,7 @@
 #include "Gui/GraphicsAuxiliaryItems.h"
 
 #include <QFontMetricsF>
+#include <QDebug>
 #include <QPainter>
 
 static constexpr qreal MinLineShapeWidth = 10;
@@ -53,8 +54,10 @@ void GraphicsLabelItem::setText(const QString &text)
 }
 
 GraphicsEdgeItem::GraphicsEdgeItem(QGraphicsItem *parent)
-: QGraphicsLineItem(parent)
+: QGraphicsPathItem(parent), m_watcher(nullptr), m_lastKnownPos(0, 0)
 {
+	setFlag(QGraphicsItem::ItemIsMovable, true);
+	setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 	setZValue(1);
 }
 
@@ -63,7 +66,7 @@ QRectF GraphicsEdgeItem::boundingRect() const
 	const QRectF minRect(
 		-MinLineShapeWidth/2, -MinLineShapeWidth/2,
 		MinLineShapeWidth, MinLineShapeWidth);
-	const QRectF baseRect = QGraphicsLineItem::boundingRect();
+	const QRectF baseRect = QGraphicsPathItem::boundingRect();
 	return baseRect | minRect.translated(baseRect.center());
 }
 
@@ -71,32 +74,49 @@ QPainterPath GraphicsEdgeItem::shape() const
 {
 	QPainterPathStroker stk;
 	stk.setWidth(MinLineShapeWidth);
-	return stk.createStroke(QGraphicsLineItem::shape());
+	return stk.createStroke(QGraphicsPathItem::shape());
 }
 
-QGraphicsItem *GraphicsEdgeItem::createPlaceholder(qreal atPercentage)
+QGraphicsItem *GraphicsEdgeItem::createPlaceholder(qreal atPercent)
 {
 	QGraphicsRectItem *ph = new QGraphicsRectItem(-1, -1, 2, 2, this);
 	ph->setPen(QPen(Qt::transparent));
-	m_placeholders.insert(atPercentage, ph);
-	ph->setPos(line().pointAt(atPercentage));
+	m_placeholders.insert(atPercent, ph);
+	ph->setPos(path().pointAtPercent(atPercent));
 	return ph;
 }
 
-void GraphicsEdgeItem::setLine(const QLineF &line)
+void GraphicsEdgeItem::setWatcher(MoveWatcher *watcher)
 {
-	QGraphicsLineItem::setLine(line);
+	m_watcher = watcher;
+}
+
+void GraphicsEdgeItem::setPolyline(const QPolygonF &polyline)
+{
+	QPainterPath path;
+	path.addPolygon(polyline);
+	QGraphicsPathItem::setPath(path);
 
 	for (QMultiMap<qreal, QGraphicsItem*>::const_iterator it = m_placeholders.begin();
 		it != m_placeholders.end(); ++it)
 	{
-		it.value()->setPos(line.pointAt(it.key()));
+		it.value()->setPos(path.pointAtPercent(it.key()));
 	}
 }
 
-void GraphicsEdgeItem::setLine(qreal x1, qreal y1, qreal x2, qreal y2)
+QVariant GraphicsEdgeItem::itemChange(GraphicsItemChange change, const QVariant &value)
 {
-	setLine(QLine(x1, y1, x2, y2));
+	if (change == ItemPositionHasChanged)
+	{
+		const QPointF newPos = value.toPointF();
+
+		if (m_watcher != nullptr)
+			m_watcher->notifyEdgeMoved(newPos - m_lastKnownPos);
+
+		m_lastKnownPos = newPos;
+	}
+
+	return QGraphicsPathItem::itemChange(change, value);
 }
 
 GraphicsDatatypeItem::GraphicsDatatypeItem(QGraphicsItem *parent)

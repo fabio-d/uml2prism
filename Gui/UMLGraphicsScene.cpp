@@ -224,13 +224,16 @@ void UMLGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect)
 		UMLNodeElement *itemUnderMouse = searchNodeElementAt(m_mousePos);
 		if (itemUnderMouse == nullptr)
 		{
-			painter->drawLine(m_createFlowOrigin->closestOutlinePoint(m_mousePos), m_mousePos);
+			QPolygonF path = m_intermediatePoints;
+			path.append(m_mousePos);
+			path.prepend(m_createFlowOrigin->closestOutlinePoint(path.first()));
+			painter->drawPolyline(path);
 		}
 		else
 		{
-			painter->drawLine(UMLControlFlowEdge::calcLineBetweenNodes(
+			painter->drawPolyline(UMLControlFlowEdge::calcPathBetweenNodes(
 				m_createFlowOrigin,
-				itemUnderMouse));
+				itemUnderMouse, m_intermediatePoints));
 		}
 	}
 	painter->restore();
@@ -310,6 +313,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		&& mime->formats().contains("application/x-uml-create-flow"))
 	{
 		m_createFlowOrigin = searchNodeElementAt(scenePos);
+		m_intermediatePoints.clear();
 	}
 	else if (m_doc->type() == Core::UMLDocument::Class
 		&& mime->formats().contains("application/x-uml-create-datatype"))
@@ -326,7 +330,7 @@ void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
 	if (m_createFlowOrigin != nullptr)
 	{
-		UMLNodeElement *itemUnderMouse = searchNodeElementAt(m_mousePos);
+		UMLNodeElement *itemUnderMouse = searchNodeElementAt(mouseEvent->scenePos());
 
 		if (itemUnderMouse != nullptr)
 		{
@@ -335,12 +339,18 @@ void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 				static_cast<Core::UMLNodeElement*>(itemUnderMouse->coreItem()));
 			UMLControlFlowEdge *item = new UMLControlFlowEdge();
 			item->bind(elem);
+			item->setIntermediatePoints(m_intermediatePoints);
 
 			m_doc->addUMLElement(elem);
+			m_createFlowOrigin = nullptr;
+			emit changed(QList<QRectF>());
+		}
+		else
+		{
+			m_intermediatePoints.append(mouseEvent->scenePos());
+			emit changed(QList<QRectF>());
 		}
 
-		m_createFlowOrigin = nullptr;
-		emit changed(QList<QRectF>());
 		return;
 	}
 
