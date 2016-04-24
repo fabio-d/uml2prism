@@ -21,8 +21,6 @@ class UMLDiagramView : public QGraphicsView
 		void setScene(UMLGraphicsScene *scene);
 
 		void setScale(qreal newScale);
-
-	public slots:
 		void zoomIn();
 		void zoomOut();
 		void zoomOriginal();

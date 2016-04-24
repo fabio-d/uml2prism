@@ -29,17 +29,19 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		explicit UMLGraphicsScene(Core::UMLDiagram *dia, QObject *parent = nullptr);
 		~UMLGraphicsScene();
 
-		void appendEditActions(QWidget *target);
-
 		void notifyGeometryChanged(UMLElement *element);
+
+		void renameSelectedItem();
+		void editSelectedItem();
+		void deleteSelectedItems();
 
 	signals:
 		void edgeConstructionStateChanged(bool inProgress);
+		void actionsEnabledChanged(bool editEnabled, bool deleteEnabled);
+		void fillContextMenu(QMenu *menu);
 
 	private slots:
 		void slotSelectionChanged();
-		void slotRenameNode();
-		void slotDeleteSelection();
 
 	private:
 		UMLNodeElement *searchNodeElementAt(const QPointF &scenePos) const;
@@ -60,10 +62,6 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 
 		// The UML diagram
 		Core::UMLDiagram *m_dia;
-
-		// Some actions implemented by this class
-		QAction *m_actionRenameNode;
-		QAction *m_actionDeleteSelection;
 
 		// Currently selected items. m_strictSelection is a subset of
 		// m_relaxedSelection that only contains those items whose

@@ -18,6 +18,7 @@
     <file>resources/kde_icons/zoom-in.png</file>
     <file>resources/kde_icons/zoom-original.png</file>
     <file>resources/kde_icons/zoom-out.png</file>
+    <file>resources/kde_icons/document-properties.png</file>
     <file>resources/kde_icons/edit-rename.png</file>
     <file>resources/kde_icons/application-exit.png</file>
     <file>resources/kde_icons/window-close.png</file>

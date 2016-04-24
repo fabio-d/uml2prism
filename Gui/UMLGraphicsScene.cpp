@@ -22,18 +22,6 @@ namespace Gui
 UMLGraphicsScene::UMLGraphicsScene(Core::UMLDiagram *dia, QObject *parent)
 : QGraphicsScene(parent), m_dia(dia), m_edgeConstructionOrigin(nullptr)
 {
-	m_actionRenameNode = new QAction(
-		QIcon(":/kde_icons/resources/kde_icons/edit-rename.png"),
-		"Rename node", this);
-	m_actionRenameNode->setShortcut(Qt::Key_F2);
-	connect(m_actionRenameNode, SIGNAL(triggered()), this, SLOT(slotRenameNode()));
-
-	m_actionDeleteSelection = new QAction(
-		QIcon(":/kde_icons/resources/kde_icons/edit-delete.png"),
-		"Delete selection", this);
-	m_actionDeleteSelection->setShortcut(QKeySequence::Delete);
-	connect(m_actionDeleteSelection, SIGNAL(triggered()), this, SLOT(slotDeleteSelection()));
-
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(slotSelectionChanged()));
 	slotSelectionChanged();
 
@@ -43,12 +31,6 @@ UMLGraphicsScene::UMLGraphicsScene(Core::UMLDiagram *dia, QObject *parent)
 UMLGraphicsScene::~UMLGraphicsScene()
 {
 	Q_ASSERT(items().isEmpty());
-}
-
-void UMLGraphicsScene::appendEditActions(QWidget *target)
-{
-	target->addAction(m_actionRenameNode);
-	target->addAction(m_actionDeleteSelection);
 }
 
 void UMLGraphicsScene::slotSelectionChanged()
@@ -69,23 +51,26 @@ void UMLGraphicsScene::slotSelectionChanged()
 			m_relaxedSelection.append(item);
 	}
 
+	bool editEnabled, deleteEnabled;
 	if (m_relaxedSelection.count() == 1)
 	{
 		Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
 		Core::UMLNodeElement *nodeElem = dynamic_cast<Core::UMLNodeElement*>(elem);
-		m_actionRenameNode->setEnabled(nodeElem != nullptr);
+		editEnabled = nodeElem != nullptr;
 	}
 	else
 	{
-		m_actionRenameNode->setEnabled(false);
+		editEnabled = false;
 	}
 
-	m_actionDeleteSelection->setEnabled((m_relaxedSelection.count() != 0 &&
+	deleteEnabled = (m_relaxedSelection.count() != 0 &&
 		m_relaxedSelection.count() == m_strictSelection.count()) ||
-		m_relaxedSelection.count() == 1);
+		m_relaxedSelection.count() == 1;
+
+	emit actionsEnabledChanged(editEnabled, deleteEnabled);
 }
 
-void UMLGraphicsScene::slotRenameNode()
+void UMLGraphicsScene::renameSelectedItem()
 {
 	if (m_relaxedSelection.count() != 1)
 		return;
@@ -105,7 +90,12 @@ void UMLGraphicsScene::slotRenameNode()
 		nodeElem->setNodeName(newLabel);
 }
 
-void UMLGraphicsScene::slotDeleteSelection()
+void UMLGraphicsScene::editSelectedItem()
+{
+	qDebug() << "Not implemented yet";
+}
+
+void UMLGraphicsScene::deleteSelectedItems()
 {
 	QList<Core::UMLElement*> elementsToBeDeleted;
 
@@ -173,11 +163,7 @@ void UMLGraphicsScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *contextM
 	}
 
 	QMenu menu;
-	if (m_actionRenameNode->isEnabled())
-		menu.addAction(m_actionRenameNode);
-	if (m_actionDeleteSelection->isEnabled())
-		menu.addAction(m_actionDeleteSelection);
-
+	emit fillContextMenu(&menu);
 	if (!menu.isEmpty())
 		menu.exec(contextMenuEvent->screenPos());
 }
