@@ -42,9 +42,11 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 
 	private slots:
 		void slotSelectionChanged();
+		void createUndoCheckpoint();
 
 	private:
 		UMLNodeElement *searchNodeElementAt(const QPointF &scenePos) const;
+		void scheduleUndoCheckpoint();
 
 		void contextMenuEvent(QGraphicsSceneContextMenuEvent *contextMenuEvent) override;
 		void dragMoveEvent(QGraphicsSceneDragDropEvent *event) override;
@@ -75,6 +77,16 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		QPolygonF m_edgeConstructionPoints;
 		bool m_edgeConstructSignal; // false=control flow, true=signal
 		QPointF m_mousePos;
+
+		// Was something moved since the last undo checkpoint?
+		bool m_somethingWasMoved;
+
+		// The creation of undo checkpoints is deferred at the end of
+		// the event queue, so that multiple related events do not
+		// result in multiple calls. This variable keeps track of
+		// whether the creation of a checkpoint is already pending or
+		// not
+		bool m_undoIsAlreadyScheduled;
 };
 
 }

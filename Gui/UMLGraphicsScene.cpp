@@ -14,13 +14,15 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QPainter>
+#include <QTimer>
 #include <QToolBar>
 
 namespace Gui
 {
 
 UMLGraphicsScene::UMLGraphicsScene(Core::UMLDiagram *dia, QObject *parent)
-: QGraphicsScene(parent), m_dia(dia), m_edgeConstructionOrigin(nullptr)
+: QGraphicsScene(parent), m_dia(dia), m_edgeConstructionOrigin(nullptr),
+  m_somethingWasMoved(false), m_undoIsAlreadyScheduled(false)
 {
 	connect(this, SIGNAL(selectionChanged()), this, SLOT(slotSelectionChanged()));
 	slotSelectionChanged();
@@ -436,6 +438,12 @@ void UMLGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void UMLGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
 	QGraphicsScene::mouseReleaseEvent(mouseEvent);
+
+	if (mouseEvent->buttons() == 0 && m_edgeConstructionOrigin == nullptr
+		&& m_somethingWasMoved)
+	{
+		scheduleUndoCheckpoint();
+	}
 }
 
 void UMLGraphicsScene::notifyElementAdded(Core::UMLElement *element)
@@ -443,12 +451,16 @@ void UMLGraphicsScene::notifyElementAdded(Core::UMLElement *element)
 	UMLElement *item = UMLElement::lookup(element);
 	item->refresh();
 	addItem(item->qtItem());
+
+	scheduleUndoCheckpoint();
 }
 
 void UMLGraphicsScene::notifyElementChanged(Core::UMLElement *element)
 {
 	UMLElement *item = UMLElement::lookup(element);
 	item->refresh();
+
+	scheduleUndoCheckpoint();
 }
 
 void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)
@@ -456,6 +468,8 @@ void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)
 	UMLElement *item = UMLElement::lookup(element);
 	removeItem(item->qtItem());
 	delete item;
+
+	scheduleUndoCheckpoint();
 }
 
 void UMLGraphicsScene::storeGuiDataToXml(Core::UMLElement *coreItem, QDomElement &target, QDomDocument &doc) const
@@ -544,6 +558,30 @@ void UMLGraphicsScene::notifyGeometryChanged(UMLElement *element)
 			UMLElement::lookup(edge)->refresh();
 		}
 	}
+
+	m_somethingWasMoved = true;
+}
+
+void UMLGraphicsScene::scheduleUndoCheckpoint()
+{
+	if (m_undoIsAlreadyScheduled)
+		return;
+
+	// schedule a timer event at the end of the event queue
+	m_undoIsAlreadyScheduled = true;
+	QTimer::singleShot(0, this, SLOT(createUndoCheckpoint()));
+}
+
+void UMLGraphicsScene::createUndoCheckpoint()
+{
+	// reset scheduling logic, so that subsequent events will result in a
+	// new undo checkpoint
+	Q_ASSERT(m_undoIsAlreadyScheduled);
+	m_undoIsAlreadyScheduled = false;
+	m_somethingWasMoved = false;
+
+	// create our checkpoint
+	qDebug() << "UNDO-CP";
 }
 
 }
