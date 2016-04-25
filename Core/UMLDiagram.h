@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QList>
 
+class QDomDocument;
+class QDomElement;
+
 namespace Core
 {
 
@@ -33,6 +36,10 @@ class UMLDiagram : public QObject
 
 		// Generate a name that is not currently in use by any element
 		QString generateFreshName(const QString &prefix) const;
+
+		// Store/load from XML element
+		void storeToXml(QDomElement &target, QDomDocument &doc) const;
+		bool loadFromXml(const QDomElement &source);
 
 	private slots:
 		void slotElementChanged();

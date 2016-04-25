@@ -46,6 +46,7 @@ class MainWindow : public QMainWindow
 
 	private:
 		bool queryClose();
+		QString docName() const;
 
 		Ui_MainWindow *m_ui;
 

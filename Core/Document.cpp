@@ -2,6 +2,8 @@
 
 #include "Core/UMLDiagram.h"
 
+#include <QDomDocument>
+
 namespace Core
 {
 
@@ -25,12 +27,40 @@ void Document::clear()
 
 QByteArray Document::serialize() const
 {
-	return "stub!";
+	QDomDocument doc;
+	QDomElement rootElem = doc.createElement("model");
+	doc.appendChild(rootElem);
+
+	QDomElement activityDiagElem = doc.createElement("activity-diagram");
+	rootElem.appendChild(activityDiagElem);
+	m_activityDiagram->storeToXml(activityDiagElem, doc);
+
+	QDomElement classDiagElem = doc.createElement("class-diagram");
+	rootElem.appendChild(classDiagElem);
+	m_classDiagram->storeToXml(classDiagElem, doc);
+
+	return doc.toByteArray(4);
 }
 
 bool Document::deserialize(const QByteArray &data)
 {
-	return data == "stub!";
+	clear();
+
+	QDomDocument doc;
+	if (!doc.setContent(data))
+		return false;
+
+	QDomElement rootElem = doc.documentElement();
+	QDomElement activityDiagElem = rootElem.firstChildElement("activity-diagram");
+	QDomElement classDiagElem = rootElem.firstChildElement("class-diagram");
+
+	if (!m_activityDiagram->loadFromXml(activityDiagElem))
+		return false;
+
+	if (!m_classDiagram->loadFromXml(classDiagElem))
+		return false;
+
+	return true;
 }
 
 }

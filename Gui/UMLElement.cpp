@@ -6,6 +6,7 @@
 
 #include <qmath.h>
 #include <QDebug>
+#include <QDomDocument>
 #include <QBrush>
 
 enum class GraphicsItemDataKey : int
@@ -101,8 +102,31 @@ UMLElement *UMLElement::lookup(QGraphicsItem *qtItem, bool relaxed)
 		return nullptr; // this may happen with auxiliary QGraphicsItems
 }
 
+void UMLElement::setPos(const QPointF &newPos)
+{
+	m_qtItem->setPos(newPos);
+}
+
+QPointF UMLElement::pos() const
+{
+	return m_qtItem->pos();
+}
+
 void UMLElement::refresh()
 {
+}
+
+void UMLElement::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	target.setAttribute("x", pos().x());
+	target.setAttribute("y", pos().y());
+}
+
+bool UMLElement::loadFromXml(const QDomElement &source)
+{
+	setPos(QPointF(source.attribute("x").toDouble(),
+		source.attribute("y").toDouble()));
+	return true;
 }
 
 QPointF UMLNodeElement::closestOutlinePoint(const QPointF &p)
@@ -176,12 +200,28 @@ QPointF UMLNodeElement::rectClosestPoint(const QRectF &rect, const QPointF &p,
 	return candidates[minIdx];
 }
 
-UMLInitialNode::UMLInitialNode(const QPointF &centerPosition)
+void UMLNodeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	UMLElement::storeToXml(target, doc); // store position
+
+	// TODO store label position
+}
+
+bool UMLNodeElement::loadFromXml(const QDomElement &source)
+{
+	if (!UMLElement::loadFromXml(source)) // load position
+		return false;
+
+	// TODO load label position
+
+	return true;
+}
+
+UMLInitialNode::UMLInitialNode()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsEllipseItem>(this,
 		-InitialNodeRadius, -InitialNodeRadius,
 		InitialNodeRadius * 2, InitialNodeRadius * 2);
-	m_qtItem->setPos(centerPosition);
 	m_qtItem->setBrush(Qt::black);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -208,12 +248,11 @@ void UMLInitialNode::refresh()
 	m_labelItem->setText(m_coreItem->nodeName());
 }
 
-UMLFinalNode::UMLFinalNode(const QPointF &centerPosition)
+UMLFinalNode::UMLFinalNode()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsEllipseItem>(this,
 		-FinalNodeRadius, -FinalNodeRadius,
 		FinalNodeRadius * 2, FinalNodeRadius * 2);
-	m_qtItem->setPos(centerPosition);
 	m_qtItem->setBrush(Qt::white);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -245,10 +284,9 @@ void UMLFinalNode::refresh()
 	m_labelItem->setText(m_coreItem->nodeName());
 }
 
-UMLActionNode::UMLActionNode(const QPointF &centerPosition)
+UMLActionNode::UMLActionNode()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsPathItem>(this);
-	m_qtItem->setPos(centerPosition);
 	m_qtItem->setBrush(Qt::white);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -306,11 +344,10 @@ void UMLActionNode::setRectPath(const QSizeF &size)
 		static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(this);
 }
 
-UMLDecisionMergeNode::UMLDecisionMergeNode(const QPointF &centerPosition)
+UMLDecisionMergeNode::UMLDecisionMergeNode()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsPolygonItem>(this,
 		DecisionMergeNodeShape);
-	m_qtItem->setPos(centerPosition);
 	m_qtItem->setBrush(Qt::white);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -342,11 +379,10 @@ void UMLDecisionMergeNode::refresh()
 	m_labelItem->setText(m_coreItem->nodeName());
 }
 
-UMLForkJoinNode::UMLForkJoinNode(const QPointF &centerPosition)
+UMLForkJoinNode::UMLForkJoinNode()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsRectItem>(this,
 		ForkJoinNodeShape);
-	m_qtItem->setPos(centerPosition);
 	m_qtItem->setBrush(Qt::black);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -411,6 +447,11 @@ void UMLEdgeElement::setIntermediatePoints(const QPolygonF &intermediatePoints)
 		static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(this);
 }
 
+const QPolygonF &UMLEdgeElement::intermediatePoints() const
+{
+	return m_intermediatePoints;
+}
+
 void UMLEdgeElement::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
@@ -454,10 +495,46 @@ QPolygonF UMLEdgeElement::calcPathBetweenNodes(UMLNodeElement *a, UMLNodeElement
 	return res;
 }
 
-UMLClass::UMLClass(const QPointF &topMidPosition)
+void UMLEdgeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	QDomElement intermediatePointsArrayElem = doc.createElement("intermediate-points");
+	target.appendChild(intermediatePointsArrayElem);
+
+	foreach (const QPointF &point, intermediatePoints())
+	{
+		QDomElement pointElem = doc.createElement("point");
+		intermediatePointsArrayElem.appendChild(pointElem);
+		pointElem.setAttribute("x", point.x());
+		pointElem.setAttribute("y", point.y());
+	}
+
+	// TODO store label position
+}
+
+bool UMLEdgeElement::loadFromXml(const QDomElement &source)
+{
+	QPolygonF intermediatePoints;
+
+	QDomElement intermediatePointsArrayElem = source.firstChildElement("intermediate-points");
+	for (QDomElement pointElem = intermediatePointsArrayElem.firstChildElement();
+		!pointElem.isNull();
+		pointElem = pointElem.nextSiblingElement())
+	{
+		intermediatePoints.append(QPointF(
+			pointElem.attribute("x").toDouble(),
+			pointElem.attribute("y").toDouble()));
+	}
+
+	setIntermediatePoints(intermediatePoints);
+
+	// TODO load label position
+
+	return true;
+}
+
+UMLClass::UMLClass()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this, false);
-	m_qtItem->setPos(topMidPosition);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -477,10 +554,9 @@ void UMLClass::refresh()
 	m_qtItem->setContents("Bla\nblabla\nblablablablablablablablabla");
 }
 
-UMLEnumeration::UMLEnumeration(const QPointF &topMidPosition)
+UMLEnumeration::UMLEnumeration()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this, true);
-	m_qtItem->setPos(topMidPosition);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 

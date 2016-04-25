@@ -7,11 +7,11 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QMenu>
 #include <QDebug>
 #include <QGraphicsSceneDragDropEvent>
 #include <QInputDialog>
 #include <QKeyEvent>
+#include <QMenu>
 #include <QMimeData>
 #include <QPainter>
 #include <QToolBar>
@@ -247,46 +247,56 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		if (elementTypeString == "InitialNode")
 		{
 			Core::UMLInitialNode *elem = new Core::UMLInitialNode();
-			UMLInitialNode *item = new UMLInitialNode(scenePos);
-			item->bind(elem);
-
 			elem->setNodeName("InitialNode");
+
+			UMLInitialNode *item = new UMLInitialNode();
+			item->bind(elem);
+			item->setPos(scenePos);
+
 			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "FinalNode")
 		{
 			Core::UMLFinalNode *elem = new Core::UMLFinalNode();
-			UMLFinalNode *item = new UMLFinalNode(scenePos);
-			item->bind(elem);
-
 			elem->setNodeName(m_dia->generateFreshName("FinalNode"));
+
+			UMLFinalNode *item = new UMLFinalNode();
+			item->bind(elem);
+			item->setPos(scenePos);
+
 			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "ActionNode")
 		{
 			Core::UMLActionNode *elem = new Core::UMLActionNode();
-			UMLActionNode *item = new UMLActionNode(scenePos);
-			item->bind(elem);
-
 			elem->setNodeName(m_dia->generateFreshName("ActionNode"));
+
+			UMLActionNode *item = new UMLActionNode();
+			item->bind(elem);
+			item->setPos(scenePos);
+
 			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "DecisionNode" || elementTypeString == "MergeNode")
 		{
 			Core::UMLDecisionMergeNode *elem = new Core::UMLDecisionMergeNode();
-			UMLDecisionMergeNode *item = new UMLDecisionMergeNode(scenePos);
-			item->bind(elem);
-
 			elem->setNodeName(m_dia->generateFreshName(elementTypeString));
+
+			UMLDecisionMergeNode *item = new UMLDecisionMergeNode();
+			item->bind(elem);
+			item->setPos(scenePos);
+
 			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "ForkNode" || elementTypeString == "JoinNode")
 		{
 			Core::UMLForkJoinNode *elem = new Core::UMLForkJoinNode();
-			UMLForkJoinNode *item = new UMLForkJoinNode(scenePos);
-			item->bind(elem);
-
 			elem->setNodeName(m_dia->generateFreshName(elementTypeString));
+
+			UMLForkJoinNode *item = new UMLForkJoinNode();
+			item->bind(elem);
+			item->setPos(scenePos);
+
 			m_dia->addUMLElement(elem);
 		}
 	}
@@ -306,19 +316,23 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		if (elementTypeString == "Class")
 		{
 			Core::UMLClass *elem = new Core::UMLClass();
-			UMLClass *item = new UMLClass(scenePos);
-			item->bind(elem);
-
 			elem->setDatatypeName(m_dia->generateFreshName("ClassName"));
+
+			UMLClass *item = new UMLClass();
+			item->bind(elem);
+			item->setPos(scenePos);
+
 			m_dia->addUMLElement(elem);
 		}
 		else if (elementTypeString == "Enumeration")
 		{
 			Core::UMLEnumeration *elem = new Core::UMLEnumeration();
-			UMLEnumeration *item = new UMLEnumeration(scenePos);
-			item->bind(elem);
-
 			elem->setDatatypeName(m_dia->generateFreshName("EnumerationName"));
+
+			UMLEnumeration *item = new UMLEnumeration();
+			item->bind(elem);
+			item->setPos(scenePos);
+
 			m_dia->addUMLElement(elem);
 		}
 	}
@@ -390,6 +404,7 @@ void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 			item->setIntermediatePoints(m_edgeConstructionPoints);
 
 			m_dia->addUMLElement(elem);
+
 			m_edgeConstructionOrigin = nullptr;
 			emit edgeConstructionStateChanged(false);
 			emit changed(QList<QRectF>());
@@ -441,6 +456,78 @@ void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)
 	UMLElement *item = UMLElement::lookup(element);
 	removeItem(item->qtItem());
 	delete item;
+}
+
+void UMLGraphicsScene::storeGuiDataToXml(Core::UMLElement *coreItem, QDomElement &target, QDomDocument &doc) const
+{
+	UMLElement *elem = UMLElement::lookup(coreItem);
+	elem->storeToXml(target, doc);
+}
+
+bool UMLGraphicsScene::loadGuiDataFromXml(Core::UMLElement *coreElem, const QDomElement &source)
+{
+	switch (coreElem->type())
+	{
+		case Core::UMLElementType::InitialNode:
+		{
+			UMLInitialNode *gui = new UMLInitialNode();
+			gui->bind(static_cast<Core::UMLInitialNode*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::FinalNode:
+		{
+			UMLFinalNode *gui = new UMLFinalNode();
+			gui->bind(static_cast<Core::UMLFinalNode*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::ActionNode:
+		{
+			UMLActionNode *gui = new UMLActionNode();
+			gui->bind(static_cast<Core::UMLActionNode*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::DecisionMergeNode:
+		{
+			UMLDecisionMergeNode *gui = new UMLDecisionMergeNode();
+			gui->bind(static_cast<Core::UMLDecisionMergeNode*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::ForkJoinNode:
+		{
+			UMLForkJoinNode *gui = new UMLForkJoinNode();
+			gui->bind(static_cast<Core::UMLForkJoinNode*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::ControlFlowEdge:
+		case Core::UMLElementType::SignalEdge:
+		{
+			UMLEdgeElement *gui = new UMLEdgeElement();
+			gui->bind(static_cast<Core::UMLEdgeElement*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::Class:
+		{
+			UMLClass *gui = new UMLClass();
+			gui->bind(static_cast<Core::UMLClass*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::Enumeration:
+		{
+			UMLEnumeration *gui = new UMLEnumeration();
+			gui->bind(static_cast<Core::UMLEnumeration*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+	}
+
+	return true;
 }
 
 void UMLGraphicsScene::notifyGeometryChanged(UMLElement *element)

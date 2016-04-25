@@ -59,6 +59,8 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void notifyElementAdded(Core::UMLElement *element) override;
 		void notifyElementChanged(Core::UMLElement *element) override;
 		void notifyElementRemoved(Core::UMLElement *element) override;
+		void storeGuiDataToXml(Core::UMLElement *element, QDomElement &target, QDomDocument &doc) const override;
+		bool loadGuiDataFromXml(Core::UMLElement *element, const QDomElement &source) override;
 
 		// The UML diagram
 		Core::UMLDiagram *m_dia;

@@ -5,6 +5,9 @@
 #include <QObject>
 #include <QString>
 
+class QDomDocument;
+class QDomElement;
+
 namespace Core
 {
 
@@ -40,6 +43,10 @@ class UMLElement : public QObject
 		void setGuiProxyPointer(void *newPointer);
 		void *guiProxyPointer() const;
 
+		// Store/load from XML element
+		virtual void storeToXml(QDomElement &target, QDomDocument &doc) const = 0;
+		virtual bool loadFromXml(const QDomElement &source) = 0;
+
 		// Sort list of elements according to their type (see
 		// comment in the definition of UMLElementType)
 		static void topoSort(QList<UMLElement*> &list, bool reverse = false);
@@ -68,6 +75,9 @@ class UMLNodeElement : public UMLElement
 
 		const QList<UMLEdgeElement*> &incomingEdges() const;
 		const QList<UMLEdgeElement*> &outgoingEdges() const;
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
 
 	private:
 		QString m_nodeName;
@@ -113,6 +123,9 @@ class UMLEdgeElement : public UMLElement
 		UMLNodeElement *from() const;
 		UMLNodeElement *to() const;
 
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
+
 	private:
 		UMLNodeElement *m_from, *m_to;
 };
@@ -136,6 +149,9 @@ class UMLDatatypeElement : public UMLElement
 
 		void setDatatypeName(const QString &newName);
 		const QString &datatypeName() const;
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
 
 	private:
 		QString m_datatypeName;

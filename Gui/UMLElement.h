@@ -46,7 +46,14 @@ class UMLElement
 		static UMLElement *lookup(Core::UMLElement *coreItem);
 		static UMLElement *lookup(QGraphicsItem *qtItem, bool relaxed = true);
 
+		void setPos(const QPointF &newPos);
+		QPointF pos() const;
+
 		virtual void refresh();
+
+		// serialize/deserialize gui properties
+		virtual void storeToXml(QDomElement &target, QDomDocument &doc) const;
+		virtual bool loadFromXml(const QDomElement &source);
 
 		virtual ~UMLElement();
 
@@ -71,6 +78,9 @@ class UMLNodeElement : public UMLElement
 		QPointF closestOutlinePoint(const QPointF &p);
 		virtual QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) = 0;
 
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
+
 	protected:
 		UMLNodeElement() = default;
 
@@ -86,7 +96,7 @@ class UMLNodeElement : public UMLElement
 class UMLInitialNode : public UMLNodeElement
 {
 	public:
-		explicit UMLInitialNode(const QPointF &centerPosition);
+		UMLInitialNode();
 		void bind(Core::UMLInitialNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
@@ -101,7 +111,7 @@ class UMLInitialNode : public UMLNodeElement
 class UMLFinalNode : public UMLNodeElement
 {
 	public:
-		explicit UMLFinalNode(const QPointF &centerPosition);
+		UMLFinalNode();
 		void bind(Core::UMLFinalNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
@@ -116,7 +126,7 @@ class UMLFinalNode : public UMLNodeElement
 class UMLActionNode : public UMLNodeElement
 {
 	public:
-		explicit UMLActionNode(const QPointF &centerPosition);
+		UMLActionNode();
 		void bind(Core::UMLActionNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
@@ -133,7 +143,7 @@ class UMLActionNode : public UMLNodeElement
 class UMLDecisionMergeNode : public UMLNodeElement
 {
 	public:
-		explicit UMLDecisionMergeNode(const QPointF &centerPosition);
+		UMLDecisionMergeNode();
 		void bind(Core::UMLDecisionMergeNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
@@ -148,7 +158,7 @@ class UMLDecisionMergeNode : public UMLNodeElement
 class UMLForkJoinNode : public UMLNodeElement
 {
 	public:
-		explicit UMLForkJoinNode(const QPointF &centerPosition);
+		UMLForkJoinNode();
 		void bind(Core::UMLForkJoinNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
@@ -167,10 +177,15 @@ class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveWatcher
 		void bind(Core::UMLEdgeElement *coreItem);
 
 		void setIntermediatePoints(const QPolygonF &intermediatePoints);
+		const QPolygonF &intermediatePoints() const;
+
 		void refresh() override;
 
 		static QPolygonF calcPathBetweenNodes(UMLNodeElement *a, UMLNodeElement *b,
 			const QPolygonF &intermediatePoints = QPolygonF());
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
 
 	private:
 		void notifyEdgeMoved(const QPointF &delta) override;
@@ -186,7 +201,7 @@ class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveWatcher
 class UMLClass : public UMLElement
 {
 	public:
-		explicit UMLClass(const QPointF &topMidPosition);
+		UMLClass();
 		void bind(Core::UMLClass *coreItem);
 
 		void refresh() override;
@@ -199,7 +214,7 @@ class UMLClass : public UMLElement
 class UMLEnumeration : public UMLElement
 {
 	public:
-		explicit UMLEnumeration(const QPointF &topMidPosition);
+		UMLEnumeration();
 		void bind(Core::UMLEnumeration *coreItem);
 
 		void refresh() override;

@@ -70,7 +70,7 @@ bool MainWindow::queryClose()
 		return true;
 
 	switch (QMessageBox::warning(this, "Close document",
-		"The document \"DocNameHere\" has been modified.\nDo you want to save your changes or discard them?",
+		QString("The document \"%1\" has been modified.\nDo you want to save your changes or discard them?").arg(docName()),
 		QMessageBox::Discard | QMessageBox::Save | QMessageBox::Cancel))
 	{
 		case QMessageBox::Discard:
@@ -113,6 +113,14 @@ bool MainWindow::loadFile(const QString &path)
 	}
 
 	return success;
+}
+
+QString MainWindow::docName() const
+{
+	if (m_filename.isEmpty())
+		return "Untitled model";
+
+	return QFileInfo(m_filename).fileName();
 }
 
 void MainWindow::slotNew()

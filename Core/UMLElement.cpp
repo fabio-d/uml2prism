@@ -1,5 +1,7 @@
 #include "UMLElement.h"
 
+#include <QDomDocument>
+
 namespace Core
 {
 
@@ -67,6 +69,17 @@ const QList<UMLEdgeElement*> &UMLNodeElement::outgoingEdges() const
 	return m_outgoingEdges;
 }
 
+void UMLNodeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	target.setAttribute("nodeName", nodeName());
+}
+
+bool UMLNodeElement::loadFromXml(const QDomElement &source)
+{
+	setNodeName(source.attribute("nodeName"));
+	return true;
+}
+
 UMLInitialNode::UMLInitialNode()
 : UMLNodeElement(UMLElementType::InitialNode)
 {
@@ -107,6 +120,15 @@ UMLNodeElement *UMLEdgeElement::to() const
 	return m_to;
 }
 
+void UMLEdgeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+}
+
+bool UMLEdgeElement::loadFromXml(const QDomElement &source)
+{
+	return true;
+}
+
 UMLControlFlowEdge::UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to)
 : UMLEdgeElement(UMLElementType::ControlFlowEdge, from, to)
 {
@@ -130,6 +152,17 @@ void UMLDatatypeElement::setDatatypeName(const QString &newName)
 const QString &UMLDatatypeElement::datatypeName() const
 {
 	return m_datatypeName;
+}
+
+void UMLDatatypeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	target.setAttribute("datatypeName", datatypeName());
+}
+
+bool UMLDatatypeElement::loadFromXml(const QDomElement &source)
+{
+	setDatatypeName(source.attribute("datatypeName"));
+	return true;
 }
 
 UMLClass::UMLClass()
