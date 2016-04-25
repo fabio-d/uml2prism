@@ -129,6 +129,30 @@ bool UMLElement::loadFromXml(const QDomElement &source)
 	return true;
 }
 
+UMLNodeElement::UMLNodeElement()
+: m_labelItem(nullptr)
+{
+}
+
+void UMLNodeElement::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_labelItem->setText(m_coreItem->nodeName());
+}
+
+void UMLNodeElement::bind(Core::UMLNodeElement *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLNodeElement::bind(QGraphicsItem *qtItem, GraphicsLabelItem::Options labelOptions)
+{
+	m_labelItem = new GraphicsPositionChangeSpyItem<GraphicsLabelItem>(
+		this, labelOptions, qtItem);
+	UMLElement::bind(qtItem);
+}
+
 QPointF UMLNodeElement::closestOutlinePoint(const QPointF &p)
 {
 	bool discard;
@@ -200,11 +224,32 @@ QPointF UMLNodeElement::rectClosestPoint(const QRectF &rect, const QPointF &p,
 	return candidates[minIdx];
 }
 
+void UMLNodeElement::setLabelRelativePos(const QPointF &newPos)
+{
+	m_labelItem->setPos(newPos);
+}
+
+QPointF UMLNodeElement::labelRelativePos() const
+{
+	return m_labelItem->pos();
+}
+
+QSizeF UMLNodeElement::labelSize() const
+{
+	return m_labelItem->boundingRect().size();
+}
+
 void UMLNodeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
 {
 	UMLElement::storeToXml(target, doc); // store position
 
-	// TODO store label position
+	if (!m_labelItem->options().testFlag(GraphicsLabelItem::NonMovable))
+	{
+		QDomElement labelElem = doc.createElement("label");
+		target.appendChild(labelElem);
+		labelElem.setAttribute("x", labelRelativePos().x());
+		labelElem.setAttribute("y", labelRelativePos().y());
+	}
 }
 
 bool UMLNodeElement::loadFromXml(const QDomElement &source)
@@ -212,7 +257,12 @@ bool UMLNodeElement::loadFromXml(const QDomElement &source)
 	if (!UMLElement::loadFromXml(source)) // load position
 		return false;
 
-	// TODO load label position
+	if (!m_labelItem->options().testFlag(GraphicsLabelItem::NonMovable))
+	{
+		QDomElement labelElem = source.firstChildElement("label");
+		setLabelRelativePos(QPointF(labelElem.attribute("x").toDouble(),
+			labelElem.attribute("y").toDouble()));
+	}
 
 	return true;
 }
@@ -226,26 +276,19 @@ UMLInitialNode::UMLInitialNode()
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheRight, m_qtItem);
-	UMLElement::bind(m_qtItem);
+	UMLNodeElement::bind(m_qtItem, GraphicsLabelItem::InitiallyOnTheRight);
 }
 
 void UMLInitialNode::bind(Core::UMLInitialNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLElement::bind(coreItem);
+	UMLNodeElement::bind(coreItem);
 }
 
 QPointF UMLInitialNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
 {
 	return circleClosestPoint(m_qtItem->pos(), InitialNodeRadius,
 		p, out_pIsInside);
-}
-
-void UMLInitialNode::refresh()
-{
-	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
 }
 
 UMLFinalNode::UMLFinalNode()
@@ -262,26 +305,19 @@ UMLFinalNode::UMLFinalNode()
 		InitialNodeRadius * 2, InitialNodeRadius * 2, m_qtItem);
 	blackDot->setBrush(Qt::black);
 
-	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheRight, m_qtItem);
-	UMLElement::bind(m_qtItem);
+	UMLNodeElement::bind(m_qtItem, GraphicsLabelItem::InitiallyOnTheRight);
 }
 
 void UMLFinalNode::bind(Core::UMLFinalNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLElement::bind(coreItem);
+	UMLNodeElement::bind(coreItem);
 }
 
 QPointF UMLFinalNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
 {
 	return circleClosestPoint(m_qtItem->pos(), FinalNodeRadius,
 		p, out_pIsInside);
-}
-
-void UMLFinalNode::refresh()
-{
-	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
 }
 
 UMLActionNode::UMLActionNode()
@@ -293,14 +329,13 @@ UMLActionNode::UMLActionNode()
 
 	setRectPath(QSizeF());
 
-	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::NonMovable, m_qtItem);
-	UMLElement::bind(m_qtItem);
+	UMLNodeElement::bind(m_qtItem, GraphicsLabelItem::NonMovable);
 }
 
 void UMLActionNode::bind(Core::UMLActionNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLElement::bind(coreItem);
+	UMLNodeElement::bind(coreItem);
 }
 
 QPointF UMLActionNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
@@ -325,9 +360,8 @@ QPointF UMLActionNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside
 
 void UMLActionNode::refresh()
 {
-	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
-	setRectPath(m_labelItem->boundingRect().size());
+	UMLNodeElement::refresh();
+	setRectPath(labelSize());
 }
 
 void UMLActionNode::setRectPath(const QSizeF &size)
@@ -352,14 +386,13 @@ UMLDecisionMergeNode::UMLDecisionMergeNode()
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheBottom, m_qtItem);
-	UMLElement::bind(m_qtItem);
+	UMLNodeElement::bind(m_qtItem, GraphicsLabelItem::InitiallyOnTheBottom);
 }
 
 void UMLDecisionMergeNode::bind(Core::UMLDecisionMergeNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLElement::bind(coreItem);
+	UMLNodeElement::bind(coreItem);
 }
 
 QPointF UMLDecisionMergeNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
@@ -373,12 +406,6 @@ QPointF UMLDecisionMergeNode::closestOutlinePoint(const QPointF &p, bool *out_pI
 		p);
 }
 
-void UMLDecisionMergeNode::refresh()
-{
-	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
-}
-
 UMLForkJoinNode::UMLForkJoinNode()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsRectItem>(this,
@@ -387,26 +414,19 @@ UMLForkJoinNode::UMLForkJoinNode()
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
-	m_labelItem = new GraphicsLabelItem(GraphicsLabelItem::InitiallyOnTheBottom, m_qtItem);
-	UMLElement::bind(m_qtItem);
+	UMLNodeElement::bind(m_qtItem,GraphicsLabelItem::InitiallyOnTheBottom);
 }
 
 void UMLForkJoinNode::bind(Core::UMLForkJoinNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLElement::bind(coreItem);
+	UMLNodeElement::bind(coreItem);
 }
 
 QPointF UMLForkJoinNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
 {
 	return rectClosestPoint(ForkJoinNodeShape.translated(m_qtItem->pos()),
 		p, out_pIsInside);
-}
-
-void UMLForkJoinNode::refresh()
-{
-	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
 }
 
 UMLEdgeElement::UMLEdgeElement()

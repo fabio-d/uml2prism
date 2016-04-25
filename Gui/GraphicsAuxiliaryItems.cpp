@@ -12,7 +12,7 @@ namespace Gui
 {
 
 GraphicsLabelItem::GraphicsLabelItem(Options options, QGraphicsItem *parent)
-: QGraphicsSimpleTextItem(parent)
+: QGraphicsSimpleTextItem(parent), m_options(options)
 {
 	QFontMetricsF metrics(font());
 
@@ -51,6 +51,11 @@ void GraphicsLabelItem::setText(const QString &text)
 		// center aligned
 		setPos(pos().x() + (oldWidth - newWidth) / 2, pos().y());
 	}
+}
+
+GraphicsLabelItem::Options GraphicsLabelItem::options() const
+{
+	return m_options;
 }
 
 GraphicsEdgeItem::GraphicsEdgeItem(QGraphicsItem *parent)

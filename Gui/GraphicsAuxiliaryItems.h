@@ -26,6 +26,10 @@ class GraphicsLabelItem : public QGraphicsSimpleTextItem
 		explicit GraphicsLabelItem(Options options, QGraphicsItem *parent = nullptr);
 
 		void setText(const QString &text);
+		Options options() const;
+
+	private:
+		Options m_options;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(GraphicsLabelItem::Options)

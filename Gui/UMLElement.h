@@ -28,6 +28,7 @@ class UMLEnumeration;
 class UMLFinalNode;
 class UMLForkJoinNode;
 class UMLInitialNode;
+class UMLNodeElement;
 }
 
 namespace Gui
@@ -72,17 +73,23 @@ class UMLElement
 class UMLNodeElement : public UMLElement
 {
 	public:
+		void refresh() override;
+
 		// Returns shape's contour point that is closest to p. In the
 		// two-arguments variant, *out_pIsInside is set to true if p in
 		// contained in the shape
 		QPointF closestOutlinePoint(const QPointF &p);
 		virtual QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) = 0;
 
+		void setLabelRelativePos(const QPointF &newPos);
+		QPointF labelRelativePos() const;
+		QSizeF labelSize() const;
+
 		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
 		bool loadFromXml(const QDomElement &source) override;
 
 	protected:
-		UMLNodeElement() = default;
+		UMLNodeElement();
 
 		// Helper methods that subclasses can use to implement closestOutlinePoint
 		static QPointF circleClosestPoint(const QPointF &centerPos,
@@ -91,6 +98,15 @@ class UMLNodeElement : public UMLElement
 			const QPointF &segmB, const QPointF &p);
 		static QPointF rectClosestPoint(const QRectF &rect,
 			const QPointF &p, bool *out_pIsInside);
+
+		void bind(Core::UMLElement *coreItem) = delete;
+		void bind(Core::UMLNodeElement *coreItem);
+		void bind(QGraphicsItem *qtItem) = delete;
+		void bind(QGraphicsItem *qtItem, GraphicsLabelItem::Options labelOptions);
+
+	private:
+		Core::UMLNodeElement *m_coreItem;
+		GraphicsLabelItem *m_labelItem;
 };
 
 class UMLInitialNode : public UMLNodeElement
@@ -100,12 +116,9 @@ class UMLInitialNode : public UMLNodeElement
 		void bind(Core::UMLInitialNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
-		void refresh() override;
-
 	private:
 		Core::UMLInitialNode *m_coreItem;
 		QGraphicsEllipseItem *m_qtItem;
-		GraphicsLabelItem *m_labelItem;
 };
 
 class UMLFinalNode : public UMLNodeElement
@@ -115,12 +128,9 @@ class UMLFinalNode : public UMLNodeElement
 		void bind(Core::UMLFinalNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
-		void refresh() override;
-
 	private:
 		Core::UMLFinalNode *m_coreItem;
 		QGraphicsEllipseItem *m_qtItem;
-		GraphicsLabelItem *m_labelItem;
 };
 
 class UMLActionNode : public UMLNodeElement
@@ -129,7 +139,6 @@ class UMLActionNode : public UMLNodeElement
 		UMLActionNode();
 		void bind(Core::UMLActionNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
-
 		void refresh() override;
 
 	private:
@@ -137,7 +146,6 @@ class UMLActionNode : public UMLNodeElement
 
 		Core::UMLActionNode *m_coreItem;
 		QGraphicsPathItem *m_qtItem;
-		GraphicsLabelItem *m_labelItem;
 };
 
 class UMLDecisionMergeNode : public UMLNodeElement
@@ -147,12 +155,9 @@ class UMLDecisionMergeNode : public UMLNodeElement
 		void bind(Core::UMLDecisionMergeNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
-		void refresh() override;
-
 	private:
 		Core::UMLDecisionMergeNode *m_coreItem;
 		QGraphicsPolygonItem *m_qtItem;
-		GraphicsLabelItem *m_labelItem;
 };
 
 class UMLForkJoinNode : public UMLNodeElement
@@ -162,12 +167,9 @@ class UMLForkJoinNode : public UMLNodeElement
 		void bind(Core::UMLForkJoinNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
-		void refresh() override;
-
 	private:
 		Core::UMLForkJoinNode *m_coreItem;
 		QGraphicsRectItem *m_qtItem;
-		GraphicsLabelItem *m_labelItem;
 };
 
 class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveWatcher
