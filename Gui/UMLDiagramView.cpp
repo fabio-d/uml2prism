@@ -19,6 +19,8 @@ void UMLDiagramView::setScene(UMLGraphicsScene *scene)
 
 	connect(m_scene, SIGNAL(edgeConstructionStateChanged(bool)),
 		this, SLOT(slotEdgeConstructionStateChanged(bool)));
+	connect(m_scene, SIGNAL(sceneRectMayHaveChanged()),
+		this, SLOT(updateScene()));
 
 	m_scene->setSceneRect(m_scene->itemsBoundingRect());
 	updateScene(QList<QRectF>());
@@ -142,6 +144,11 @@ void UMLDiagramView::updateScene(const QList<QRectF> &)
 
 	QRectF minimumRect(mapToScene(0, 0),
 		mapToScene(viewport()->width(), viewport()->height()));
+
+	// compensate for what seems to be floating point errors in
+	// QGraphicsView's code
+	const qreal adj = 1 / currentScale();
+	minimumRect.adjust(-adj, -adj, adj, adj);
 
 	if (!itemsBRect.isEmpty())
 	{

@@ -36,6 +36,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void deleteSelectedItems();
 
 	signals:
+		void sceneRectMayHaveChanged();
 		void edgeConstructionStateChanged(bool inProgress);
 		void actionsEnabledChanged(bool editEnabled, bool deleteEnabled);
 		void fillContextMenu(QMenu *menu);

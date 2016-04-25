@@ -453,6 +453,7 @@ void UMLGraphicsScene::notifyElementAdded(Core::UMLElement *element)
 	addItem(item->qtItem());
 
 	scheduleUndoCheckpoint();
+	emit sceneRectMayHaveChanged();
 }
 
 void UMLGraphicsScene::notifyElementChanged(Core::UMLElement *element)

@@ -27,7 +27,7 @@ class UMLDiagramView : public QGraphicsView
 		void zoomFit();
 
 	private slots:
-		void updateScene(const QList<QRectF> &rect);
+		void updateScene(const QList<QRectF> &rect = QList<QRectF>());
 		void slotEdgeConstructionStateChanged(bool inProgress);
 
 	private:
