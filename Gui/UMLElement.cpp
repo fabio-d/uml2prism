@@ -124,6 +124,10 @@ void UMLElement::storeToXml(QDomElement &target, QDomDocument &doc) const
 
 bool UMLElement::loadFromXml(const QDomElement &source)
 {
+	// Labels must be set to their final text *before* restoring their
+	// position, to avoid confusing the alignment code
+	refresh();
+
 	setPos(QPointF(source.attribute("x").toDouble(),
 		source.attribute("y").toDouble()));
 	return true;
