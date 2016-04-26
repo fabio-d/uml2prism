@@ -21,6 +21,7 @@ add_executable(UMLEditor
 	Gui/UMLElement.cpp
 	Gui/UMLGraphicsScene.cpp
 	Gui/UMLToolboxListWidget.cpp
+	Gui/UndoManager.cpp
 	resources/resources.qrc
 	main.cpp
 )

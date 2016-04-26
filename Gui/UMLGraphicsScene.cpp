@@ -2,6 +2,7 @@
 
 #include "Gui/UMLElement.h"
 
+#include "Core/Document.h"
 #include "Core/UMLDiagram.h"
 #include "Core/UMLElement.h"
 
@@ -601,8 +602,11 @@ void UMLGraphicsScene::notifyGeometryChanged(UMLElement *element)
 
 void UMLGraphicsScene::scheduleUndoCheckpoint()
 {
-	if (m_undoIsAlreadyScheduled)
+	if (m_undoIsAlreadyScheduled
+		|| m_dia->document()->isDeserializationInProgress())
+	{
 		return;
+	}
 
 	// schedule a timer event at the end of the event queue
 	m_undoIsAlreadyScheduled = true;
@@ -618,7 +622,7 @@ void UMLGraphicsScene::createUndoCheckpoint()
 	m_somethingWasMoved = false;
 
 	// create our checkpoint
-	qDebug() << "UNDO-CP";
+	emit undoCheckpointCreationRequest();
 }
 
 }

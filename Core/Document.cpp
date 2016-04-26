@@ -7,10 +7,11 @@
 namespace Core
 {
 
-Document::Document()
+Document::Document(QObject *parent)
+: QObject(parent), m_deserializeInProgress(false)
 {
-	m_activityDiagram = new UMLDiagram(UMLDiagram::Activity);
-	m_classDiagram = new UMLDiagram(UMLDiagram::Class);
+	m_activityDiagram = new UMLDiagram(this, UMLDiagram::Activity);
+	m_classDiagram = new UMLDiagram(this, UMLDiagram::Class);
 }
 
 Document::~Document()
@@ -44,23 +45,44 @@ QByteArray Document::serialize() const
 
 bool Document::deserialize(const QByteArray &data)
 {
+	m_deserializeInProgress = true;
+
 	clear();
 
 	QDomDocument doc;
 	if (!doc.setContent(data))
+	{
+		m_deserializeInProgress = false;
+		emit deserializationCompleted();
 		return false;
+	}
 
 	QDomElement rootElem = doc.documentElement();
 	QDomElement activityDiagElem = rootElem.firstChildElement("activity-diagram");
 	QDomElement classDiagElem = rootElem.firstChildElement("class-diagram");
 
 	if (!m_activityDiagram->loadFromXml(activityDiagElem))
+	{
+		m_deserializeInProgress = false;
+		emit deserializationCompleted();
 		return false;
+	}
 
 	if (!m_classDiagram->loadFromXml(classDiagElem))
+	{
+		m_deserializeInProgress = false;
+		emit deserializationCompleted();
 		return false;
+	}
 
+	m_deserializeInProgress = false;
+	emit deserializationCompleted();
 	return true;
+}
+
+bool Document::isDeserializationInProgress() const
+{
+	return m_deserializeInProgress;
 }
 
 }

@@ -10,6 +10,7 @@ class QDomElement;
 namespace Core
 {
 
+class Document;
 class GuiProxy;
 class UMLElement;
 
@@ -20,9 +21,10 @@ class UMLDiagram : public QObject
 	public:
 		enum Type { Activity, Class };
 
-		explicit UMLDiagram(Type type);
+		UMLDiagram(Document *doc, Type type);
 		~UMLDiagram();
 
+		Document *document() const;
 		Type type() const;
 
 		// The GuiProxy object receives notifications about events
@@ -45,6 +47,7 @@ class UMLDiagram : public QObject
 		void slotElementChanged();
 
 	private:
+		Document *m_doc;
 		Type m_type;
 		GuiProxy *m_guiProxy;
 

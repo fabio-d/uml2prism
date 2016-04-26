@@ -1,17 +1,19 @@
 #ifndef CORE_DOCUMENT_H
 #define CORE_DOCUMENT_H
 
-#include <QString>
+#include <QObject>
 
 namespace Core
 {
 
 class UMLDiagram;
 
-class Document
+class Document : public QObject
 {
+	Q_OBJECT
+
 	public:
-		Document();
+		explicit Document(QObject *parent = nullptr);
 		~Document();
 
 		UMLDiagram *activityDiagram() { return m_activityDiagram; }
@@ -23,10 +25,15 @@ class Document
 
 		QByteArray serialize() const;
 		bool deserialize(const QByteArray &data);
+		bool isDeserializationInProgress() const;
+
+	signals:
+		void deserializationCompleted();
 
 	private:
 		UMLDiagram *m_activityDiagram;
 		UMLDiagram *m_classDiagram;
+		bool m_deserializeInProgress;
 };
 
 }

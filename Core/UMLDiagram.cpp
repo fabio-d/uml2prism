@@ -9,14 +9,19 @@
 namespace Core
 {
 
-UMLDiagram::UMLDiagram(Type type)
-: m_type(type), m_guiProxy(nullptr)
+UMLDiagram::UMLDiagram(Document *doc, Type type)
+: m_doc(doc), m_type(type), m_guiProxy(nullptr)
 {
 }
 
 UMLDiagram::~UMLDiagram()
 {
 	deleteAllElements();
+}
+
+Document *UMLDiagram::document() const
+{
+	return m_doc;
 }
 
 UMLDiagram::Type UMLDiagram::type() const

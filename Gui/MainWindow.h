@@ -14,6 +14,7 @@ namespace Gui
 {
 
 class UMLGraphicsScene;
+class UndoManager;
 
 class MainWindow : public QMainWindow
 {
@@ -29,6 +30,7 @@ class MainWindow : public QMainWindow
 		void closeEvent(QCloseEvent *event) override;
 
 	private slots:
+		void slotUndoCleanChanged(bool clean);
 		void slotNew();
 		void slotOpen();
 		bool slotSave();
@@ -49,6 +51,7 @@ class MainWindow : public QMainWindow
 		QString docName() const;
 
 		Ui_MainWindow *m_ui;
+		UndoManager *m_undoManager;
 
 		Core::Document *m_doc;
 		QString m_filename;

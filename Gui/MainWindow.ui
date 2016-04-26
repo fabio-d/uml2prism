@@ -10,9 +10,6 @@
     <height>1157</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>MainWindow</string>
-  </property>
   <widget class="QTabWidget" name="centralTabWidget">
    <property name="tabPosition">
     <enum>QTabWidget::North</enum>
@@ -112,6 +109,9 @@
     <property name="title">
      <string>&amp;Edit</string>
     </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
     <addaction name="actionEditItem"/>
     <addaction name="actionRenameItem"/>
     <addaction name="actionDeleteItem"/>
@@ -355,6 +355,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="separator"/>
    <addaction name="actionEditItem"/>
    <addaction name="actionRenameItem"/>
    <addaction name="actionDeleteItem"/>
@@ -396,6 +399,9 @@
    </property>
   </action>
   <action name="actionSave">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="document-save" resource="../resources/resources.qrc">
      <normaloff>:/kde_icons/document-save.png</normaloff>:/kde_icons/document-save.png</iconset>
@@ -497,7 +503,7 @@
      <normaloff>:/kde_icons/edit-rename.png</normaloff>:/kde_icons/edit-rename.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Rename item...</string>
+    <string>Re&amp;name item...</string>
    </property>
    <property name="toolTip">
     <string>Rename selected item</string>
@@ -516,6 +522,24 @@
    </property>
    <property name="toolTip">
     <string>Delete selected item(s)</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset theme="edit-undo" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/edit-undo.png</normaloff>:/kde_icons/edit-undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset theme="edit-redo" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/edit-redo.png</normaloff>:/kde_icons/edit-redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Redo</string>
    </property>
   </action>
  </widget>

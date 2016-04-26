@@ -1,6 +1,7 @@
 #include "Gui/MainWindow.h"
 
 #include "Gui/UMLGraphicsScene.h"
+#include "Gui/UndoManager.h"
 
 #include "Core/Document.h"
 #include "Core/UMLDiagram.h"
@@ -27,9 +28,11 @@ MainWindow::MainWindow(QWidget *parent)
 	m_ui->actionSaveAs->setShortcut(QKeySequence::SaveAs);
 	m_ui->actionClose->setShortcut(QKeySequence::Close);
 	m_ui->actionQuit->setShortcut(QKeySequence::Quit);
+	m_ui->actionUndo->setShortcut(QKeySequence::Undo);
+	m_ui->actionRedo->setShortcut(QKeySequence::Redo);
+	m_ui->actionDeleteItem->setShortcut(QKeySequence::Delete);
 	m_ui->actionZoomIn->setShortcut(QKeySequence::ZoomIn);
 	m_ui->actionZoomOut->setShortcut(QKeySequence::ZoomOut);
-	m_ui->actionDeleteItem->setShortcut(QKeySequence::Delete);
 
 	connect(m_ui->actionQuit, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
@@ -48,11 +51,21 @@ MainWindow::MainWindow(QWidget *parent)
 		this, SLOT(slotFillContextMenu(QMenu*)));
 	m_ui->umlGraphicsViewClass->setScene(m_umlGraphicsSceneClass);
 
+	m_undoManager = new UndoManager(m_doc, m_ui->actionUndo, m_ui->actionRedo);
+	connect(m_umlGraphicsSceneClass, SIGNAL(undoCheckpointCreationRequest()),
+		m_undoManager, SLOT(createCheckpoint()));
+	connect(m_umlGraphicsSceneActivity, SIGNAL(undoCheckpointCreationRequest()),
+		m_undoManager, SLOT(createCheckpoint()));
+	connect(m_undoManager, SIGNAL(undoCleanChanged(bool)),
+		this, SLOT(slotUndoCleanChanged(bool)));
+	slotUndoCleanChanged(true);
+
 	slotTabSwitched();
 }
 
 MainWindow::~MainWindow()
 {
+	delete m_undoManager;
 	delete m_doc;
 	delete m_ui;
 }
@@ -99,7 +112,7 @@ bool MainWindow::loadFile(const QString &path)
 	{
 		success = m_doc->deserialize(file.readAll());
 		m_filename = path;
-		// TODO: clear undo history
+		m_undoManager->clearStack();
 		if (!success)
 			QMessageBox::critical(this, "Open error", "Invalid file");
 		file.close();
@@ -109,7 +122,7 @@ bool MainWindow::loadFile(const QString &path)
 	{
 		m_doc->clear();
 		m_filename = QString();
-		// TODO: clear undo history
+		m_undoManager->clearStack();
 	}
 
 	return success;
@@ -121,6 +134,18 @@ QString MainWindow::docName() const
 		return "Untitled model";
 
 	return QFileInfo(m_filename).fileName();
+}
+
+void MainWindow::slotUndoCleanChanged(bool clean)
+{
+	QString title = docName();
+
+	if (!clean)
+		title += " [modified]";
+
+	setWindowTitle(title + " - Model Editor");
+
+	m_ui->actionSave->setEnabled(!clean);
 }
 
 void MainWindow::slotNew()
@@ -137,9 +162,19 @@ void MainWindow::slotOpen()
 	if (selectedFileName.isEmpty())
 		return;
 
-	MainWindow *newWindow = new MainWindow();
-	newWindow->show();
-	newWindow->loadFile(selectedFileName);
+	MainWindow *targetWindow;
+
+	if (m_filename.isEmpty() && m_undoManager->isStackEmpty())
+	{
+		targetWindow = this;
+	}
+	else
+	{
+		targetWindow = new MainWindow();
+		targetWindow->show();
+	}
+
+	targetWindow->loadFile(selectedFileName);
 }
 
 bool MainWindow::slotSave()
@@ -155,7 +190,7 @@ bool MainWindow::slotSave()
 	}
 
 	file.write(m_doc->serialize());
-	// TODO: mark undo history as clean
+	m_undoManager->setCleanStack();
 	file.close();
 
 	return true;

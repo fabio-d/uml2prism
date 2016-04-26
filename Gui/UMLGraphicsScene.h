@@ -40,6 +40,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void edgeConstructionStateChanged(bool inProgress);
 		void actionsEnabledChanged(bool editEnabled, bool deleteEnabled);
 		void fillContextMenu(QMenu *menu);
+		void undoCheckpointCreationRequest();
 
 	private slots:
 		void slotSelectionChanged();
