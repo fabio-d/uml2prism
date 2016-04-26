@@ -21,6 +21,7 @@ namespace Core
 {
 class UMLActionNode;
 class UMLClass;
+class UMLControlFlowEdge;
 class UMLDecisionMergeNode;
 class UMLEdgeElement;
 class UMLElement;
@@ -29,6 +30,7 @@ class UMLFinalNode;
 class UMLForkJoinNode;
 class UMLInitialNode;
 class UMLNodeElement;
+class UMLSignalEdge;
 }
 
 namespace Gui
@@ -175,11 +177,11 @@ class UMLForkJoinNode : public UMLNodeElement
 class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveWatcher
 {
 	public:
-		UMLEdgeElement();
-		void bind(Core::UMLEdgeElement *coreItem);
-
 		void setIntermediatePoints(const QPolygonF &intermediatePoints);
 		const QPolygonF &intermediatePoints() const;
+
+		void setLabelRelativePos(const QPointF &newPos);
+		QPointF labelRelativePos() const;
 
 		void refresh() override;
 
@@ -189,15 +191,46 @@ class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveWatcher
 		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
 		bool loadFromXml(const QDomElement &source) override;
 
+	protected:
+		UMLEdgeElement(qreal labelAtPercent, bool dottedLine);
+
+		void bind(Core::UMLElement *coreItem) = delete;
+		void bind(Core::UMLEdgeElement *coreItem);
+
+		void setLabelText(const QString &text);
+
 	private:
 		void notifyEdgeMoved(const QPointF &delta) override;
 
 		Core::UMLEdgeElement *m_coreItem;
 		GraphicsEdgeItem *m_qtItem;
-		GraphicsLabelItem *m_labelItemFrom;
-		GraphicsLabelItem *m_labelItemTo;
+		GraphicsLabelItem *m_labelItem;
 		QGraphicsPathItem *m_arrowItem;
 		QPolygonF m_intermediatePoints;
+};
+
+class UMLControlFlowEdge : public UMLEdgeElement
+{
+	public:
+		UMLControlFlowEdge();
+		void bind(Core::UMLControlFlowEdge *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLControlFlowEdge *m_coreItem;
+};
+
+class UMLSignalEdge : public UMLEdgeElement
+{
+	public:
+		UMLSignalEdge();
+		void bind(Core::UMLSignalEdge *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLSignalEdge *m_coreItem;
 };
 
 class UMLClass : public UMLElement

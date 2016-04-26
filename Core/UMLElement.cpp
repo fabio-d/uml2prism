@@ -120,23 +120,58 @@ UMLNodeElement *UMLEdgeElement::to() const
 	return m_to;
 }
 
-void UMLEdgeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
-{
-}
-
-bool UMLEdgeElement::loadFromXml(const QDomElement &source)
-{
-	return true;
-}
-
 UMLControlFlowEdge::UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to)
 : UMLEdgeElement(UMLElementType::ControlFlowEdge, from, to)
 {
 }
 
+void UMLControlFlowEdge::setBranchName(const QString &newName)
+{
+	m_branchName = newName;
+	emit changed();
+}
+
+const QString &UMLControlFlowEdge::branchName() const
+{
+	return m_branchName;
+}
+
+void UMLControlFlowEdge::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	target.setAttribute("branchName", branchName());
+}
+
+bool UMLControlFlowEdge::loadFromXml(const QDomElement &source)
+{
+	setBranchName(source.attribute("branchName"));
+	return true;
+}
+
 UMLSignalEdge::UMLSignalEdge(UMLNodeElement *from, UMLNodeElement *to)
 : UMLEdgeElement(UMLElementType::SignalEdge, from, to)
 {
+}
+
+void UMLSignalEdge::setSignalName(const QString &newName)
+{
+	m_signalName = newName;
+	emit changed();
+}
+
+const QString &UMLSignalEdge::signalName() const
+{
+	return m_signalName;
+}
+
+void UMLSignalEdge::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	target.setAttribute("signalName", signalName());
+}
+
+bool UMLSignalEdge::loadFromXml(const QDomElement &source)
+{
+	setSignalName(source.attribute("signalName"));
+	return true;
 }
 
 UMLDatatypeElement::UMLDatatypeElement(UMLElementType type)

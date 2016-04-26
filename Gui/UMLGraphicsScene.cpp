@@ -58,7 +58,9 @@ void UMLGraphicsScene::slotSelectionChanged()
 	{
 		Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
 		Core::UMLNodeElement *nodeElem = dynamic_cast<Core::UMLNodeElement*>(elem);
-		editEnabled = nodeElem != nullptr;
+		Core::UMLControlFlowEdge *controlFlowElem = dynamic_cast<Core::UMLControlFlowEdge*>(elem);
+		Core::UMLSignalEdge *signalFlowElem = dynamic_cast<Core::UMLSignalEdge*>(elem);
+		editEnabled = nodeElem || controlFlowElem || signalFlowElem;
 	}
 	else
 	{
@@ -79,17 +81,36 @@ void UMLGraphicsScene::renameSelectedItem()
 
 	Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
 	Core::UMLNodeElement *nodeElem = dynamic_cast<Core::UMLNodeElement*>(elem);
+	Core::UMLControlFlowEdge *controlFlowElem = dynamic_cast<Core::UMLControlFlowEdge*>(elem);
+	Core::UMLSignalEdge *signalFlowElem = dynamic_cast<Core::UMLSignalEdge*>(elem);
 
-	if (!nodeElem)
-		return;
-
-	bool ok;
-	const QString newLabel = QInputDialog::getText(
-		QApplication::activeWindow(), "Rename node", "New label",
-		QLineEdit::Normal, nodeElem->nodeName(), &ok);
-
-	if (ok)
-		nodeElem->setNodeName(newLabel);
+	if (nodeElem)
+	{
+		bool ok;
+		const QString newLabel = QInputDialog::getText(
+			QApplication::activeWindow(), "Rename node", "New label",
+			QLineEdit::Normal, nodeElem->nodeName(), &ok);
+		if (ok)
+			nodeElem->setNodeName(newLabel);
+	}
+	else if (controlFlowElem)
+	{
+		bool ok;
+		const QString newLabel = QInputDialog::getText(
+			QApplication::activeWindow(), "Rename branch", "New label",
+			QLineEdit::Normal, controlFlowElem->branchName(), &ok);
+		if (ok)
+			controlFlowElem->setBranchName(newLabel);
+	}
+	else if (signalFlowElem)
+	{
+		bool ok;
+		const QString newLabel = QInputDialog::getText(
+			QApplication::activeWindow(), "Rename signal", "New label",
+			QLineEdit::Normal, signalFlowElem->signalName(), &ok);
+		if (ok)
+			signalFlowElem->setSignalName(newLabel);
+	}
 }
 
 void UMLGraphicsScene::editSelectedItem()
@@ -395,17 +416,26 @@ void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 			Core::UMLNodeElement *to =
 				static_cast<Core::UMLNodeElement*>(itemUnderMouse->coreItem());
 
-			Core::UMLEdgeElement *elem;
 			if (m_edgeConstructSignal)
-				elem = new Core::UMLSignalEdge(from, to);
+			{
+				Core::UMLSignalEdge *elem = new Core::UMLSignalEdge(from, to);
+				UMLSignalEdge *item = new UMLSignalEdge();
+				item->bind(elem);
+
+				item->setIntermediatePoints(m_edgeConstructionPoints);
+
+				m_dia->addUMLElement(elem);
+			}
 			else
-				elem = new Core::UMLControlFlowEdge(from, to);
+			{
+				Core::UMLControlFlowEdge *elem = new Core::UMLControlFlowEdge(from, to);
+				UMLControlFlowEdge *item = new UMLControlFlowEdge();
+				item->bind(elem);
 
-			UMLEdgeElement *item = new UMLEdgeElement();
-			item->bind(elem);
-			item->setIntermediatePoints(m_edgeConstructionPoints);
+				item->setIntermediatePoints(m_edgeConstructionPoints);
 
-			m_dia->addUMLElement(elem);
+				m_dia->addUMLElement(elem);
+			}
 
 			m_edgeConstructionOrigin = nullptr;
 			emit edgeConstructionStateChanged(false);
@@ -519,10 +549,16 @@ bool UMLGraphicsScene::loadGuiDataFromXml(Core::UMLElement *coreElem, const QDom
 			break;
 		}
 		case Core::UMLElementType::ControlFlowEdge:
+		{
+			UMLControlFlowEdge *gui = new UMLControlFlowEdge();
+			gui->bind(static_cast<Core::UMLControlFlowEdge*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
 		case Core::UMLElementType::SignalEdge:
 		{
-			UMLEdgeElement *gui = new UMLEdgeElement();
-			gui->bind(static_cast<Core::UMLEdgeElement*>(coreElem));
+			UMLSignalEdge *gui = new UMLSignalEdge();
+			gui->bind(static_cast<Core::UMLSignalEdge*>(coreElem));
 			gui->loadFromXml(source);
 			break;
 		}

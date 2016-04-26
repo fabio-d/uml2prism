@@ -123,9 +123,6 @@ class UMLEdgeElement : public UMLElement
 		UMLNodeElement *from() const;
 		UMLNodeElement *to() const;
 
-		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
-		bool loadFromXml(const QDomElement &source) override;
-
 	private:
 		UMLNodeElement *m_from, *m_to;
 };
@@ -134,12 +131,30 @@ class UMLControlFlowEdge : public UMLEdgeElement
 {
 	public:
 		UMLControlFlowEdge(UMLNodeElement *from, UMLNodeElement *to);
+
+		void setBranchName(const QString &newName);
+		const QString &branchName() const;
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
+
+	private:
+		QString m_branchName;
 };
 
 class UMLSignalEdge : public UMLEdgeElement
 {
 	public:
 		UMLSignalEdge(UMLNodeElement *from, UMLNodeElement *to);
+
+		void setSignalName(const QString &newName);
+		const QString &signalName() const;
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
+
+	private:
+		QString m_signalName;
 };
 
 class UMLDatatypeElement : public UMLElement

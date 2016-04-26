@@ -429,18 +429,24 @@ QPointF UMLForkJoinNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInsi
 		p, out_pIsInside);
 }
 
-UMLEdgeElement::UMLEdgeElement()
+UMLEdgeElement::UMLEdgeElement(qreal labelAtPercent, bool dottedLine)
 {
 	m_qtItem = new GraphicsEdgeItem();
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 	m_qtItem->setWatcher(this);
 
-	m_labelItemFrom = new GraphicsLabelItem(GraphicsLabelItem::NoOptions, m_qtItem->createPlaceholder(.2));
-	m_labelItemTo = new GraphicsLabelItem(GraphicsLabelItem::NoOptions, m_qtItem->createPlaceholder(.6));
+	m_labelItem = new GraphicsPositionChangeSpyItem<GraphicsLabelItem>(this,
+		GraphicsLabelItem::NoOptions, m_qtItem->createPlaceholder(labelAtPercent));
 
 	QPainterPath path;
 	path.addPolygon(ArrowShape);
 	m_arrowItem = new QGraphicsPathItem(path, m_qtItem);
+
+	if (dottedLine)
+	{
+		m_qtItem->setPen(Qt::DashDotLine);
+		m_arrowItem->setPen(Qt::DashDotLine);
+	}
 
 	UMLElement::bind(m_qtItem);
 }
@@ -448,12 +454,6 @@ UMLEdgeElement::UMLEdgeElement()
 void UMLEdgeElement::bind(Core::UMLEdgeElement *coreItem)
 {
 	m_coreItem = coreItem;
-	if (m_coreItem->type() == Core::UMLElementType::SignalEdge)
-	{
-		m_qtItem->setPen(Qt::DashDotLine);
-		m_arrowItem->setPen(Qt::DashDotLine);
-	}
-
 	UMLElement::bind(coreItem);
 }
 
@@ -472,6 +472,30 @@ const QPolygonF &UMLEdgeElement::intermediatePoints() const
 	return m_intermediatePoints;
 }
 
+void UMLEdgeElement::setLabelRelativePos(const QPointF &newPos)
+{
+	m_labelItem->setPos(newPos);
+}
+
+QPointF UMLEdgeElement::labelRelativePos() const
+{
+	return m_labelItem->pos();
+}
+
+void UMLEdgeElement::setLabelText(const QString &text)
+{
+	if (text.isEmpty())
+	{
+		setLabelRelativePos(QPointF(0, 0));
+		m_labelItem->setVisible(false);
+	}
+	else
+	{
+		m_labelItem->setText(text);
+		m_labelItem->setVisible(true);
+	}
+}
+
 void UMLEdgeElement::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
@@ -485,9 +509,6 @@ void UMLEdgeElement::refresh()
 	m_qtItem->setPolyline(path);
 	m_arrowItem->setPos(path.last());
 	m_arrowItem->setRotation(-m_qtItem->path().angleAtPercent(1));
-
-	m_labelItemFrom->setText("[from]");
-	m_labelItemTo->setText("[to]");
 }
 
 void UMLEdgeElement::notifyEdgeMoved(const QPointF &delta)
@@ -528,7 +549,11 @@ void UMLEdgeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
 		pointElem.setAttribute("y", point.y());
 	}
 
-	// TODO store label position
+	const QPointF labelRelativePos = m_labelItem->pos();
+	QDomElement labelElem = doc.createElement("label");
+	target.appendChild(labelElem);
+	labelElem.setAttribute("x", labelRelativePos.x());
+	labelElem.setAttribute("y", labelRelativePos.y());
 }
 
 bool UMLEdgeElement::loadFromXml(const QDomElement &source)
@@ -547,9 +572,47 @@ bool UMLEdgeElement::loadFromXml(const QDomElement &source)
 
 	setIntermediatePoints(intermediatePoints);
 
-	// TODO load label position
+	QDomElement labelElem = source.firstChildElement("label");
+	m_labelItem->setPos(labelElem.attribute("x").toDouble(),
+		labelElem.attribute("y").toDouble());
 
 	return true;
+}
+
+UMLControlFlowEdge::UMLControlFlowEdge()
+: UMLEdgeElement(.2, false)
+{
+}
+
+void UMLControlFlowEdge::bind(Core::UMLControlFlowEdge *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLEdgeElement::bind(coreItem);
+}
+
+void UMLControlFlowEdge::refresh()
+{
+	UMLEdgeElement::refresh();
+
+	const QString &branchName = m_coreItem->branchName();
+	setLabelText(branchName.isEmpty() ? "" : QString("[%1]").arg(branchName));
+}
+
+UMLSignalEdge::UMLSignalEdge()
+: UMLEdgeElement(.6, true)
+{
+}
+
+void UMLSignalEdge::bind(Core::UMLSignalEdge *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLEdgeElement::bind(coreItem);
+}
+
+void UMLSignalEdge::refresh()
+{
+	UMLEdgeElement::refresh();
+	setLabelText(m_coreItem->signalName());
 }
 
 UMLClass::UMLClass()
