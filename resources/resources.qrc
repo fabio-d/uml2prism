@@ -15,6 +15,7 @@
   </qresource>
   <qresource prefix="kde_icons">
     <file alias="edit-delete.png">kde_icons/edit-delete.png</file>
+    <file alias="roll.png">kde_icons/roll.png</file>
     <file alias="edit-redo.png">kde_icons/edit-redo.png</file>
     <file alias="edit-undo.png">kde_icons/edit-undo.png</file>
     <file alias="zoom-fit-best.png">kde_icons/zoom-fit-best.png</file>

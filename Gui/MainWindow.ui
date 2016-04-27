@@ -101,6 +101,8 @@
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
     <addaction name="separator"/>
+    <addaction name="actionCheck"/>
+    <addaction name="separator"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -240,26 +242,8 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
-  </widget>
-  <widget class="QToolBar" name="toolBarEdit">
-   <property name="windowTitle">
-    <string>Edit</string>
-   </property>
-   <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonFollowStyle</enum>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="actionUndo"/>
-   <addaction name="actionRedo"/>
    <addaction name="separator"/>
-   <addaction name="actionEditItem"/>
-   <addaction name="actionRenameItem"/>
-   <addaction name="actionDeleteItem"/>
+   <addaction name="actionCheck"/>
   </widget>
   <widget class="QToolBar" name="toolBarView">
    <property name="windowTitle">
@@ -272,12 +256,32 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionZoomIn"/>
    <addaction name="actionZoomOut"/>
    <addaction name="actionZoomOriginal"/>
    <addaction name="actionZoomFit"/>
+  </widget>
+  <widget class="QToolBar" name="toolBarEdit">
+   <property name="windowTitle">
+    <string>Edit</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonFollowStyle</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="separator"/>
+   <addaction name="actionEditItem"/>
+   <addaction name="actionRenameItem"/>
+   <addaction name="actionDeleteItem"/>
   </widget>
   <action name="actionNew">
    <property name="icon">
@@ -439,6 +443,18 @@
    </property>
    <property name="text">
     <string>&amp;Redo</string>
+   </property>
+  </action>
+  <action name="actionCheck">
+   <property name="icon">
+    <iconset theme="roll" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/roll.png</normaloff>:/kde_icons/roll.png</iconset>
+   </property>
+   <property name="text">
+    <string>Chec&amp;k Model...</string>
+   </property>
+   <property name="shortcut">
+    <string>F9</string>
    </property>
   </action>
  </widget>
