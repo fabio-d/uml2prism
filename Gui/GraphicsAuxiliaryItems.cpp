@@ -127,7 +127,7 @@ QVariant GraphicsEdgeItem::itemChange(GraphicsItemChange change, const QVariant 
 GraphicsDatatypeItem::GraphicsDatatypeItem(bool showEnumerationStereotype, QGraphicsItem *parent)
 {
 	if (showEnumerationStereotype)
-		m_stereotype = new QGraphicsSimpleTextItem("<<enumeration>>", this);
+		m_stereotype = new QGraphicsSimpleTextItem(QString::fromUtf8(u8"\u00ABenumeration\u00BB"), this);
 	else
 		m_stereotype = nullptr;
 
