@@ -31,9 +31,9 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 
 		void notifyGeometryChanged(UMLElement *element);
 
-		void renameSelectedItem();
-		void editSelectedItem();
-		void deleteSelectedItems();
+		void renameSelectedItem(QWidget *requestingWidget);
+		void editSelectedItem(QWidget *requestingWidget);
+		void deleteSelectedItems(QWidget *requestingWidget);
 
 	signals:
 		void sceneRectMayHaveChanged();

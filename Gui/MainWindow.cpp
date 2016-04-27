@@ -253,25 +253,25 @@ void MainWindow::slotActionsEnabledChanged(bool editEnabled, bool deleteEnabled)
 void MainWindow::slotRenameItem()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
-		m_umlGraphicsSceneActivity->renameSelectedItem();
+		m_umlGraphicsSceneActivity->renameSelectedItem(this);
 	else
-		m_umlGraphicsSceneClass->renameSelectedItem();
+		m_umlGraphicsSceneClass->renameSelectedItem(this);
 }
 
 void MainWindow::slotEditItem()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
-		m_umlGraphicsSceneActivity->editSelectedItem();
+		m_umlGraphicsSceneActivity->editSelectedItem(this);
 	else
-		m_umlGraphicsSceneClass->editSelectedItem();
+		m_umlGraphicsSceneClass->editSelectedItem(this);
 }
 
 void MainWindow::slotDeleteItem()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
-		m_umlGraphicsSceneActivity->deleteSelectedItems();
+		m_umlGraphicsSceneActivity->deleteSelectedItems(this);
 	else
-		m_umlGraphicsSceneClass->deleteSelectedItems();
+		m_umlGraphicsSceneClass->deleteSelectedItems(this);
 }
 
 void MainWindow::slotZoomIn()
@@ -308,10 +308,10 @@ void MainWindow::slotZoomFit()
 
 void MainWindow::slotFillContextMenu(QMenu *menu)
 {
-	if (m_ui->actionRenameItem->isEnabled())
-		menu->addAction(m_ui->actionRenameItem);
-
 	if (m_ui->actionEditItem->isEnabled())
+		menu->addAction(m_ui->actionEditItem);
+
+	if (m_ui->actionRenameItem->isEnabled())
 		menu->addAction(m_ui->actionRenameItem);
 
 	if (m_ui->actionDeleteItem->isEnabled())

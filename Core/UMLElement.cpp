@@ -211,6 +211,50 @@ UMLEnumeration::UMLEnumeration()
 {
 }
 
+void UMLEnumeration::setValues(const QStringList &values)
+{
+	m_values = values;
+	emit changed();
+}
+
+const QStringList &UMLEnumeration::values() const
+{
+	return m_values;
+}
+
+void UMLEnumeration::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	UMLDatatypeElement::storeToXml(target, doc);
+
+	QDomElement valuesElem = doc.createElement("values");
+	target.appendChild(valuesElem);
+
+	foreach (const QString &val, values())
+	{
+		QDomElement valueElem = doc.createElement("value");
+		valuesElem.appendChild(valueElem);
+		valueElem.appendChild(doc.createTextNode(val));
+	}
+}
+
+bool UMLEnumeration::loadFromXml(const QDomElement &source)
+{
+	if (!UMLDatatypeElement::loadFromXml(source))
+		return false;
+
+	QDomElement valuesElem = source.firstChildElement("values");
+	QStringList values;
+	for (QDomElement valueElem = valuesElem.firstChildElement();
+		!valueElem.isNull();
+		valueElem = valueElem.nextSiblingElement())
+	{
+		values.append(valueElem.text());
+	}
+
+	setValues(values);
+	return true;
+}
+
 UMLGlobalVariables::UMLGlobalVariables()
 : UMLElement(UMLElementType::GlobalVariables)
 {

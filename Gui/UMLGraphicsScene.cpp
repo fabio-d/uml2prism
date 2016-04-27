@@ -1,5 +1,6 @@
 #include "Gui/UMLGraphicsScene.h"
 
+#include "Gui/EditEnumerationDialog.h"
 #include "Gui/UMLElement.h"
 
 #include "Core/Document.h"
@@ -67,7 +68,7 @@ void UMLGraphicsScene::slotSelectionChanged()
 	emit actionsEnabledChanged(editEnabled, deleteEnabled);
 }
 
-void UMLGraphicsScene::renameSelectedItem()
+void UMLGraphicsScene::renameSelectedItem(QWidget *requestingWidget)
 {
 	if (m_relaxedSelection.count() != 1)
 		return;
@@ -82,7 +83,7 @@ void UMLGraphicsScene::renameSelectedItem()
 	{
 		bool ok;
 		const QString newLabel = QInputDialog::getText(
-			QApplication::activeWindow(), "Rename node", "New label",
+			requestingWidget, "Rename node", "New label",
 			QLineEdit::Normal, nodeElem->nodeName(), &ok);
 		if (ok)
 			nodeElem->setNodeName(newLabel);
@@ -91,7 +92,7 @@ void UMLGraphicsScene::renameSelectedItem()
 	{
 		bool ok;
 		const QString newLabel = QInputDialog::getText(
-			QApplication::activeWindow(), "Rename branch", "New label",
+			requestingWidget, "Rename branch", "New label",
 			QLineEdit::Normal, controlFlowElem->branchName(), &ok);
 		if (ok)
 			controlFlowElem->setBranchName(newLabel);
@@ -100,7 +101,7 @@ void UMLGraphicsScene::renameSelectedItem()
 	{
 		bool ok;
 		const QString newLabel = QInputDialog::getText(
-			QApplication::activeWindow(), "Rename signal", "New label",
+			requestingWidget, "Rename signal", "New label",
 			QLineEdit::Normal, signalFlowElem->signalName(), &ok);
 		if (ok)
 			signalFlowElem->setSignalName(newLabel);
@@ -109,19 +110,29 @@ void UMLGraphicsScene::renameSelectedItem()
 	{
 		bool ok;
 		const QString newName = QInputDialog::getText(
-			QApplication::activeWindow(), "Rename datatype", "New name",
+			requestingWidget, "Rename datatype", "New name",
 			QLineEdit::Normal, datatypeElem->datatypeName(), &ok);
 		if (ok)
 			datatypeElem->setDatatypeName(newName);
 	}
 }
 
-void UMLGraphicsScene::editSelectedItem()
+void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 {
-	qDebug() << "Not implemented yet";
+	if (m_relaxedSelection.count() != 1)
+		return;
+
+	Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
+	Core::UMLEnumeration *enumElem = dynamic_cast<Core::UMLEnumeration*>(elem);
+
+	if (enumElem)
+	{
+		EditEnumerationDialog *diag = new EditEnumerationDialog(enumElem, requestingWidget);
+		diag->show();
+	}
 }
 
-void UMLGraphicsScene::deleteSelectedItems()
+void UMLGraphicsScene::deleteSelectedItems(QWidget *requestingWidget)
 {
 	// What elements must be deleted? Note that QSet automatically removes
 	// duplicate entries

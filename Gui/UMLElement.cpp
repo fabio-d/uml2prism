@@ -666,11 +666,14 @@ void UMLEnumeration::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_qtItem->setName(m_coreItem->datatypeName());
-	m_qtItem->setEntries(QList<QPair<bool, QString>>()
-		<< QPair<bool, QString>(false, "good")
-		<< QPair<bool, QString>(true, "bad")
-		<< QPair<bool, QString>(false, "good again")
-	);
+
+	const QStringList &sourceValues = m_coreItem->values();
+	QList<QPair<bool, QString>> valuesWithErrorState;
+
+	for (int i = 0; i < sourceValues.count(); i++)
+		valuesWithErrorState.append(QPair<bool, QString>(false, sourceValues[i]));
+
+	m_qtItem->setEntries(valuesWithErrorState);
 }
 
 UMLGlobalVariables::UMLGlobalVariables()

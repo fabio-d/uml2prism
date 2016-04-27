@@ -1,9 +1,8 @@
 #ifndef CORE_UMLELEMENT_H
 #define CORE_UMLELEMENT_H
 
-#include <QList>
 #include <QObject>
-#include <QString>
+#include <QStringList>
 
 class QDomDocument;
 class QDomElement;
@@ -185,6 +184,15 @@ class UMLEnumeration : public UMLDatatypeElement
 {
 	public:
 		UMLEnumeration();
+
+		void setValues(const QStringList &values);
+		const QStringList &values() const;
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
+
+	private:
+		QStringList m_values;
 };
 
 class UMLGlobalVariables : public UMLElement

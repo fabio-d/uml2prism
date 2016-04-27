@@ -31,6 +31,8 @@
     <file alias="document-new.png">kde_icons/document-new.png</file>
     <file alias="document-open.png">kde_icons/document-open.png</file>
     <file alias="list-add.png">kde_icons/list-add.png</file>
+    <file alias="arrow-up.png">kde_icons/arrow-up.png</file>
+    <file alias="arrow-down.png">kde_icons/arrow-down.png</file>
     <file alias="list-remove.png">kde_icons/list-remove.png</file>
   </qresource>
 </RCC>
