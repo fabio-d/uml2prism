@@ -46,7 +46,6 @@ UMLElement::UMLElement()
 
 UMLElement::~UMLElement()
 {
-	qCritical() << "destr";
 	delete m_qtItem;
 }
 
