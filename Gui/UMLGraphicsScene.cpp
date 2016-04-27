@@ -503,6 +503,11 @@ void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)
 	removeItem(item->qtItem());
 	delete item;
 
+	// If we have just removed the origin of the edge we were constructing,
+	// stop constructing the edge
+	if (m_edgeConstructionOrigin == item)
+		m_edgeConstructionOrigin = nullptr;
+
 	scheduleUndoCheckpoint();
 }
 
