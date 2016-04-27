@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#include "Gui/EditListWidget.h"
+
 class Ui_EditEnumerationDialog;
 
 namespace Core
@@ -13,7 +15,7 @@ class UMLEnumeration;
 namespace Gui
 {
 
-class EditEnumerationDialog : public QDialog
+class EditEnumerationDialog : public QDialog, private EditListWidgetCallbacks
 {
 	Q_OBJECT
 
@@ -24,14 +26,15 @@ class EditEnumerationDialog : public QDialog
 		void accept() override;
 
 	private slots:
-		void slotAdd();
-		void slotRemove();
-		void slotMoveUp();
-		void slotMoveDown();
-		void slotSelectedRowChanged();
 		void slotEdited();
 
 	private:
+		void setEditorData(const QVariant &initialData) override;
+		void setEditorEnabled(bool enable) override;
+		QString formatData(const QVariant &data) override;
+		QVariant generateEmptyEntry() override;
+		bool testEntryEmpty(const QVariant &data) override;
+
 		Ui_EditEnumerationDialog *m_ui;
 		Core::UMLEnumeration *m_enumeration;
 };

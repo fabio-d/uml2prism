@@ -48,69 +48,12 @@
      <property name="title">
       <string>Values</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="2" column="1">
-       <widget class="QPushButton" name="removePushButton">
-        <property name="text">
-         <string>&amp;Remove</string>
-        </property>
-        <property name="icon">
-         <iconset theme="list-remove" resource="../resources/resources.qrc">
-          <normaloff>:/kde_icons/list-remove.png</normaloff>:/kde_icons/list-remove.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="addPushButton">
-        <property name="text">
-         <string>&amp;Add</string>
-        </property>
-        <property name="icon">
-         <iconset theme="list-add" resource="../resources/resources.qrc">
-          <normaloff>:/kde_icons/list-add.png</normaloff>:/kde_icons/list-add.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0" colspan="2">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
        <widget class="QLineEdit" name="valueLineEdit"/>
       </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="moveUpPushButton">
-        <property name="text">
-         <string>Move &amp;Up</string>
-        </property>
-        <property name="icon">
-         <iconset theme="arrow-up" resource="../resources/resources.qrc">
-          <normaloff>:/kde_icons/arrow-up.png</normaloff>:/kde_icons/arrow-up.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QPushButton" name="moveDownPushButton">
-        <property name="text">
-         <string>Move &amp;Down</string>
-        </property>
-        <property name="icon">
-         <iconset theme="arrow-down" resource="../resources/resources.qrc">
-          <normaloff>:/kde_icons/arrow-down.png</normaloff>:/kde_icons/arrow-down.png</iconset>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0" rowspan="5">
-       <widget class="QListWidget" name="valuesListWidget"/>
+      <item>
+       <widget class="Gui::EditListWidget" name="editListWidget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -127,14 +70,17 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Gui::EditListWidget</class>
+   <extends>QWidget</extends>
+   <header>Gui/EditListWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>nameLineEdit</tabstop>
   <tabstop>valueLineEdit</tabstop>
-  <tabstop>valuesListWidget</tabstop>
-  <tabstop>addPushButton</tabstop>
-  <tabstop>removePushButton</tabstop>
-  <tabstop>moveUpPushButton</tabstop>
-  <tabstop>moveDownPushButton</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
@@ -170,86 +116,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>EditEnumerationDialog</receiver>
-   <slot>slotAdd()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>282</x>
-     <y>198</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>91</x>
-     <y>-8</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>removePushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>EditEnumerationDialog</receiver>
-   <slot>slotRemove()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>323</x>
-     <y>248</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>398</x>
-     <y>115</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>moveUpPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>EditEnumerationDialog</receiver>
-   <slot>slotMoveUp()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>369</x>
-     <y>301</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>400</x>
-     <y>296</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>moveDownPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>EditEnumerationDialog</receiver>
-   <slot>slotMoveDown()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>369</x>
-     <y>354</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>359</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>valuesListWidget</sender>
-   <signal>currentRowChanged(int)</signal>
-   <receiver>EditEnumerationDialog</receiver>
-   <slot>slotSelectedRowChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>99</x>
-     <y>274</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>397</x>
-     <y>233</y>
     </hint>
    </hints>
   </connection>

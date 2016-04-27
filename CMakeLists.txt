@@ -16,7 +16,9 @@ add_executable(UMLEditor
 	Core/UMLDiagram.cpp
 	Core/UMLElement.cpp
 	Gui/EditEnumerationDialog.cpp
+	Gui/EditListWidget.cpp
 	Gui/GraphicsAuxiliaryItems.cpp
+	Gui/IdentifierValidator.cpp
 	Gui/MainWindow.cpp
 	Gui/UMLDiagramView.cpp
 	Gui/UMLElement.cpp
