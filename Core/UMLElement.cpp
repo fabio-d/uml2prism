@@ -182,6 +182,7 @@ UMLDatatypeElement::UMLDatatypeElement(UMLElementType type)
 void UMLDatatypeElement::setDatatypeName(const QString &newName)
 {
 	m_datatypeName = newName;
+	emit changed();
 }
 
 const QString &UMLDatatypeElement::datatypeName() const

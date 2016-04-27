@@ -56,17 +56,9 @@ void UMLGraphicsScene::slotSelectionChanged()
 
 	bool editEnabled, deleteEnabled;
 	if (m_relaxedSelection.count() == 1)
-	{
-		Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
-		Core::UMLNodeElement *nodeElem = dynamic_cast<Core::UMLNodeElement*>(elem);
-		Core::UMLControlFlowEdge *controlFlowElem = dynamic_cast<Core::UMLControlFlowEdge*>(elem);
-		Core::UMLSignalEdge *signalFlowElem = dynamic_cast<Core::UMLSignalEdge*>(elem);
-		editEnabled = nodeElem || controlFlowElem || signalFlowElem;
-	}
+		editEnabled = true;
 	else
-	{
 		editEnabled = false;
-	}
 
 	deleteEnabled = (m_relaxedSelection.count() != 0 &&
 		m_relaxedSelection.count() == m_strictSelection.count()) ||
@@ -84,6 +76,7 @@ void UMLGraphicsScene::renameSelectedItem()
 	Core::UMLNodeElement *nodeElem = dynamic_cast<Core::UMLNodeElement*>(elem);
 	Core::UMLControlFlowEdge *controlFlowElem = dynamic_cast<Core::UMLControlFlowEdge*>(elem);
 	Core::UMLSignalEdge *signalFlowElem = dynamic_cast<Core::UMLSignalEdge*>(elem);
+	Core::UMLDatatypeElement *datatypeElem = dynamic_cast<Core::UMLDatatypeElement*>(elem);
 
 	if (nodeElem)
 	{
@@ -111,6 +104,15 @@ void UMLGraphicsScene::renameSelectedItem()
 			QLineEdit::Normal, signalFlowElem->signalName(), &ok);
 		if (ok)
 			signalFlowElem->setSignalName(newLabel);
+	}
+	else if (datatypeElem)
+	{
+		bool ok;
+		const QString newName = QInputDialog::getText(
+			QApplication::activeWindow(), "Rename datatype", "New name",
+			QLineEdit::Normal, datatypeElem->datatypeName(), &ok);
+		if (ok)
+			datatypeElem->setDatatypeName(newName);
 	}
 }
 

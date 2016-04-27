@@ -205,7 +205,7 @@ void GraphicsDatatypeItem::relayout()
 		m_name->pos().y());
 
 	m_contents->setPos(
-		-m_contents->boundingRect().size().width()/2,
+		-longestWidth/2,
 		m_contents->pos().y());
 }
 

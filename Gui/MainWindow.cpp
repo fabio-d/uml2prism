@@ -47,14 +47,14 @@ MainWindow::MainWindow(QWidget *parent)
 	m_umlGraphicsSceneClass = new UMLGraphicsScene(m_doc->classDiagram(), this);
 	connect(m_umlGraphicsSceneClass, SIGNAL(actionsEnabledChanged(bool, bool)),
 		this, SLOT(slotActionsEnabledChanged(bool, bool)));
-	connect(m_umlGraphicsSceneActivity, SIGNAL(fillContextMenu(QMenu*)),
+	connect(m_umlGraphicsSceneClass, SIGNAL(fillContextMenu(QMenu*)),
 		this, SLOT(slotFillContextMenu(QMenu*)));
 	m_ui->umlGraphicsViewClass->setScene(m_umlGraphicsSceneClass);
 
 	m_undoManager = new UndoManager(m_doc, m_ui->actionUndo, m_ui->actionRedo);
-	connect(m_umlGraphicsSceneClass, SIGNAL(undoCheckpointCreationRequest()),
-		m_undoManager, SLOT(createCheckpoint()));
 	connect(m_umlGraphicsSceneActivity, SIGNAL(undoCheckpointCreationRequest()),
+		m_undoManager, SLOT(createCheckpoint()));
+	connect(m_umlGraphicsSceneClass, SIGNAL(undoCheckpointCreationRequest()),
 		m_undoManager, SLOT(createCheckpoint()));
 	connect(m_undoManager, SIGNAL(undoCleanChanged(bool)),
 		this, SLOT(slotUndoCleanChanged(bool)));
