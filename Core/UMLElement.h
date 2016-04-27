@@ -14,7 +14,9 @@ namespace Core
 class UMLEdgeElement;
 
 // These types are listed in a order such that objects that can be referenced by
-// other objects always come first
+// other objects always come first:
+//  - ControlFlowEdge may contain references to nodes
+//  - SignalEdge may contain references to nodes
 enum class UMLElementType
 {
 	// Activity diagrams
@@ -28,7 +30,8 @@ enum class UMLElementType
 
 	// Class diagrams
 	Class,
-	Enumeration
+	Enumeration,
+	GlobalVariables
 };
 
 class UMLElement : public QObject
@@ -182,6 +185,15 @@ class UMLEnumeration : public UMLDatatypeElement
 {
 	public:
 		UMLEnumeration();
+};
+
+class UMLGlobalVariables : public UMLElement
+{
+	public:
+		UMLGlobalVariables();
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
 };
 
 }

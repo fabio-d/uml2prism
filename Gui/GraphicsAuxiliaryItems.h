@@ -95,10 +95,19 @@ class GraphicsEdgeItem : public QGraphicsPathItem
 class GraphicsDatatypeItem : public QGraphicsRectItem
 {
 	public:
-		explicit GraphicsDatatypeItem(bool showEnumerationStereotype, QGraphicsItem *parent = nullptr);
+		enum Option
+		{
+			NoOptions = 0,
+			EnumerationStereotype = 1 << 1,
+			GlobalStereotype = 1 << 2,
+			NonMovable = 1 << 3
+		};
+		Q_DECLARE_FLAGS(Options, Option)
+
+		explicit GraphicsDatatypeItem(Options options, QGraphicsItem *parent = nullptr);
 
 		void setName(const QString &text);
-		void setContents(const QString &text);
+		void setEntries(const QList<QPair<bool, QString>> &contents);
 
 		void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 			QWidget *widget = nullptr) override;
@@ -108,8 +117,10 @@ class GraphicsDatatypeItem : public QGraphicsRectItem
 
 		QGraphicsSimpleTextItem *m_stereotype;
 		QGraphicsSimpleTextItem *m_name;
-		QGraphicsSimpleTextItem *m_contents;
+		QGraphicsTextItem *m_contents;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(GraphicsDatatypeItem::Options)
 
 }
 

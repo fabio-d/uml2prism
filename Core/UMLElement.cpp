@@ -211,4 +211,18 @@ UMLEnumeration::UMLEnumeration()
 {
 }
 
+UMLGlobalVariables::UMLGlobalVariables()
+: UMLElement(UMLElementType::GlobalVariables)
+{
+}
+
+void UMLGlobalVariables::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+}
+
+bool UMLGlobalVariables::loadFromXml(const QDomElement &source)
+{
+	return true;
+}
+
 }

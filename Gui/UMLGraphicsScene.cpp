@@ -56,7 +56,7 @@ void UMLGraphicsScene::slotSelectionChanged()
 
 	bool editEnabled, deleteEnabled;
 	if (m_relaxedSelection.count() == 1)
-		editEnabled = true;
+		editEnabled = m_relaxedSelection[0]->coreItem()->type() != Core::UMLElementType::GlobalVariables;
 	else
 		editEnabled = false;
 
@@ -379,6 +379,16 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 			m_dia->addUMLElement(elem);
 		}
+		else if (elementTypeString == "GlobalVariables")
+		{
+			Core::UMLGlobalVariables *elem = new Core::UMLGlobalVariables();
+
+			UMLGlobalVariables *item = new UMLGlobalVariables();
+			item->bind(elem);
+			item->setPos(scenePos);
+
+			m_dia->addUMLElement(elem);
+		}
 	}
 }
 
@@ -599,6 +609,13 @@ bool UMLGraphicsScene::loadGuiDataFromXml(Core::UMLElement *coreElem, const QDom
 		{
 			UMLEnumeration *gui = new UMLEnumeration();
 			gui->bind(static_cast<Core::UMLEnumeration*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::GlobalVariables:
+		{
+			UMLGlobalVariables *gui = new UMLGlobalVariables();
+			gui->bind(static_cast<Core::UMLGlobalVariables*>(coreElem));
 			gui->loadFromXml(source);
 			break;
 		}

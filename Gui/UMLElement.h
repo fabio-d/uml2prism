@@ -28,6 +28,7 @@ class UMLElement;
 class UMLEnumeration;
 class UMLFinalNode;
 class UMLForkJoinNode;
+class UMLGlobalVariables;
 class UMLInitialNode;
 class UMLNodeElement;
 class UMLSignalEdge;
@@ -256,6 +257,19 @@ class UMLEnumeration : public UMLElement
 
 	private:
 		Core::UMLEnumeration *m_coreItem;
+		GraphicsDatatypeItem *m_qtItem;
+};
+
+class UMLGlobalVariables : public UMLElement
+{
+	public:
+		UMLGlobalVariables();
+		void bind(Core::UMLGlobalVariables *coreItem);
+
+		void refresh() override;
+
+	private:
+		Core::UMLGlobalVariables *m_coreItem;
 		GraphicsDatatypeItem *m_qtItem;
 };
 

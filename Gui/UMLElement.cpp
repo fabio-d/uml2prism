@@ -621,7 +621,8 @@ void UMLSignalEdge::refresh()
 
 UMLClass::UMLClass()
 {
-	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this, false);
+	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this,
+		GraphicsDatatypeItem::NoOptions);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -638,12 +639,17 @@ void UMLClass::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_qtItem->setName(m_coreItem->datatypeName());
-	m_qtItem->setContents("Bla\nblabla\nblablablablablablablablabla");
+	m_qtItem->setEntries(QList<QPair<bool, QString>>()
+		<< QPair<bool, QString>(false, "good")
+		<< QPair<bool, QString>(true, "bad")
+		<< QPair<bool, QString>(false, "good again")
+	);
 }
 
 UMLEnumeration::UMLEnumeration()
 {
-	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this, true);
+	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this,
+		GraphicsDatatypeItem::EnumerationStereotype);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
 
@@ -660,7 +666,37 @@ void UMLEnumeration::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_qtItem->setName(m_coreItem->datatypeName());
-	m_qtItem->setContents("Bla\nblabla\nblablablablablablablablabla");
+	m_qtItem->setEntries(QList<QPair<bool, QString>>()
+		<< QPair<bool, QString>(false, "good")
+		<< QPair<bool, QString>(true, "bad")
+		<< QPair<bool, QString>(false, "good again")
+	);
+}
+
+UMLGlobalVariables::UMLGlobalVariables()
+{
+	m_qtItem = new GraphicsPositionChangeSpyItem<GraphicsDatatypeItem>(this,
+		GraphicsDatatypeItem::GlobalStereotype);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	UMLElement::bind(m_qtItem);
+}
+
+void UMLGlobalVariables::bind(Core::UMLGlobalVariables *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLElement::bind(coreItem);
+}
+
+void UMLGlobalVariables::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	m_qtItem->setEntries(QList<QPair<bool, QString>>()
+		<< QPair<bool, QString>(false, "good")
+		<< QPair<bool, QString>(true, "bad")
+		<< QPair<bool, QString>(false, "good again")
+	);
 }
 
 }

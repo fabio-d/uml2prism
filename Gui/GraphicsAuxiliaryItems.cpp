@@ -3,6 +3,7 @@
 #include <QFontMetricsF>
 #include <QDebug>
 #include <QPainter>
+#include <QTextDocument>
 
 static constexpr qreal MinLineShapeWidth = 10;
 
@@ -124,15 +125,17 @@ QVariant GraphicsEdgeItem::itemChange(GraphicsItemChange change, const QVariant 
 	return QGraphicsPathItem::itemChange(change, value);
 }
 
-GraphicsDatatypeItem::GraphicsDatatypeItem(bool showEnumerationStereotype, QGraphicsItem *parent)
+GraphicsDatatypeItem::GraphicsDatatypeItem(Options options, QGraphicsItem *parent)
 {
-	if (showEnumerationStereotype)
+	if (options.testFlag(EnumerationStereotype))
 		m_stereotype = new QGraphicsSimpleTextItem(QString::fromUtf8(u8"\u00ABenumeration\u00BB"), this);
+	else if (options.testFlag(GlobalStereotype))
+		m_stereotype = new QGraphicsSimpleTextItem(QString::fromUtf8(u8"\u00ABglobal\u00BB"), this);
 	else
 		m_stereotype = nullptr;
 
 	m_name = new QGraphicsSimpleTextItem(this);
-	m_contents = new QGraphicsSimpleTextItem(this);
+	m_contents = new QGraphicsTextItem(this);
 
 	setBrush(Qt::white);
 
@@ -149,8 +152,15 @@ GraphicsDatatypeItem::GraphicsDatatypeItem(bool showEnumerationStereotype, QGrap
 		m_stereotype->setFont(font);
 		m_stereotype->setPos(-m_stereotype->boundingRect().size().width()/2, 0);
 		m_name->setPos(0, metrics.height());
-		m_contents->setPos(0, 2*metrics.height() + 2*DatatypeMargin);
+		if (options.testFlag(GlobalStereotype))
+			m_contents->setPos(0, metrics.height() + 2*DatatypeMargin);
+		else
+			m_contents->setPos(0, 2*metrics.height() + 2*DatatypeMargin);
 	}
+
+	font.setBold(true);
+	font.setItalic(false);
+	m_name->setFont(font);
 
 	relayout();
 }
@@ -162,9 +172,21 @@ void GraphicsDatatypeItem::setName(const QString &text)
 	relayout();
 }
 
-void GraphicsDatatypeItem::setContents(const QString &text)
+void GraphicsDatatypeItem::setEntries(const QList<QPair<bool, QString>> &contents)
 {
-	m_contents->setText(text);
+	QString html;
+
+	for (const QPair<bool, QString> &entry : contents)
+	{
+		html += "<div style=\"";
+		if (entry.first)
+			html += "color: red;";
+		html += "\">";
+		html += Qt::escape(entry.second);
+		html += "</div>";
+	}
+
+	m_contents->setHtml(html);
 
 	relayout();
 }

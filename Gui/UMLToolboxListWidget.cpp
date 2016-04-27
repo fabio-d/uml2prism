@@ -96,13 +96,17 @@ UMLActivityDiagramToolboxListWidget::UMLActivityDiagramToolboxListWidget(QWidget
 UMLClassDiagramToolboxListWidget::UMLClassDiagramToolboxListWidget(QWidget *parent)
 : UMLToolboxListWidget(parent)
 {
+	addTool("Enumeration",
+		QIcon(":/topcased_icons/Enumeration_24.gif"),
+		"application/x-uml-create-datatype", "Enumeration");
+
 	addTool("Class",
 		QIcon(":/topcased_icons/Class_24.gif"),
 		"application/x-uml-create-datatype", "Class");
 
-	addTool("Enumeration",
-		QIcon(":/topcased_icons/Enumeration_24.gif"),
-		"application/x-uml-create-datatype", "Enumeration");
+	addTool("Global variables",
+		QIcon(":/topcased_icons/GlobalVariables_24.png"),
+		"application/x-uml-create-datatype", "GlobalVariables");
 }
 
 }

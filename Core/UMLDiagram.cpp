@@ -159,6 +159,9 @@ void UMLDiagram::storeToXml(QDomElement &target, QDomDocument &doc) const
 			case UMLElementType::Enumeration:
 				rootElem.setAttribute("type", "Enumeration");
 				break;
+			case UMLElementType::GlobalVariables:
+				rootElem.setAttribute("type", "GlobalVariables");
+				break;
 		}
 
 		// If this is an edge, store its endpoints too
@@ -232,6 +235,10 @@ bool UMLDiagram::loadFromXml(const QDomElement &source)
 		else if (type == "Enumeration")
 		{
 			elem = new Core::UMLEnumeration();
+		}
+		else if (type == "GlobalVariables")
+		{
+			elem = new Core::UMLGlobalVariables();
 		}
 		else
 		{
