@@ -123,16 +123,34 @@ void UMLGraphicsScene::editSelectedItem()
 
 void UMLGraphicsScene::deleteSelectedItems()
 {
-	QList<Core::UMLElement*> elementsToBeDeleted;
+	// What elements must be deleted? Note that QSet automatically removes
+	// duplicate entries
+	QSet<Core::UMLElement*> elementsToBeDeletedSet;
 
 	foreach (UMLElement *item, m_relaxedSelection)
-		elementsToBeDeleted.append(item->coreItem());
+	{
+		Core::UMLElement *coreItem = item->coreItem();
+		Core::UMLNodeElement *nodeItem = dynamic_cast<Core::UMLNodeElement*>(coreItem);
 
-	// Sort elementsToBeDeleted according to their type so
+		// If we are removing a node, remove its edges too
+		if (nodeItem != nullptr)
+		{
+			foreach (Core::UMLEdgeElement *edge,
+				nodeItem->incomingEdges() + nodeItem->outgoingEdges())
+			{
+				elementsToBeDeletedSet.insert(edge);
+			}
+		}
+
+		elementsToBeDeletedSet.insert(coreItem);
+	}
+
+	// Sort elementsToBeDeletedSet according to their type so
 	// that references are never broken during the deletion process
-	Core::UMLElement::topoSort(elementsToBeDeleted, true);
+	QList<Core::UMLElement*> elementsToBeDeletedList = elementsToBeDeletedSet.toList();
+	Core::UMLElement::topoSort(elementsToBeDeletedList, true);
 
-	foreach (Core::UMLElement *elem, elementsToBeDeleted)
+	foreach (Core::UMLElement *elem, elementsToBeDeletedList)
 		m_dia->deleteUMLElement(elem);
 }
 
