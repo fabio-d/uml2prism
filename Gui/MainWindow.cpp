@@ -125,6 +125,12 @@ bool MainWindow::loadFile(const QString &path)
 		m_undoManager->clearStack();
 	}
 
+	// Center view and reset zoom
+	m_ui->umlGraphicsViewActivity->zoomFit();
+	m_ui->umlGraphicsViewActivity->zoomOriginal();
+	m_ui->umlGraphicsViewClass->zoomFit();
+	m_ui->umlGraphicsViewClass->zoomOriginal();
+
 	return success;
 }
 
