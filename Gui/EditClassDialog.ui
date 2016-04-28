@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>EditEnumerationDialog</class>
- <widget class="QDialog" name="EditEnumerationDialog">
+ <class>EditClassDialog</class>
+ <widget class="QDialog" name="EditClassDialog">
   <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>519</width>
     <height>446</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/resources.qrc">
-    <normaloff>:/topcased_icons/Enumeration_24.gif</normaloff>:/topcased_icons/Enumeration_24.gif</iconset>
+    <normaloff>:/topcased_icons/Class_24.gif</normaloff>:/topcased_icons/Class_24.gif</iconset>
   </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
@@ -37,6 +37,16 @@
    <item row="0" column="1">
     <widget class="QLineEdit" name="nameLineEdit"/>
    </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="sizePolicy">
@@ -46,36 +56,39 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Enumeration values</string>
+      <string>Member variables</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="1">
-       <widget class="QLineEdit" name="valueLineEdit"/>
+       <widget class="QLineEdit" name="varNameLineEdit"/>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Value</string>
+         <string>Name</string>
         </property>
         <property name="buddy">
-         <cstring>valueLineEdit</cstring>
+         <cstring>varNameLineEdit</cstring>
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
+      <item row="4" column="0" colspan="2">
        <widget class="Gui::EditListWidget" name="editListWidget" native="true"/>
       </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Type</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="Gui::EditDatatypeNameWidget" name="editDatatypeNameWidget" native="true"/>
+      </item>
      </layout>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
     </widget>
    </item>
   </layout>
@@ -87,10 +100,19 @@
    <header>Gui/EditListWidget.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>Gui::EditDatatypeNameWidget</class>
+   <extends>QWidget</extends>
+   <header>Gui/EditDatatypeNameWidget.h</header>
+   <container>1</container>
+   <slots>
+    <signal>datatypeEdited()</signal>
+   </slots>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>nameLineEdit</tabstop>
-  <tabstop>valueLineEdit</tabstop>
+  <tabstop>varNameLineEdit</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
@@ -100,7 +122,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>EditEnumerationDialog</receiver>
+   <receiver>EditClassDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -116,7 +138,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>EditEnumerationDialog</receiver>
+   <receiver>EditClassDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -130,9 +152,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>valueLineEdit</sender>
+   <sender>varNameLineEdit</sender>
    <signal>textEdited(QString)</signal>
-   <receiver>EditEnumerationDialog</receiver>
+   <receiver>EditClassDialog</receiver>
    <slot>slotEdited()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -142,6 +164,22 @@
     <hint type="destinationlabel">
      <x>398</x>
      <y>156</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editDatatypeNameWidget</sender>
+   <signal>datatypeEdited()</signal>
+   <receiver>EditClassDialog</receiver>
+   <slot>slotEdited()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>302</x>
+     <y>218</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>259</x>
+     <y>222</y>
     </hint>
    </hints>
   </connection>

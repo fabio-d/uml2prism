@@ -18,7 +18,8 @@ class StrictIdentifierValidator : public QRegExpValidator
 		StrictIdentifierValidator(QObject *parent = nullptr);
 
 		static bool isAcceptable(const QString &str);
-		static bool checkWithMessageBox(QWidget *parent, const QString &str);
+		static bool checkEnumValueWithMessageBox(QWidget *parent, const QString &str);
+		static bool checkDatatypeWithMessageBox(QWidget *parent, const QString &str);
 };
 
 }

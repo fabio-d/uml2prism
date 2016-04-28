@@ -12,9 +12,12 @@ find_package(Qt4 REQUIRED QtGui QtXml)
 add_definitions(-std=c++11 -Wall)
 
 add_executable(UMLEditor
+	Core/DatatypeName.cpp
 	Core/Document.cpp
 	Core/UMLDiagram.cpp
 	Core/UMLElement.cpp
+	Gui/EditClassDialog.cpp
+	Gui/EditDatatypeNameWidget.cpp
 	Gui/EditEnumerationDialog.cpp
 	Gui/EditListWidget.cpp
 	Gui/GraphicsAuxiliaryItems.cpp

@@ -638,11 +638,13 @@ void UMLClass::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
 	m_qtItem->setName(m_coreItem->datatypeName());
-	m_qtItem->setEntries(QList<QPair<bool, QString>>()
-		<< QPair<bool, QString>(false, "good")
-		<< QPair<bool, QString>(true, "bad")
-		<< QPair<bool, QString>(false, "good again")
-	);
+
+	QList<QPair<bool, QString>> valuesWithErrorState;
+	foreach (const Core::UMLClass::MemberVariable &var, m_coreItem->memberVariables())
+		valuesWithErrorState.append(QPair<bool, QString>(false,
+			QString("%1 : %2").arg(var.name).arg(var.datatypeName.toString())));
+
+	m_qtItem->setEntries(valuesWithErrorState);
 }
 
 UMLEnumeration::UMLEnumeration()

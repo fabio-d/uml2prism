@@ -36,14 +36,14 @@ EditEnumerationDialog::~EditEnumerationDialog()
 
 void EditEnumerationDialog::accept()
 {
-	if (!StrictIdentifierValidator::checkWithMessageBox(this, m_ui->nameLineEdit->text()))
+	if (!StrictIdentifierValidator::checkDatatypeWithMessageBox(this, m_ui->nameLineEdit->text()))
 		return;
 
 	QStringList values;
 	foreach (const QVariant &val, m_ui->editListWidget->values())
 	{
 		const QString strVal = val.toString();
-		if (!StrictIdentifierValidator::checkWithMessageBox(this, strVal))
+		if (!StrictIdentifierValidator::checkEnumValueWithMessageBox(this, strVal))
 			return;
 		values.append(strVal);
 	}

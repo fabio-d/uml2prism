@@ -1,5 +1,6 @@
 #include "Gui/UMLGraphicsScene.h"
 
+#include "Gui/EditClassDialog.h"
 #include "Gui/EditEnumerationDialog.h"
 #include "Gui/UMLElement.h"
 
@@ -123,12 +124,20 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 		return;
 
 	Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
+	Core::UMLClass *classElem = dynamic_cast<Core::UMLClass*>(elem);
 	Core::UMLEnumeration *enumElem = dynamic_cast<Core::UMLEnumeration*>(elem);
 
-	if (enumElem)
+	if (classElem)
+	{
+		EditClassDialog *diag = new EditClassDialog(classElem, requestingWidget);
+		diag->show();
+		// TODO: who frees diag?
+	}
+	else if (enumElem)
 	{
 		EditEnumerationDialog *diag = new EditEnumerationDialog(enumElem, requestingWidget);
 		diag->show();
+		// TODO: who frees diag?
 	}
 }
 

@@ -23,15 +23,28 @@ bool StrictIdentifierValidator::isAcceptable(const QString &str)
 	return strict_regexp.exactMatch(str);
 }
 
-bool StrictIdentifierValidator::checkWithMessageBox(QWidget *parent, const QString &str)
+bool StrictIdentifierValidator::checkEnumValueWithMessageBox(QWidget *parent, const QString &str)
 {
 	if (isAcceptable(str))
 		return true;
 
 	if (str.isEmpty())
-		QMessageBox::warning(parent, "Invalid identifier", "Identifiers cannot be empty strings");
+		QMessageBox::warning(parent, "Invalid value", "Enumeration values cannot be empty strings");
 	else
-		QMessageBox::warning(parent, "Invalid identifier", "Identifiers can only contain letters, digits or underscores and must not start with a digit");
+		QMessageBox::warning(parent, "Invalid value", "Enumeration values can only contain letters, digits or underscores and must not start with a digit");
+
+	return false;
+}
+
+bool StrictIdentifierValidator::checkDatatypeWithMessageBox(QWidget *parent, const QString &str)
+{
+	if (isAcceptable(str))
+		return true;
+
+	if (str.isEmpty())
+		QMessageBox::warning(parent, "Invalid type name", "Type names cannot be empty strings");
+	else
+		QMessageBox::warning(parent, "Invalid type name", "Type names can only contain letters, digits or underscores and must not start with a digit");
 
 	return false;
 }

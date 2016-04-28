@@ -201,9 +201,66 @@ bool UMLDatatypeElement::loadFromXml(const QDomElement &source)
 	return true;
 }
 
+UMLClass::MemberVariable::MemberVariable(const QString &name, const DatatypeName &datatypeName)
+: name(name), datatypeName(datatypeName)
+{
+}
+
 UMLClass::UMLClass()
 : UMLDatatypeElement(UMLElementType::Class)
 {
+}
+
+void UMLClass::setMemberVariables(const QList<MemberVariable> &vars)
+{
+	m_memberVariables = vars;
+	emit changed();
+}
+
+const QList<UMLClass::MemberVariable> &UMLClass::memberVariables() const
+{
+	return m_memberVariables;
+}
+
+void UMLClass::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	UMLDatatypeElement::storeToXml(target, doc);
+
+	QDomElement memVarsElem = doc.createElement("member-variables");
+	target.appendChild(memVarsElem);
+
+	foreach (const MemberVariable &var, memberVariables())
+	{
+		QDomElement varElem = doc.createElement("variable");
+		QDomElement nameElem = doc.createElement("name");
+		QDomElement datatypeElem = doc.createElement("datatype");
+		memVarsElem.appendChild(varElem);
+		varElem.appendChild(nameElem);
+		varElem.appendChild(datatypeElem);
+		nameElem.appendChild(doc.createTextNode(var.name));
+		var.datatypeName.storeToXml(datatypeElem, doc);
+	}
+}
+
+bool UMLClass::loadFromXml(const QDomElement &source)
+{
+	if (!UMLDatatypeElement::loadFromXml(source))
+		return false;
+
+	QDomElement valuesElem = source.firstChildElement("member-variables");
+	QList<MemberVariable> values;
+	for (QDomElement varElem = valuesElem.firstChildElement();
+		!varElem.isNull();
+		varElem = varElem.nextSiblingElement())
+	{
+		QDomElement nameElem = varElem.firstChildElement("name");
+		QDomElement datatypeElem = varElem.firstChildElement("datatype");
+		values.append(MemberVariable(
+			nameElem.text(), DatatypeName(datatypeElem)));
+	}
+
+	setMemberVariables(values);
+	return true;
 }
 
 UMLEnumeration::UMLEnumeration()

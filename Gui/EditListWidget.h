@@ -26,7 +26,7 @@ class EditListWidget : public QWidget
 
 	public:
 		explicit EditListWidget(QWidget *parent = nullptr);
-		virtual ~EditListWidget();
+		~EditListWidget();
 
 		void setCallbacks(EditListWidgetCallbacks *callbacks);
 

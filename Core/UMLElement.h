@@ -1,7 +1,10 @@
 #ifndef CORE_UMLELEMENT_H
 #define CORE_UMLELEMENT_H
 
+#include "Core/DatatypeName.h"
+
 #include <QObject>
+#include <QPair>
 #include <QStringList>
 
 class QDomDocument;
@@ -177,7 +180,25 @@ class UMLDatatypeElement : public UMLElement
 class UMLClass : public UMLDatatypeElement
 {
 	public:
+		struct MemberVariable
+		{
+			MemberVariable() = default;
+			MemberVariable(const QString &name, const DatatypeName &datatypeName);
+
+			QString name;
+			DatatypeName datatypeName;
+		};
+
 		UMLClass();
+
+		void setMemberVariables(const QList<MemberVariable> &vars);
+		const QList<MemberVariable> &memberVariables() const;
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
+
+	private:
+		QList<MemberVariable> m_memberVariables;
 };
 
 class UMLEnumeration : public UMLDatatypeElement
