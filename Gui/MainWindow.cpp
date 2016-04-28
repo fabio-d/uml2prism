@@ -93,7 +93,7 @@ bool MainWindow::queryClose()
 		case QMessageBox::Cancel:
 			return false;
 		default:
-			Q_ASSERT(false && "This should never happen");
+			qFatal("This should never happen");
 			return false;
 	}
 }
