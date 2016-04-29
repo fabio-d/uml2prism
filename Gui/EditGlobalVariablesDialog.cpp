@@ -71,6 +71,11 @@ EditGlobalVariablesDialog::~EditGlobalVariablesDialog()
 	delete m_ui;
 }
 
+void EditGlobalVariablesDialog::setExistingDatatypeNamesList(const QStringList &list)
+{
+	m_ui->editDatatypeNameWidget->setExistingDatatypeNamesList(list);
+}
+
 void EditGlobalVariablesDialog::accept()
 {
 	QList<Core::UMLGlobalVariables::GlobalVariable> values;

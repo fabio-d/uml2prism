@@ -21,6 +21,8 @@ class EditSignalEdgeDialog : public QDialog
 		explicit EditSignalEdgeDialog(Core::UMLSignalEdge *signalEdge, QWidget *parent = nullptr);
 		~EditSignalEdgeDialog();
 
+		void setExistingDatatypeNamesList(const QStringList &list);
+
 		void accept() override;
 
 	private:

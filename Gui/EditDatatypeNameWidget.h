@@ -18,6 +18,8 @@ class EditDatatypeNameWidget : public QWidget
 		explicit EditDatatypeNameWidget(QWidget *parent = nullptr);
 		~EditDatatypeNameWidget();
 
+		void setExistingDatatypeNamesList(const QStringList &list);
+
 		void setDatatypeName(const Core::DatatypeName &dt);
 		Core::DatatypeName datatypeName() const;
 
@@ -30,6 +32,8 @@ class EditDatatypeNameWidget : public QWidget
 		void slotOtherRadioButtonToggled(bool checked);
 
 	private:
+		void selectOrSetText(const QString &value);
+
 		Ui_EditDatatypeNameWidget *m_ui;
 		bool m_ignoreEditSignals;
 };

@@ -69,6 +69,11 @@ EditClassDialog::~EditClassDialog()
 	delete m_ui;
 }
 
+void EditClassDialog::setExistingDatatypeNamesList(const QStringList &list)
+{
+	m_ui->editDatatypeNameWidget->setExistingDatatypeNamesList(list);
+}
+
 void EditClassDialog::accept()
 {
 	if (!StrictIdentifierValidator::checkDatatypeWithMessageBox(this, m_ui->nameLineEdit->text()))

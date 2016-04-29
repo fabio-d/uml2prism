@@ -142,11 +142,15 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 
 	if (signalEdgeElem)
 	{
-		diag = new EditSignalEdgeDialog(signalEdgeElem, requestingWidget);
+		EditSignalEdgeDialog *diag_ = new EditSignalEdgeDialog(signalEdgeElem, requestingWidget);
+		diag_->setExistingDatatypeNamesList(m_dia->document()->listDatatypeNames());
+		diag = diag_;
 	}
 	else if (classElem)
 	{
-		diag = new EditClassDialog(classElem, requestingWidget);
+		EditClassDialog *diag_ = new EditClassDialog(classElem, requestingWidget);
+		diag_->setExistingDatatypeNamesList(m_dia->document()->listDatatypeNames());
+		diag = diag_;
 	}
 	else if (enumElem)
 	{
@@ -154,7 +158,9 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 	}
 	else if (globalVarsElem)
 	{
-		diag = new EditGlobalVariablesDialog(globalVarsElem, requestingWidget);
+		EditGlobalVariablesDialog *diag_ = new EditGlobalVariablesDialog(globalVarsElem, requestingWidget);
+		diag_->setExistingDatatypeNamesList(m_dia->document()->listDatatypeNames());
+		diag = diag_;
 	}
 
 	if (diag != nullptr)

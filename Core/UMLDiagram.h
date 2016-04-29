@@ -39,6 +39,10 @@ class UMLDiagram : public QObject
 		// Generate a name that is not currently in use by any element
 		QString generateFreshName(const QString &prefix) const;
 
+		// List all node, signal, variable and datatype names in use.
+		// If datatypesOnly is set, only datatype names are returned
+		QStringList listNames(bool datatypesOnly = false) const;
+
 		// Store/load from XML element
 		void storeToXml(QDomElement &target, QDomDocument &doc) const;
 		bool loadFromXml(const QDomElement &source);

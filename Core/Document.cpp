@@ -3,6 +3,7 @@
 #include "Core/UMLDiagram.h"
 
 #include <QDomDocument>
+#include <QStringList>
 
 namespace Core
 {
@@ -24,6 +25,17 @@ void Document::clear()
 {
 	m_activityDiagram->deleteAllElements();
 	m_classDiagram->deleteAllElements();
+}
+
+QStringList Document::listAllNames() const
+{
+	return m_activityDiagram->listNames() + m_classDiagram->listNames();
+}
+
+QStringList Document::listDatatypeNames() const
+{
+	Q_ASSERT(m_activityDiagram->listNames(true).isEmpty());
+	return m_classDiagram->listNames(true);
 }
 
 QByteArray Document::serialize() const

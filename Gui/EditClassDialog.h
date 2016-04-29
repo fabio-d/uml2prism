@@ -23,6 +23,8 @@ class EditClassDialog : public QDialog, private EditListWidgetCallbacks
 		explicit EditClassDialog(Core::UMLClass *class_, QWidget *parent = nullptr);
 		~EditClassDialog();
 
+		void setExistingDatatypeNamesList(const QStringList &list);
+
 		void accept() override;
 
 	private slots:

@@ -22,6 +22,20 @@ EditDatatypeNameWidget::~EditDatatypeNameWidget()
 	delete m_ui;
 }
 
+void EditDatatypeNameWidget::setExistingDatatypeNamesList(const QStringList &list_)
+{
+	m_ignoreEditSignals = true;
+
+	const QString oldValue = m_ui->otherComboBox->currentText();
+	QStringList list(list_);
+	list.sort();
+	list.removeDuplicates();
+	m_ui->otherComboBox->addItems(list);
+	selectOrSetText(oldValue);
+
+	m_ignoreEditSignals = false;
+}
+
 void EditDatatypeNameWidget::setDatatypeName(const Core::DatatypeName &dt)
 {
 	m_ignoreEditSignals = true;
@@ -52,7 +66,7 @@ void EditDatatypeNameWidget::setDatatypeName(const Core::DatatypeName &dt)
 		case Core::DatatypeName::Other:
 			m_ui->otherRadioButton->setChecked(true);
 			m_ui->otherComboBox->setEnabled(true);
-			m_ui->otherComboBox->setEditText(datatype->datatypeName());
+			selectOrSetText(datatype->datatypeName());
 			break;
 		case Core::DatatypeName::Set:
 			qFatal("Nested sets are not supported by EditDatatypeNameWidget");
@@ -90,6 +104,18 @@ void EditDatatypeNameWidget::slotIntegerRadioButtonToggled(bool checked)
 void EditDatatypeNameWidget::slotOtherRadioButtonToggled(bool checked)
 {
 	m_ui->otherComboBox->setEnabled(checked);
+}
+
+void EditDatatypeNameWidget::selectOrSetText(const QString &value)
+{
+	int valueIdx = m_ui->otherComboBox->findText(value);
+	if (valueIdx != -1)
+		m_ui->otherComboBox->setCurrentIndex(valueIdx);
+	else
+	{
+		m_ui->otherComboBox->setCurrentIndex(-1);
+		m_ui->otherComboBox->setEditText(value);
+	}
 }
 
 }

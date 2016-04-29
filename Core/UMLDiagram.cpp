@@ -106,6 +106,58 @@ QString UMLDiagram::generateFreshName(const QString &prefix) const
 	return QString("%1%2").arg(prefix).arg(seqNum);
 }
 
+QStringList UMLDiagram::listNames(bool datatypesOnly) const
+{
+	QStringList result;
+
+	foreach (const UMLElement *elem, m_elements)
+	{
+		switch (elem->type())
+		{
+			case UMLElementType::InitialNode:
+			case UMLElementType::FinalNode:
+			case UMLElementType::ActionNode:
+			case UMLElementType::DecisionMergeNode:
+			case UMLElementType::ForkJoinNode:
+				if (!datatypesOnly)
+					result.append(static_cast<const UMLNodeElement*>(elem)->nodeName());
+				break;
+			case UMLElementType::ControlFlowEdge:
+				// branch names are not global names
+				break;
+			case UMLElementType::SignalEdge:
+				if (!datatypesOnly)
+					result.append(static_cast<const UMLSignalEdge*>(elem)->signalName());
+				break;
+			case UMLElementType::GlobalVariables:
+				if (!datatypesOnly)
+				{
+					foreach (const UMLGlobalVariables::GlobalVariable &var,
+						static_cast<const UMLGlobalVariables*>(elem)->globalVariables())
+					{
+						result.append(var.name);
+					}
+				}
+				break;
+			case UMLElementType::Enumeration:
+				if (!datatypesOnly)
+				{
+					foreach (const QString &val,
+						static_cast<const UMLEnumeration*>(elem)->values())
+					{
+						result.append(val);
+					}
+				}
+				/* fallthrough */
+			case UMLElementType::Class:
+				result.append(static_cast<const UMLDatatypeElement*>(elem)->datatypeName());
+				break;
+		}
+	}
+
+	return result;
+}
+
 void UMLDiagram::slotElementChanged()
 {
 	Core::UMLElement *element = qobject_cast<UMLElement*>(QObject::sender());

@@ -23,6 +23,8 @@ class EditGlobalVariablesDialog : public QDialog, private EditListWidgetCallback
 		explicit EditGlobalVariablesDialog(Core::UMLGlobalVariables *globalVariables, QWidget *parent = nullptr);
 		~EditGlobalVariablesDialog();
 
+		void setExistingDatatypeNamesList(const QStringList &list);
+
 		void accept() override;
 
 	private slots:

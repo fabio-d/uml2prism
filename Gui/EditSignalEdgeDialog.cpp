@@ -40,6 +40,11 @@ EditSignalEdgeDialog::~EditSignalEdgeDialog()
 	delete m_ui;
 }
 
+void EditSignalEdgeDialog::setExistingDatatypeNamesList(const QStringList &list)
+{
+	m_ui->editDatatypeNameWidget->setExistingDatatypeNamesList(list);
+}
+
 void EditSignalEdgeDialog::accept()
 {
 	if (!StrictIdentifierValidator::checkSignalNameWithMessageBox(this, m_ui->nameLineEdit->text()))
