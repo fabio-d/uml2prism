@@ -456,13 +456,17 @@ void UMLGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEven
 	// one, edit that element
 	if (m_relaxedSelection.count() == 1)
 	{
-		UMLElement *itemUnderMouse = UMLElement::lookup(itemAt(mouseEvent->scenePos()));
-		if (itemUnderMouse == m_relaxedSelection[0])
+		QGraphicsItem *qtItem = itemAt(mouseEvent->scenePos());
+		if (qtItem != nullptr)
 		{
-			if (canBeEdited(itemUnderMouse->coreItem()))
-				editSelectedItem(mouseEvent->widget());
-			else if (canBeRenamed(itemUnderMouse->coreItem()))
-				renameSelectedItem(mouseEvent->widget());
+			UMLElement *itemUnderMouse = UMLElement::lookup(qtItem);
+			if (itemUnderMouse == m_relaxedSelection[0])
+			{
+				if (canBeEdited(itemUnderMouse->coreItem()))
+					editSelectedItem(mouseEvent->widget());
+				else if (canBeRenamed(itemUnderMouse->coreItem()))
+					renameSelectedItem(mouseEvent->widget());
+			}
 		}
 	}
 }
