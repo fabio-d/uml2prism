@@ -451,6 +451,20 @@ void UMLGraphicsScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEven
 		return;
 
 	QGraphicsScene::mouseDoubleClickEvent(mouseEvent);
+
+	// if the user double-clicked on an element and it is the only selected
+	// one, edit that element
+	if (m_relaxedSelection.count() == 1)
+	{
+		UMLElement *itemUnderMouse = UMLElement::lookup(itemAt(mouseEvent->scenePos()));
+		if (itemUnderMouse == m_relaxedSelection[0])
+		{
+			if (canBeEdited(itemUnderMouse->coreItem()))
+				editSelectedItem(mouseEvent->widget());
+			else if (canBeRenamed(itemUnderMouse->coreItem()))
+				renameSelectedItem(mouseEvent->widget());
+		}
+	}
 }
 
 void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
