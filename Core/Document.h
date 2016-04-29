@@ -30,6 +30,10 @@ class Document : public QObject
 		// List all defined datatype names
 		QStringList listDatatypeNames() const;
 
+		// Generate a new global name that is not currently in use
+		QString generateFreshName(const QString &prefix) const;
+
+		// Save/restore document to/from XML string
 		QByteArray serialize() const;
 		bool deserialize(const QByteArray &data);
 		bool isDeserializationInProgress() const;

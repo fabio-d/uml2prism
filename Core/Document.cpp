@@ -38,6 +38,20 @@ QStringList Document::listDatatypeNames() const
 	return m_classDiagram->listNames(true);
 }
 
+// Generate a new global name that is not currently in use
+QString Document::generateFreshName(const QString &prefix) const
+{
+	const QStringList &allNames = listAllNames();
+	QString result;
+	int seqNum = 1;
+
+	do
+		result = QString("%1%2").arg(prefix).arg(seqNum++);
+	while (allNames.contains(result));
+
+	return result;
+}
+
 QByteArray Document::serialize() const
 {
 	QDomDocument doc;

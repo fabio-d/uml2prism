@@ -36,9 +36,6 @@ class UMLDiagram : public QObject
 		void deleteUMLElement(UMLElement *element);
 		void deleteAllElements();
 
-		// Generate a name that is not currently in use by any element
-		QString generateFreshName(const QString &prefix) const;
-
 		// List all node, signal, variable and datatype names in use.
 		// If datatypesOnly is set, only datatype names are returned
 		QStringList listNames(bool datatypesOnly = false) const;

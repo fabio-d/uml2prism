@@ -351,7 +351,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		else if (elementTypeString == "FinalNode")
 		{
 			Core::UMLFinalNode *elem = new Core::UMLFinalNode();
-			elem->setNodeName(m_dia->generateFreshName("FinalNode"));
+			elem->setNodeName(m_dia->document()->generateFreshName("FinalNode"));
 
 			UMLFinalNode *item = new UMLFinalNode();
 			item->bind(elem);
@@ -362,7 +362,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		else if (elementTypeString == "ActionNode")
 		{
 			Core::UMLActionNode *elem = new Core::UMLActionNode();
-			elem->setNodeName(m_dia->generateFreshName("ActionNode"));
+			elem->setNodeName(m_dia->document()->generateFreshName("ActionNode"));
 
 			UMLActionNode *item = new UMLActionNode();
 			item->bind(elem);
@@ -373,7 +373,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		else if (elementTypeString == "DecisionNode" || elementTypeString == "MergeNode")
 		{
 			Core::UMLDecisionMergeNode *elem = new Core::UMLDecisionMergeNode();
-			elem->setNodeName(m_dia->generateFreshName(elementTypeString));
+			elem->setNodeName(m_dia->document()->generateFreshName(elementTypeString));
 
 			UMLDecisionMergeNode *item = new UMLDecisionMergeNode();
 			item->bind(elem);
@@ -384,7 +384,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		else if (elementTypeString == "ForkNode" || elementTypeString == "JoinNode")
 		{
 			Core::UMLForkJoinNode *elem = new Core::UMLForkJoinNode();
-			elem->setNodeName(m_dia->generateFreshName(elementTypeString));
+			elem->setNodeName(m_dia->document()->generateFreshName(elementTypeString));
 
 			UMLForkJoinNode *item = new UMLForkJoinNode();
 			item->bind(elem);
@@ -409,7 +409,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		if (elementTypeString == "Class")
 		{
 			Core::UMLClass *elem = new Core::UMLClass();
-			elem->setDatatypeName(m_dia->generateFreshName("ClassName"));
+			elem->setDatatypeName(m_dia->document()->generateFreshName("Class"));
 
 			UMLClass *item = new UMLClass();
 			item->bind(elem);
@@ -420,7 +420,7 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 		else if (elementTypeString == "Enumeration")
 		{
 			Core::UMLEnumeration *elem = new Core::UMLEnumeration();
-			elem->setDatatypeName(m_dia->generateFreshName("EnumerationName"));
+			elem->setDatatypeName(m_dia->document()->generateFreshName("Enumeration"));
 
 			UMLEnumeration *item = new UMLEnumeration();
 			item->bind(elem);
@@ -517,7 +517,7 @@ void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 			if (m_edgeConstructSignal)
 			{
 				Core::UMLSignalEdge *elem = new Core::UMLSignalEdge(from, to);
-				elem->setSignalName(m_dia->generateFreshName("Signal"));
+				elem->setSignalName(m_dia->document()->generateFreshName("Signal"));
 
 				UMLSignalEdge *item = new UMLSignalEdge();
 				item->bind(elem);
