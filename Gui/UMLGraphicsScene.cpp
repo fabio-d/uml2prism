@@ -57,17 +57,24 @@ void UMLGraphicsScene::slotSelectionChanged()
 			m_relaxedSelection.append(item);
 	}
 
-	bool editEnabled, deleteEnabled;
+	bool editEnabled, renameEnabled, deleteEnabled;
 	if (m_relaxedSelection.count() == 1)
-		editEnabled = true;
+	{
+		Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
+		editEnabled = canBeEdited(elem);
+		renameEnabled = canBeRenamed(elem);
+	}
 	else
+	{
 		editEnabled = false;
+		renameEnabled = false;
+	}
 
 	deleteEnabled = (m_relaxedSelection.count() != 0 &&
 		m_relaxedSelection.count() == m_strictSelection.count()) ||
 		m_relaxedSelection.count() == 1;
 
-	emit actionsEnabledChanged(editEnabled, deleteEnabled);
+	emit actionsEnabledChanged(editEnabled, renameEnabled, deleteEnabled);
 }
 
 void UMLGraphicsScene::renameSelectedItem(QWidget *requestingWidget)
@@ -695,6 +702,23 @@ void UMLGraphicsScene::createUndoCheckpoint()
 
 	// create our checkpoint
 	emit undoCheckpointCreationRequest();
+}
+
+bool UMLGraphicsScene::canBeEdited(Core::UMLElement *element)
+{
+	switch (element->type())
+	{
+		case Core::UMLElementType::ForkJoinNode:
+		case Core::UMLElementType::ControlFlowEdge:
+			return false;
+		default:
+			return true;
+	}
+}
+
+bool UMLGraphicsScene::canBeRenamed(Core::UMLElement *element)
+{
+	return true;
 }
 
 }

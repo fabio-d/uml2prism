@@ -38,7 +38,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 	signals:
 		void sceneRectMayHaveChanged();
 		void edgeConstructionStateChanged(bool inProgress);
-		void actionsEnabledChanged(bool editEnabled, bool deleteEnabled);
+		void actionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled);
 		void fillContextMenu(QMenu *menu);
 		void undoCheckpointCreationRequest();
 
@@ -65,6 +65,9 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void notifyElementRemoved(Core::UMLElement *element) override;
 		void storeGuiDataToXml(Core::UMLElement *element, QDomElement &target, QDomDocument &doc) const override;
 		bool loadGuiDataFromXml(Core::UMLElement *element, const QDomElement &source) override;
+
+		static bool canBeEdited(Core::UMLElement *element);
+		static bool canBeRenamed(Core::UMLElement *element);
 
 		// The UML diagram
 		Core::UMLDiagram *m_dia;

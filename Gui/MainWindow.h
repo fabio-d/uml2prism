@@ -36,7 +36,7 @@ class MainWindow : public QMainWindow
 		bool slotSave();
 		bool slotSaveAs();
 		void slotTabSwitched();
-		void slotActionsEnabledChanged(bool editEnabled, bool deleteEnabled);
+		void slotActionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled);
 		void slotRenameItem();
 		void slotEditItem();
 		void slotDeleteItem();
@@ -57,9 +57,9 @@ class MainWindow : public QMainWindow
 		QString m_filename;
 
 		UMLGraphicsScene *m_umlGraphicsSceneActivity;
-		bool m_activityEditEnabled, m_activityDeleteEnabled;
+		bool m_activityEditEnabled, m_activityRenameEnabled, m_activityDeleteEnabled;
 		UMLGraphicsScene *m_umlGraphicsSceneClass;
-		bool m_classEditEnabled, m_classDeleteEnabled;
+		bool m_classEditEnabled, m_classRenameEnabled, m_classDeleteEnabled;
 };
 
 }
