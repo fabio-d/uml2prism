@@ -7,6 +7,10 @@
 namespace Gui
 {
 
+void EditListWidgetCallbacks::formatFont(const QVariant &data, QFont &font)
+{
+}
+
 EditListWidget::EditListWidget(QWidget *parent)
 : QWidget(parent), m_ui(new Ui_EditListWidget), m_callbacks(nullptr)
 {
@@ -32,6 +36,7 @@ void EditListWidget::setValues(const QList<QVariant> &values)
 	{
 		QListWidgetItem *item = new QListWidgetItem(m_callbacks->formatData(val));
 		item->setData(Qt::UserRole, val);
+		updateFontUnderline(item);
 		m_ui->listWidget->addItem(item);
 	}
 }
@@ -56,6 +61,7 @@ void EditListWidget::setEditedData(const QVariant &data)
 	Q_ASSERT(item != nullptr);
 	item->setText(m_callbacks->formatData(data));
 	item->setData(Qt::UserRole, data);
+	updateFontUnderline(item);
 }
 
 void EditListWidget::slotAdd()
@@ -63,6 +69,7 @@ void EditListWidget::slotAdd()
 	const QVariant val = m_callbacks->generateEmptyEntry();
 	QListWidgetItem *item = new QListWidgetItem(m_callbacks->formatData(val));
 	item->setData(Qt::UserRole, val);
+	updateFontUnderline(item);
 	m_ui->listWidget->addItem(item);
 	m_ui->listWidget->setCurrentItem(item);
 }
@@ -113,6 +120,13 @@ void EditListWidget::slotCurrentRowChanged()
 		m_ui->moveUpPushButton->setEnabled(newRow != 0);
 		m_ui->moveDownPushButton->setEnabled(newRow != m_ui->listWidget->count() - 1);
 	}
+}
+
+void EditListWidget::updateFontUnderline(QListWidgetItem *item)
+{
+	QFont font(item->font());
+	m_callbacks->formatFont(item->data(Qt::UserRole), font);
+	item->setFont(font);
 }
 
 }

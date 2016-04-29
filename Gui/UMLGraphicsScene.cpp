@@ -2,6 +2,7 @@
 
 #include "Gui/EditClassDialog.h"
 #include "Gui/EditEnumerationDialog.h"
+#include "Gui/EditGlobalVariablesDialog.h"
 #include "Gui/UMLElement.h"
 
 #include "Core/Document.h"
@@ -58,7 +59,7 @@ void UMLGraphicsScene::slotSelectionChanged()
 
 	bool editEnabled, deleteEnabled;
 	if (m_relaxedSelection.count() == 1)
-		editEnabled = m_relaxedSelection[0]->coreItem()->type() != Core::UMLElementType::GlobalVariables;
+		editEnabled = true;
 	else
 		editEnabled = false;
 
@@ -126,6 +127,7 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 	Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
 	Core::UMLClass *classElem = dynamic_cast<Core::UMLClass*>(elem);
 	Core::UMLEnumeration *enumElem = dynamic_cast<Core::UMLEnumeration*>(elem);
+	Core::UMLGlobalVariables *globalVarsElem = dynamic_cast<Core::UMLGlobalVariables*>(elem);
 
 	if (classElem)
 	{
@@ -136,6 +138,12 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 	else if (enumElem)
 	{
 		EditEnumerationDialog *diag = new EditEnumerationDialog(enumElem, requestingWidget);
+		diag->show();
+		// TODO: who frees diag?
+	}
+	else if (globalVarsElem)
+	{
+		EditGlobalVariablesDialog *diag = new EditGlobalVariablesDialog(globalVarsElem, requestingWidget);
 		diag->show();
 		// TODO: who frees diag?
 	}

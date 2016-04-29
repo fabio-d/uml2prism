@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class QListWidgetItem;
+
 class Ui_EditListWidget;
 
 namespace Gui
@@ -15,6 +17,7 @@ class EditListWidgetCallbacks
 		virtual void setEditorEnabled(bool enable) = 0;
 
 		virtual QString formatData(const QVariant &data) = 0;
+		virtual void formatFont(const QVariant &data, QFont &font);
 
 		virtual QVariant generateEmptyEntry() = 0;
 		virtual bool testEntryEmpty(const QVariant &data) = 0;
@@ -43,6 +46,8 @@ class EditListWidget : public QWidget
 		void slotCurrentRowChanged();
 
 	private:
+		void updateFontUnderline(QListWidgetItem *item);
+
 		Ui_EditListWidget *m_ui;
 		EditListWidgetCallbacks *m_callbacks;
 };

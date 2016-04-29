@@ -125,6 +125,16 @@ QVariant GraphicsEdgeItem::itemChange(GraphicsItemChange change, const QVariant 
 	return QGraphicsPathItem::itemChange(change, value);
 }
 
+GraphicsDatatypeItem::Entry::Entry()
+: highlightError(false)
+{
+}
+
+GraphicsDatatypeItem::Entry::Entry(const QString &text, bool underline, bool highlightError)
+: text(text), underline(underline), highlightError(highlightError)
+{
+}
+
 GraphicsDatatypeItem::GraphicsDatatypeItem(Options options, QGraphicsItem *parent)
 {
 	if (options.testFlag(EnumerationStereotype))
@@ -172,17 +182,19 @@ void GraphicsDatatypeItem::setName(const QString &text)
 	relayout();
 }
 
-void GraphicsDatatypeItem::setEntries(const QList<QPair<bool, QString>> &contents)
+void GraphicsDatatypeItem::setEntries(const QList<Entry> &contents)
 {
 	QString html;
 
-	for (const QPair<bool, QString> &entry : contents)
+	foreach (const Entry &entry, contents)
 	{
 		html += "<div style=\"";
-		if (entry.first)
+		if (entry.underline)
+			html += "text-decoration: underline;";
+		if (entry.highlightError)
 			html += "color: red;";
 		html += "\">";
-		html += Qt::escape(entry.second);
+		html += Qt::escape(entry.text);
 		html += "</div>";
 	}
 

@@ -639,12 +639,18 @@ void UMLClass::refresh()
 	Q_ASSERT(m_coreItem != nullptr);
 	m_qtItem->setName(m_coreItem->datatypeName());
 
-	QList<QPair<bool, QString>> valuesWithErrorState;
-	foreach (const Core::UMLClass::MemberVariable &var, m_coreItem->memberVariables())
-		valuesWithErrorState.append(QPair<bool, QString>(false,
-			QString("%1 : %2").arg(var.name).arg(var.datatypeName.toString())));
+	const QList<Core::UMLClass::MemberVariable> &sourceValues = m_coreItem->memberVariables();
+	QList<GraphicsDatatypeItem::Entry> entries;
 
-	m_qtItem->setEntries(valuesWithErrorState);
+	for (int i = 0; i < sourceValues.count(); i++)
+	{
+		const Core::UMLClass::MemberVariable &var = sourceValues[i];
+		entries.append(GraphicsDatatypeItem::Entry(
+			QString("%1 : %2").arg(var.name).arg(var.datatypeName.toString()),
+			false, false));
+	}
+
+	m_qtItem->setEntries(entries);
 }
 
 UMLEnumeration::UMLEnumeration()
@@ -669,12 +675,13 @@ void UMLEnumeration::refresh()
 	m_qtItem->setName(m_coreItem->datatypeName());
 
 	const QStringList &sourceValues = m_coreItem->values();
-	QList<QPair<bool, QString>> valuesWithErrorState;
+	QList<GraphicsDatatypeItem::Entry> entries;
 
 	for (int i = 0; i < sourceValues.count(); i++)
-		valuesWithErrorState.append(QPair<bool, QString>(false, sourceValues[i]));
+		entries.append(GraphicsDatatypeItem::Entry(
+			sourceValues[i], false, false));
 
-	m_qtItem->setEntries(valuesWithErrorState);
+	m_qtItem->setEntries(entries);
 }
 
 UMLGlobalVariables::UMLGlobalVariables()
@@ -696,11 +703,19 @@ void UMLGlobalVariables::bind(Core::UMLGlobalVariables *coreItem)
 void UMLGlobalVariables::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
-	m_qtItem->setEntries(QList<QPair<bool, QString>>()
-		<< QPair<bool, QString>(false, "good")
-		<< QPair<bool, QString>(true, "bad")
-		<< QPair<bool, QString>(false, "good again")
-	);
+
+	const QList<Core::UMLGlobalVariables::GlobalVariable> &sourceValues = m_coreItem->globalVariables();
+	QList<GraphicsDatatypeItem::Entry> entries;
+
+	for (int i = 0; i < sourceValues.count(); i++)
+	{
+		const Core::UMLGlobalVariables::GlobalVariable &var = sourceValues[i];
+		entries.append(GraphicsDatatypeItem::Entry(
+			QString("%1 : %2 = %3").arg(var.name).arg(var.datatypeName.toString()).arg(var.initialValue),
+			var.isPersistent, false));
+	}
+
+	m_qtItem->setEntries(entries);
 }
 
 }

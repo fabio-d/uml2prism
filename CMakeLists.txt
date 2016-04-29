@@ -19,6 +19,7 @@ add_executable(UMLEditor
 	Gui/EditClassDialog.cpp
 	Gui/EditDatatypeNameWidget.cpp
 	Gui/EditEnumerationDialog.cpp
+	Gui/EditGlobalVariablesDialog.cpp
 	Gui/EditListWidget.cpp
 	Gui/GraphicsAuxiliaryItems.cpp
 	Gui/IdentifierValidator.cpp

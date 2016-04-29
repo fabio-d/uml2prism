@@ -104,10 +104,20 @@ class GraphicsDatatypeItem : public QGraphicsRectItem
 		};
 		Q_DECLARE_FLAGS(Options, Option)
 
+		struct Entry
+		{
+			Entry();
+			explicit Entry(const QString &text, bool underline, bool highlightError);
+
+			QString text;
+			bool underline;
+			bool highlightError;
+		};
+
 		explicit GraphicsDatatypeItem(Options options, QGraphicsItem *parent = nullptr);
 
 		void setName(const QString &text);
-		void setEntries(const QList<QPair<bool, QString>> &contents);
+		void setEntries(const QList<Entry> &contents);
 
 		void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 			QWidget *widget = nullptr) override;

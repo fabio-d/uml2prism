@@ -312,17 +312,64 @@ bool UMLEnumeration::loadFromXml(const QDomElement &source)
 	return true;
 }
 
+UMLGlobalVariables::GlobalVariable::GlobalVariable(const QString &name,
+	const DatatypeName &datatypeName, bool isPersistent, const QString &initialValue)
+: name(name), datatypeName(datatypeName), isPersistent(isPersistent), initialValue(initialValue)
+{
+}
+
 UMLGlobalVariables::UMLGlobalVariables()
 : UMLElement(UMLElementType::GlobalVariables)
 {
 }
 
+void UMLGlobalVariables::setGlobalVariables(const QList<GlobalVariable> &vars)
+{
+	m_globalVariables = vars;
+	emit changed();
+}
+
+const QList<UMLGlobalVariables::GlobalVariable> &UMLGlobalVariables::globalVariables() const
+{
+	return m_globalVariables;
+}
+
 void UMLGlobalVariables::storeToXml(QDomElement &target, QDomDocument &doc) const
 {
+	foreach (const GlobalVariable &var, globalVariables())
+	{
+		QDomElement varElem = doc.createElement("variable");
+		QDomElement nameElem = doc.createElement("name");
+		QDomElement datatypeElem = doc.createElement("datatype");
+		QDomElement initValElem = doc.createElement("initial-value");
+		target.appendChild(varElem);
+		varElem.appendChild(nameElem);
+		varElem.appendChild(datatypeElem);
+		varElem.appendChild(initValElem);
+		varElem.setAttribute("persistent", var.isPersistent ? "true" : "false");
+		nameElem.appendChild(doc.createTextNode(var.name));
+		var.datatypeName.storeToXml(datatypeElem, doc);
+		initValElem.appendChild(doc.createTextNode(var.initialValue));
+	}
 }
 
 bool UMLGlobalVariables::loadFromXml(const QDomElement &source)
 {
+	QList<GlobalVariable> values;
+	for (QDomElement varElem = source.firstChildElement();
+		!varElem.isNull();
+		varElem = varElem.nextSiblingElement())
+	{
+		QDomElement nameElem = varElem.firstChildElement("name");
+		QDomElement datatypeElem = varElem.firstChildElement("datatype");
+		QDomElement initValElem = varElem.firstChildElement("initial-value");
+
+		values.append(Core::UMLGlobalVariables::GlobalVariable(nameElem.text(),
+			Core::DatatypeName(datatypeElem),
+			varElem.attribute("persistent") == "true", initValElem.text()));
+	}
+
+	setGlobalVariables(values);
 	return true;
 }
 

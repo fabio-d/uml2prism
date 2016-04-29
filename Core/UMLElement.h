@@ -219,10 +219,27 @@ class UMLEnumeration : public UMLDatatypeElement
 class UMLGlobalVariables : public UMLElement
 {
 	public:
+		struct GlobalVariable
+		{
+			GlobalVariable() = default;
+			GlobalVariable(const QString &name, const DatatypeName &datatypeName, bool isPersistent, const QString &initialValue);
+
+			QString name;
+			DatatypeName datatypeName;
+			bool isPersistent;
+			QString initialValue;
+		};
+
 		UMLGlobalVariables();
+
+		void setGlobalVariables(const QList<GlobalVariable> &vars);
+		const QList<GlobalVariable> &globalVariables() const;
 
 		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
 		bool loadFromXml(const QDomElement &source) override;
+
+	private:
+		QList<GlobalVariable> m_globalVariables;
 };
 
 }
