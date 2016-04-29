@@ -8,7 +8,7 @@ namespace Gui
 {
 
 UMLDiagramView::UMLDiagramView(QWidget *parent)
-: QGraphicsView(parent), m_scene(nullptr)
+: QGraphicsView(parent), m_scene(nullptr), m_edgeConstructionInProgress(false)
 {
 }
 
