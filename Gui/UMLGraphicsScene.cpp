@@ -511,6 +511,8 @@ void UMLGraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 			if (m_edgeConstructSignal)
 			{
 				Core::UMLSignalEdge *elem = new Core::UMLSignalEdge(from, to);
+				elem->setSignalName(m_dia->generateFreshName("Signal"));
+
 				UMLSignalEdge *item = new UMLSignalEdge();
 				item->bind(elem);
 
