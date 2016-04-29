@@ -4,6 +4,7 @@
 #include "Gui/EditEnumerationDialog.h"
 #include "Gui/EditGlobalVariablesDialog.h"
 #include "Gui/EditSignalEdgeDialog.h"
+#include "Gui/RenameDialog.h"
 #include "Gui/UMLElement.h"
 
 #include "Core/Document.h"
@@ -83,48 +84,8 @@ void UMLGraphicsScene::renameSelectedItem(QWidget *requestingWidget)
 	if (m_relaxedSelection.count() != 1)
 		return;
 
-	Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
-	Core::UMLNodeElement *nodeElem = dynamic_cast<Core::UMLNodeElement*>(elem);
-	Core::UMLControlFlowEdge *controlFlowElem = dynamic_cast<Core::UMLControlFlowEdge*>(elem);
-	Core::UMLSignalEdge *signalFlowElem = dynamic_cast<Core::UMLSignalEdge*>(elem);
-	Core::UMLDatatypeElement *datatypeElem = dynamic_cast<Core::UMLDatatypeElement*>(elem);
-
-	if (nodeElem)
-	{
-		bool ok;
-		const QString newLabel = QInputDialog::getText(
-			requestingWidget, "Rename node", "New label",
-			QLineEdit::Normal, nodeElem->nodeName(), &ok);
-		if (ok)
-			nodeElem->setNodeName(newLabel);
-	}
-	else if (controlFlowElem)
-	{
-		bool ok;
-		const QString newLabel = QInputDialog::getText(
-			requestingWidget, "Rename branch", "New label",
-			QLineEdit::Normal, controlFlowElem->branchName(), &ok);
-		if (ok)
-			controlFlowElem->setBranchName(newLabel);
-	}
-	else if (signalFlowElem)
-	{
-		bool ok;
-		const QString newLabel = QInputDialog::getText(
-			requestingWidget, "Rename signal", "New label",
-			QLineEdit::Normal, signalFlowElem->signalName(), &ok);
-		if (ok)
-			signalFlowElem->setSignalName(newLabel);
-	}
-	else if (datatypeElem)
-	{
-		bool ok;
-		const QString newName = QInputDialog::getText(
-			requestingWidget, "Rename datatype", "New name",
-			QLineEdit::Normal, datatypeElem->datatypeName(), &ok);
-		if (ok)
-			datatypeElem->setDatatypeName(newName);
-	}
+	RenameDialog diag(m_relaxedSelection[0]->coreItem(), requestingWidget);
+	diag.exec();
 }
 
 void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
