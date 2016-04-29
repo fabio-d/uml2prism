@@ -129,23 +129,25 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 	Core::UMLEnumeration *enumElem = dynamic_cast<Core::UMLEnumeration*>(elem);
 	Core::UMLGlobalVariables *globalVarsElem = dynamic_cast<Core::UMLGlobalVariables*>(elem);
 
+	QDialog *diag = nullptr;
+
 	if (classElem)
 	{
-		EditClassDialog *diag = new EditClassDialog(classElem, requestingWidget);
-		diag->show();
-		// TODO: who frees diag?
+		diag = new EditClassDialog(classElem, requestingWidget);
 	}
 	else if (enumElem)
 	{
-		EditEnumerationDialog *diag = new EditEnumerationDialog(enumElem, requestingWidget);
-		diag->show();
-		// TODO: who frees diag?
+		diag = new EditEnumerationDialog(enumElem, requestingWidget);
 	}
 	else if (globalVarsElem)
 	{
-		EditGlobalVariablesDialog *diag = new EditGlobalVariablesDialog(globalVarsElem, requestingWidget);
+		diag = new EditGlobalVariablesDialog(globalVarsElem, requestingWidget);
+	}
+
+	if (diag != nullptr)
+	{
+		connect(diag, SIGNAL(finished(int)), diag, SLOT(deleteLater()));
 		diag->show();
-		// TODO: who frees diag?
 	}
 }
 
