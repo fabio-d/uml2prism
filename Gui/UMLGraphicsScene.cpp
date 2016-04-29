@@ -3,6 +3,7 @@
 #include "Gui/EditClassDialog.h"
 #include "Gui/EditEnumerationDialog.h"
 #include "Gui/EditGlobalVariablesDialog.h"
+#include "Gui/EditSignalEdgeDialog.h"
 #include "Gui/UMLElement.h"
 
 #include "Core/Document.h"
@@ -132,13 +133,18 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 		return;
 
 	Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
+	Core::UMLSignalEdge *signalEdgeElem = dynamic_cast<Core::UMLSignalEdge*>(elem);
 	Core::UMLClass *classElem = dynamic_cast<Core::UMLClass*>(elem);
 	Core::UMLEnumeration *enumElem = dynamic_cast<Core::UMLEnumeration*>(elem);
 	Core::UMLGlobalVariables *globalVarsElem = dynamic_cast<Core::UMLGlobalVariables*>(elem);
 
 	QDialog *diag = nullptr;
 
-	if (classElem)
+	if (signalEdgeElem)
+	{
+		diag = new EditSignalEdgeDialog(signalEdgeElem, requestingWidget);
+	}
+	else if (classElem)
 	{
 		diag = new EditClassDialog(classElem, requestingWidget);
 	}

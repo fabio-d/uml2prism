@@ -155,11 +155,16 @@ class UMLSignalEdge : public UMLEdgeElement
 		void setSignalName(const QString &newName);
 		const QString &signalName() const;
 
+		// Note: type=DatatypeName::Invalid means no attached message
+		void setMessageDatatypeName(const DatatypeName &newDatatypeName);
+		const DatatypeName &messageDatatypeName() const;
+
 		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
 		bool loadFromXml(const QDomElement &source) override;
 
 	private:
 		QString m_signalName;
+		DatatypeName m_datatypeName;
 };
 
 class UMLDatatypeElement : public UMLElement

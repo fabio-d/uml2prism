@@ -163,14 +163,36 @@ const QString &UMLSignalEdge::signalName() const
 	return m_signalName;
 }
 
+void UMLSignalEdge::setMessageDatatypeName(const DatatypeName &newDatatypeName)
+{
+	m_datatypeName = newDatatypeName;
+}
+
+const DatatypeName &UMLSignalEdge::messageDatatypeName() const
+{
+	return m_datatypeName;
+}
+
 void UMLSignalEdge::storeToXml(QDomElement &target, QDomDocument &doc) const
 {
 	target.setAttribute("signalName", signalName());
+
+	if (m_datatypeName.type() != Core::DatatypeName::Invalid)
+	{
+		QDomElement messageDatatypeElem = doc.createElement("message-datatype");
+		target.appendChild(messageDatatypeElem);
+		m_datatypeName.storeToXml(messageDatatypeElem, doc);
+	}
 }
 
 bool UMLSignalEdge::loadFromXml(const QDomElement &source)
 {
 	setSignalName(source.attribute("signalName"));
+
+	QDomElement messageDatatypeElem = source.firstChildElement("message-datatype");
+	if (!messageDatatypeElem.isNull())
+		setMessageDatatypeName(Core::DatatypeName(messageDatatypeElem));
+
 	return true;
 }
 

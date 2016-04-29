@@ -49,4 +49,17 @@ bool StrictIdentifierValidator::checkDatatypeWithMessageBox(QWidget *parent, con
 	return false;
 }
 
+bool StrictIdentifierValidator::checkSignalNameWithMessageBox(QWidget *parent, const QString &str)
+{
+	if (isAcceptable(str))
+		return true;
+
+	if (str.isEmpty())
+		QMessageBox::warning(parent, "Invalid signal name", "Signal names cannot be empty strings");
+	else
+		QMessageBox::warning(parent, "Invalid signal name", "Signal names can only contain letters, digits or underscores and must not start with a digit");
+
+	return false;
+}
+
 }

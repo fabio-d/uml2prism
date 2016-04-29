@@ -615,7 +615,12 @@ void UMLSignalEdge::bind(Core::UMLSignalEdge *coreItem)
 void UMLSignalEdge::refresh()
 {
 	UMLEdgeElement::refresh();
-	setLabelText(m_coreItem->signalName());
+
+	Core::DatatypeName dt = m_coreItem->messageDatatypeName();
+	if (dt.type() == Core::DatatypeName::Invalid)
+		setLabelText(m_coreItem->signalName());
+	else
+		setLabelText(QString("%1 : %2").arg(m_coreItem->signalName()).arg(dt.toString()));
 }
 
 UMLClass::UMLClass()
