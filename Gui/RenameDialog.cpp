@@ -85,6 +85,8 @@ RenameDialog::RenameDialog(Core::UMLElement *elem, QWidget *parent)
 			qFatal("This should never happen");
 			break;
 	}
+
+	m_ui->lineEdit->selectAll();
 }
 
 RenameDialog::~RenameDialog()
