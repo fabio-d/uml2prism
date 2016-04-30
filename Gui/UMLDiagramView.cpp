@@ -2,6 +2,7 @@
 
 #include "Gui/UMLGraphicsScene.h"
 
+#include <QFontMetrics>
 #include <QMouseEvent>
 
 namespace Gui
@@ -40,8 +41,13 @@ void UMLDiagramView::setScale(qreal newScale)
 
 qreal UMLDiagramView::currentScale() const
 {
+	// This ratio is an attempt to counteract DPI-dependent zoom scale. It
+	// does not work perfectly, because the actual screen size is slightly
+	// different on my two laptops.
+	static const qreal dpiRatio = 31 / QFontMetrics(font()).height();
+
 	const QTransform t = transform();
-	return t.m11();
+	return t.m11() * dpiRatio;
 }
 
 void UMLDiagramView::zoomIn()
