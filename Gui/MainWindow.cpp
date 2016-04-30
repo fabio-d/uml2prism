@@ -18,7 +18,8 @@ namespace Gui
 MainWindow::MainWindow(QWidget *parent)
 : QMainWindow(parent), m_ui(new Ui_MainWindow),
   m_activityEditEnabled(false), m_activityRenameEnabled(false), m_activityDeleteEnabled(false),
-  m_classEditEnabled(false), m_classRenameEnabled(false), m_classDeleteEnabled(false)
+  m_classEditEnabled(false), m_classRenameEnabled(false), m_classDeleteEnabled(false),
+  m_activityDiagramFirstShown(false), m_classDiagramFirstShown(false)
 {
 	m_ui->setupUi(this);
 
@@ -59,8 +60,6 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_undoManager, SIGNAL(undoCleanChanged(bool)),
 		this, SLOT(slotUndoCleanChanged(bool)));
 	slotUndoCleanChanged(true);
-
-	slotTabSwitched();
 }
 
 MainWindow::~MainWindow()
@@ -74,6 +73,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 	if (!queryClose())
 		event->ignore();
+}
+
+void MainWindow::showEvent(QShowEvent *event)
+{
+	QMainWindow::showEvent(event);
+	slotTabSwitched();
 }
 
 bool MainWindow::queryClose()
@@ -171,16 +176,17 @@ void MainWindow::slotOpen()
 	MainWindow *targetWindow;
 
 	if (m_filename.isEmpty() && m_undoManager->isStackEmpty())
-	{
 		targetWindow = this;
-	}
 	else
-	{
 		targetWindow = new MainWindow();
-		targetWindow->show();
-	}
 
 	targetWindow->loadFile(selectedFileName);
+	targetWindow->show();
+
+	// Fit in view
+	m_activityDiagramFirstShown = false;
+	m_classDiagramFirstShown = false;
+	slotTabSwitched();
 }
 
 bool MainWindow::slotSave()
@@ -218,6 +224,12 @@ void MainWindow::slotTabSwitched()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 	{
+		if (!m_activityDiagramFirstShown)
+		{
+			m_activityDiagramFirstShown = true;
+			m_ui->umlGraphicsViewActivity->zoomClampedFit();
+		}
+
 		m_ui->listWidgetActivityToolbox->setVisible(true);
 		m_ui->listWidgetClassToolbox->setVisible(false);
 		m_ui->actionEditItem->setEnabled(m_activityEditEnabled);
@@ -226,6 +238,12 @@ void MainWindow::slotTabSwitched()
 	}
 	else
 	{
+		if (!m_classDiagramFirstShown)
+		{
+			m_classDiagramFirstShown = true;
+			m_ui->umlGraphicsViewClass->zoomClampedFit();
+		}
+
 		m_ui->listWidgetActivityToolbox->setVisible(false);
 		m_ui->listWidgetClassToolbox->setVisible(true);
 		m_ui->actionEditItem->setEnabled(m_classEditEnabled);

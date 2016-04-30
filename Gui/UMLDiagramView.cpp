@@ -65,6 +65,12 @@ void UMLDiagramView::zoomFit()
 	setScale(currentScale());
 }
 
+void UMLDiagramView::zoomClampedFit()
+{
+	fitInView(m_scene->itemsBoundingRect(), Qt::KeepAspectRatio);
+	setScale(qMin<qreal>(currentScale(), 1));
+}
+
 void UMLDiagramView::dropEvent(QDropEvent *event)
 {
 	// Just give us focus...

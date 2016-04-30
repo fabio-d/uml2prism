@@ -25,6 +25,7 @@ class UMLDiagramView : public QGraphicsView
 		void zoomOut();
 		void zoomOriginal();
 		void zoomFit();
+		void zoomClampedFit();
 
 	private slots:
 		void updateScene(const QList<QRectF> &rect = QList<QRectF>());

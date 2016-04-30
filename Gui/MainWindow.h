@@ -28,6 +28,7 @@ class MainWindow : public QMainWindow
 
 	protected:
 		void closeEvent(QCloseEvent *event) override;
+		void showEvent(QShowEvent *event) override;
 
 	private slots:
 		void slotUndoCleanChanged(bool clean);
@@ -60,6 +61,8 @@ class MainWindow : public QMainWindow
 		bool m_activityEditEnabled, m_activityRenameEnabled, m_activityDeleteEnabled;
 		UMLGraphicsScene *m_umlGraphicsSceneClass;
 		bool m_classEditEnabled, m_classRenameEnabled, m_classDeleteEnabled;
+
+		bool m_activityDiagramFirstShown, m_classDiagramFirstShown;
 };
 
 }
