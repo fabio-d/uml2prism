@@ -42,6 +42,15 @@ UMLGraphicsScene::~UMLGraphicsScene()
 	Q_ASSERT(items().isEmpty());
 }
 
+const QFont &UMLGraphicsScene::sceneFont()
+{
+	// All texts must be drawn using this font, because scene units must not
+	// depend on the current display's DPI. Note that what is called "pixel"
+	// here is actually one scene unit.
+	static QFont font = ({ QFont f = QApplication::font(); f.setPixelSize(27); f; });
+	return font;
+}
+
 void UMLGraphicsScene::slotSelectionChanged()
 {
 	m_strictSelection.clear();

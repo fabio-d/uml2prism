@@ -29,6 +29,8 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		explicit UMLGraphicsScene(Core::UMLDiagram *dia, QObject *parent = nullptr);
 		~UMLGraphicsScene();
 
+		static const QFont &sceneFont();
+
 		void notifyGeometryChanged(UMLElement *element);
 
 		void renameSelectedItem(QWidget *requestingWidget);

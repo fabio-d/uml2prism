@@ -1,5 +1,7 @@
 #include "Gui/GraphicsAuxiliaryItems.h"
 
+#include "Gui/UMLGraphicsScene.h"
+
 #include <QFontMetricsF>
 #include <QDebug>
 #include <QPainter>
@@ -15,6 +17,8 @@ namespace Gui
 GraphicsLabelItem::GraphicsLabelItem(Options options, QGraphicsItem *parent)
 : QGraphicsSimpleTextItem(parent), m_options(options)
 {
+	setFont(UMLGraphicsScene::sceneFont());
+
 	QFontMetricsF metrics(font());
 
 	if (options.testFlag(InitiallyOnTheRight))
@@ -149,8 +153,9 @@ GraphicsDatatypeItem::GraphicsDatatypeItem(Options options, QGraphicsItem *paren
 
 	setBrush(Qt::white);
 
-	QFont font = m_name->font();
+	QFont font = UMLGraphicsScene::sceneFont();
 	QFontMetricsF metrics(font);
+	m_contents->setFont(font);
 
 	if (m_stereotype == nullptr)
 	{
