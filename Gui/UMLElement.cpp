@@ -140,7 +140,13 @@ UMLNodeElement::UMLNodeElement()
 void UMLNodeElement::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
-	m_labelItem->setText(m_coreItem->nodeName());
+
+	Core::UMLScriptedNodeElement *scriptedNodeElem = dynamic_cast<Core::UMLScriptedNodeElement*>(m_coreItem);
+
+	if (scriptedNodeElem == nullptr || !scriptedNodeElem->hasCustomScript())
+		m_labelItem->setText(m_coreItem->nodeName());
+	else
+		m_labelItem->setText(QString("%1*").arg(m_coreItem->nodeName()));
 }
 
 void UMLNodeElement::bind(Core::UMLNodeElement *coreItem)

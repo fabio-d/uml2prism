@@ -102,13 +102,33 @@ class UMLFinalNode : public UMLNodeElement
 		UMLFinalNode();
 };
 
-class UMLActionNode : public UMLNodeElement
+class UMLScriptedNodeElement : public UMLNodeElement
+{
+	public:
+		void setCustomScript(const QString &newScript);
+		void unsetCustomScript(); // i.e. automatically generate script
+
+		bool hasCustomScript() const;
+		const QString &customScript() const;
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
+
+	protected:
+		UMLScriptedNodeElement(UMLElementType type);
+
+	private:
+		bool m_hasCustomScript;
+		QString m_customScript;
+};
+
+class UMLActionNode : public UMLScriptedNodeElement
 {
 	public:
 		UMLActionNode();
 };
 
-class UMLDecisionMergeNode : public UMLNodeElement
+class UMLDecisionMergeNode : public UMLScriptedNodeElement
 {
 	public:
 		UMLDecisionMergeNode();

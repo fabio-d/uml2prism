@@ -3,6 +3,7 @@
 #include "Gui/EditClassDialog.h"
 #include "Gui/EditEnumerationDialog.h"
 #include "Gui/EditGlobalVariablesDialog.h"
+#include "Gui/EditScriptedNodeElementDialog.h"
 #include "Gui/EditSignalEdgeDialog.h"
 #include "Gui/RenameDialog.h"
 #include "Gui/UMLElement.h"
@@ -81,8 +82,7 @@ void UMLGraphicsScene::slotSelectionChanged()
 
 void UMLGraphicsScene::renameSelectedItem(QWidget *requestingWidget)
 {
-	if (m_relaxedSelection.count() != 1)
-		return;
+	Q_ASSERT(m_relaxedSelection.count() == 1);
 
 	RenameDialog diag(m_relaxedSelection[0]->coreItem(), requestingWidget);
 	diag.exec();
@@ -90,10 +90,10 @@ void UMLGraphicsScene::renameSelectedItem(QWidget *requestingWidget)
 
 void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 {
-	if (m_relaxedSelection.count() != 1)
-		return;
+	Q_ASSERT(m_relaxedSelection.count() == 1);
 
 	Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
+	Core::UMLScriptedNodeElement *scriptedNodeElem = dynamic_cast<Core::UMLScriptedNodeElement*>(elem);
 	Core::UMLSignalEdge *signalEdgeElem = dynamic_cast<Core::UMLSignalEdge*>(elem);
 	Core::UMLClass *classElem = dynamic_cast<Core::UMLClass*>(elem);
 	Core::UMLEnumeration *enumElem = dynamic_cast<Core::UMLEnumeration*>(elem);
@@ -101,7 +101,11 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 
 	QDialog *diag = nullptr;
 
-	if (signalEdgeElem)
+	if (scriptedNodeElem)
+	{
+		diag = new EditScriptedNodeElementDialog(scriptedNodeElem, requestingWidget);
+	}
+	else if (signalEdgeElem)
 	{
 		EditSignalEdgeDialog *diag_ = new EditSignalEdgeDialog(signalEdgeElem, requestingWidget);
 		diag_->setExistingDatatypeNamesList(m_dia->document()->listDatatypeNames());
@@ -123,12 +127,13 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 		diag_->setExistingDatatypeNamesList(m_dia->document()->listDatatypeNames());
 		diag = diag_;
 	}
-
-	if (diag != nullptr)
+	else
 	{
-		connect(diag, SIGNAL(finished(int)), diag, SLOT(deleteLater()));
-		diag->show();
+		qFatal("This should never happen");
 	}
+
+	connect(diag, SIGNAL(finished(int)), diag, SLOT(deleteLater()));
+	diag->show();
 }
 
 void UMLGraphicsScene::deleteSelectedItems(QWidget *requestingWidget)
@@ -701,6 +706,8 @@ bool UMLGraphicsScene::canBeEdited(Core::UMLElement *element)
 {
 	switch (element->type())
 	{
+		case Core::UMLElementType::InitialNode:
+		case Core::UMLElementType::FinalNode:
 		case Core::UMLElementType::ForkJoinNode:
 		case Core::UMLElementType::ControlFlowEdge:
 			return false;

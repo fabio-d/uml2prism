@@ -90,13 +90,70 @@ UMLFinalNode::UMLFinalNode()
 {
 }
 
+UMLScriptedNodeElement::UMLScriptedNodeElement(UMLElementType type)
+: UMLNodeElement(type), m_hasCustomScript(false)
+{
+}
+
+void UMLScriptedNodeElement::setCustomScript(const QString &newScript)
+{
+	m_hasCustomScript = true;
+	m_customScript = newScript;
+	emit changed();
+}
+
+void UMLScriptedNodeElement::unsetCustomScript()
+{
+	m_hasCustomScript = false;
+	m_customScript = QString();
+	emit changed();
+}
+
+bool UMLScriptedNodeElement::hasCustomScript() const
+{
+	return m_hasCustomScript;
+}
+
+const QString &UMLScriptedNodeElement::customScript() const
+{
+	return m_customScript;
+}
+
+void UMLScriptedNodeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	UMLNodeElement::storeToXml(target, doc);
+
+	QDomElement scriptElem = doc.createElement("script");
+	target.appendChild(scriptElem);
+
+	if (hasCustomScript())
+		scriptElem.appendChild(doc.createTextNode(customScript()));
+	else
+		scriptElem.appendChild(doc.createElement("autogen"));
+}
+
+bool UMLScriptedNodeElement::loadFromXml(const QDomElement &source)
+{
+	if (!UMLNodeElement::loadFromXml(source))
+		return false;
+
+	QDomElement scriptElem = source.firstChildElement("script");
+
+	if (scriptElem.firstChildElement("autogen").isNull())
+		setCustomScript(scriptElem.text());
+	else
+		unsetCustomScript();
+
+	return true;
+}
+
 UMLActionNode::UMLActionNode()
-: UMLNodeElement(UMLElementType::ActionNode)
+: UMLScriptedNodeElement(UMLElementType::ActionNode)
 {
 }
 
 UMLDecisionMergeNode::UMLDecisionMergeNode()
-: UMLNodeElement(UMLElementType::DecisionMergeNode)
+: UMLScriptedNodeElement(UMLElementType::DecisionMergeNode)
 {
 }
 
