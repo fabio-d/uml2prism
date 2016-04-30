@@ -21,18 +21,41 @@ GraphicsLabelItem::GraphicsLabelItem(Options options, QGraphicsItem *parent)
 
 	QFontMetricsF metrics(font());
 
-	if (options.testFlag(InitiallyOnTheRight))
+	if (m_options.testFlag(InitiallyOnTheRight))
 		setPos(parent->boundingRect().right(), -metrics.height() / 2);
-	else if (options.testFlag(InitiallyOnTheBottom))
+	else if (m_options.testFlag(InitiallyOnTheBottom))
 		setPos(0, parent->boundingRect().bottom());
 	else /* initially centered */
 		setPos(0, -metrics.height() / 2);
 
-	if (!options.testFlag(NonMovable))
+	if (!m_options.testFlag(NonMovable))
 	{
 		setFlag(QGraphicsItem::ItemIsMovable, true);
 		setFlag(QGraphicsItem::ItemIsSelectable, true);
 	}
+}
+
+QPointF GraphicsLabelItem::calcInitialPosition() const
+{
+	const qreal width = boundingRect().width();
+	QFontMetricsF metrics(font());
+
+	if (m_options.testFlag(InitiallyOnTheRight))
+		return QPointF(parentItem()->boundingRect().right(), -metrics.height() / 2);
+	else if (m_options.testFlag(InitiallyOnTheBottom))
+		return QPointF(-width / 2, parentItem()->boundingRect().bottom());
+	else /* initially centered */
+		return QPointF(-width / 2, -metrics.height() / 2);
+}
+
+void GraphicsLabelItem::resetPosition()
+{
+	setPos(calcInitialPosition());
+}
+
+bool GraphicsLabelItem::isAtInitialPosition() const
+{
+	return pos() == calcInitialPosition();
 }
 
 void GraphicsLabelItem::setText(const QString &text)

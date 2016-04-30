@@ -248,6 +248,16 @@ QSizeF UMLNodeElement::labelSize() const
 	return m_labelItem->boundingRect().size();
 }
 
+void UMLNodeElement::resetLabelPosition()
+{
+	m_labelItem->resetPosition();
+}
+
+bool UMLNodeElement::isLabelAtInitialPosition() const
+{
+	return m_labelItem->isAtInitialPosition();
+}
+
 void UMLNodeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
 {
 	UMLElement::storeToXml(target, doc); // store position
@@ -518,6 +528,16 @@ void UMLEdgeElement::refresh()
 	m_qtItem->setPolyline(path);
 	m_arrowItem->setPos(path.last());
 	m_arrowItem->setRotation(-m_qtItem->path().angleAtPercent(1));
+}
+
+void UMLEdgeElement::resetLabelPosition()
+{
+	m_labelItem->resetPosition();
+}
+
+bool UMLEdgeElement::isLabelAtInitialPosition() const
+{
+	return m_labelItem->isAtInitialPosition();
 }
 
 void UMLEdgeElement::notifyEdgeMoved(const QPointF &delta)

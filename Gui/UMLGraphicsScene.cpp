@@ -69,7 +69,7 @@ void UMLGraphicsScene::slotSelectionChanged()
 			m_relaxedSelection.append(item);
 	}
 
-	bool editEnabled, renameEnabled, deleteEnabled;
+	bool editEnabled, renameEnabled, deleteEnabled, resetLabelPosEnabled;
 	if (m_relaxedSelection.count() == 1)
 	{
 		Core::UMLElement *elem = m_relaxedSelection[0]->coreItem();
@@ -86,7 +86,15 @@ void UMLGraphicsScene::slotSelectionChanged()
 		m_relaxedSelection.count() == m_strictSelection.count()) ||
 		m_relaxedSelection.count() == 1;
 
-	emit actionsEnabledChanged(editEnabled, renameEnabled, deleteEnabled);
+	resetLabelPosEnabled = false;
+	foreach (UMLElement *elem, m_relaxedSelection)
+	{
+		if (canResetLabelPos(elem->coreItem()))
+			resetLabelPosEnabled = true;
+	}
+
+	emit actionsEnabledChanged(editEnabled, renameEnabled,
+		deleteEnabled, resetLabelPosEnabled);
 }
 
 void UMLGraphicsScene::renameSelectedItem(QWidget *requestingWidget)
@@ -176,6 +184,29 @@ void UMLGraphicsScene::deleteSelectedItems(QWidget *requestingWidget)
 
 	foreach (Core::UMLElement *elem, elementsToBeDeletedList)
 		m_dia->deleteUMLElement(elem);
+}
+
+void UMLGraphicsScene::resetLabelPosition()
+{
+	foreach (UMLElement *elem, m_relaxedSelection)
+	{
+		UMLNodeElement *nodeElem = dynamic_cast<UMLNodeElement*>(elem);
+		UMLEdgeElement *edgeElem = dynamic_cast<UMLEdgeElement*>(elem);
+
+		if (nodeElem)
+			nodeElem->resetLabelPosition();
+		else if (edgeElem)
+			edgeElem->resetLabelPosition();
+		else
+			continue;
+
+		notifyGeometryChanged(elem);
+	}
+
+	scheduleUndoCheckpoint();
+
+	// update actions: "reset label position" should now be disabled
+	slotSelectionChanged();
 }
 
 UMLNodeElement *UMLGraphicsScene::searchNodeElementAt(const QPointF &scenePos) const
@@ -728,6 +759,31 @@ bool UMLGraphicsScene::canBeEdited(Core::UMLElement *element)
 bool UMLGraphicsScene::canBeRenamed(Core::UMLElement *element)
 {
 	return true;
+}
+
+bool UMLGraphicsScene::canResetLabelPos(Core::UMLElement *element)
+{
+	switch (element->type())
+	{
+		case Core::UMLElementType::InitialNode:
+		case Core::UMLElementType::FinalNode:
+		case Core::UMLElementType::DecisionMergeNode:
+		case Core::UMLElementType::ForkJoinNode:
+		{
+			Core::UMLNodeElement *nodeElem = static_cast<Core::UMLNodeElement*>(element);
+			if (nodeElem->nodeName().isEmpty())
+				return false;
+			return !static_cast<UMLNodeElement*>(UMLElement::lookup(element))->isLabelAtInitialPosition();
+		}
+		case Core::UMLElementType::ControlFlowEdge:
+			if (static_cast<Core::UMLControlFlowEdge*>(element)->branchName().isEmpty())
+				return false;
+			/* fallthrough */
+		case Core::UMLElementType::SignalEdge:
+			return !static_cast<UMLEdgeElement*>(UMLElement::lookup(element))->isLabelAtInitialPosition();
+		default:
+			return false;
+	}
 }
 
 }

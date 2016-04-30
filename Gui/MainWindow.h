@@ -37,10 +37,11 @@ class MainWindow : public QMainWindow
 		bool slotSave();
 		bool slotSaveAs();
 		void slotTabSwitched();
-		void slotActionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled);
+		void slotActionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled, bool resetLabelPosEnabled);
 		void slotRenameItem();
 		void slotEditItem();
 		void slotDeleteItem();
+		void slotResetLabelPosition();
 		void slotFillContextMenu(QMenu *menu);
 		void slotZoomIn();
 		void slotZoomOut();
@@ -59,6 +60,8 @@ class MainWindow : public QMainWindow
 
 		UMLGraphicsScene *m_umlGraphicsSceneActivity;
 		bool m_activityEditEnabled, m_activityRenameEnabled, m_activityDeleteEnabled;
+		bool m_activityResetLabelPositionEnabled;
+
 		UMLGraphicsScene *m_umlGraphicsSceneClass;
 		bool m_classEditEnabled, m_classRenameEnabled, m_classDeleteEnabled;
 

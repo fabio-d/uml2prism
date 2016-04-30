@@ -88,6 +88,9 @@ class UMLNodeElement : public UMLElement
 		QPointF labelRelativePos() const;
 		QSizeF labelSize() const;
 
+		void resetLabelPosition();
+		bool isLabelAtInitialPosition() const;
+
 		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
 		bool loadFromXml(const QDomElement &source) override;
 
@@ -185,6 +188,8 @@ class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveWatcher
 		QPointF labelRelativePos() const;
 
 		void refresh() override;
+		void resetLabelPosition();
+		bool isLabelAtInitialPosition() const;
 
 		static QPolygonF calcPathBetweenNodes(UMLNodeElement *a, UMLNodeElement *b,
 			const QPolygonF &intermediatePoints = QPolygonF());

@@ -17,7 +17,8 @@ namespace Gui
 
 MainWindow::MainWindow(QWidget *parent)
 : QMainWindow(parent), m_ui(new Ui_MainWindow),
-  m_activityEditEnabled(false), m_activityRenameEnabled(false), m_activityDeleteEnabled(false),
+  m_activityEditEnabled(false), m_activityRenameEnabled(false),
+  m_activityDeleteEnabled(false), m_activityResetLabelPositionEnabled(false),
   m_classEditEnabled(false), m_classRenameEnabled(false), m_classDeleteEnabled(false),
   m_activityDiagramFirstShown(false), m_classDiagramFirstShown(false)
 {
@@ -39,15 +40,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 	m_doc = new Core::Document();
 	m_umlGraphicsSceneActivity = new UMLGraphicsScene(m_doc->activityDiagram(), this);
-	connect(m_umlGraphicsSceneActivity, SIGNAL(actionsEnabledChanged(bool, bool, bool)),
-		this, SLOT(slotActionsEnabledChanged(bool, bool, bool)));
+	connect(m_umlGraphicsSceneActivity, SIGNAL(actionsEnabledChanged(bool, bool, bool, bool)),
+		this, SLOT(slotActionsEnabledChanged(bool, bool, bool, bool)));
 	connect(m_umlGraphicsSceneActivity, SIGNAL(fillContextMenu(QMenu*)),
 		this, SLOT(slotFillContextMenu(QMenu*)));
 	m_ui->umlGraphicsViewActivity->setScene(m_umlGraphicsSceneActivity);
 
 	m_umlGraphicsSceneClass = new UMLGraphicsScene(m_doc->classDiagram(), this);
-	connect(m_umlGraphicsSceneClass, SIGNAL(actionsEnabledChanged(bool, bool, bool)),
-		this, SLOT(slotActionsEnabledChanged(bool, bool, bool)));
+	connect(m_umlGraphicsSceneClass, SIGNAL(actionsEnabledChanged(bool, bool, bool, bool)),
+		this, SLOT(slotActionsEnabledChanged(bool, bool, bool, bool)));
 	connect(m_umlGraphicsSceneClass, SIGNAL(fillContextMenu(QMenu*)),
 		this, SLOT(slotFillContextMenu(QMenu*)));
 	m_ui->umlGraphicsViewClass->setScene(m_umlGraphicsSceneClass);
@@ -235,6 +236,7 @@ void MainWindow::slotTabSwitched()
 		m_ui->actionEditItem->setEnabled(m_activityEditEnabled);
 		m_ui->actionRenameItem->setEnabled(m_activityRenameEnabled);
 		m_ui->actionDeleteItem->setEnabled(m_activityDeleteEnabled);
+		m_ui->actionResetLabelPosition->setEnabled(m_activityResetLabelPositionEnabled);
 	}
 	else
 	{
@@ -249,16 +251,18 @@ void MainWindow::slotTabSwitched()
 		m_ui->actionEditItem->setEnabled(m_classEditEnabled);
 		m_ui->actionRenameItem->setEnabled(m_classRenameEnabled);
 		m_ui->actionDeleteItem->setEnabled(m_classDeleteEnabled);
+		m_ui->actionResetLabelPosition->setEnabled(false);
 	}
 }
 
-void MainWindow::slotActionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled)
+void MainWindow::slotActionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled, bool resetLabelPosEnabled)
 {
 	if (QObject::sender() == m_umlGraphicsSceneActivity)
 	{
 		m_activityEditEnabled = editEnabled;
 		m_activityRenameEnabled = renameEnabled;
 		m_activityDeleteEnabled = deleteEnabled;
+		m_activityResetLabelPositionEnabled = resetLabelPosEnabled;
 	}
 	else
 	{
@@ -292,6 +296,11 @@ void MainWindow::slotDeleteItem()
 		m_umlGraphicsSceneActivity->deleteSelectedItems(this);
 	else
 		m_umlGraphicsSceneClass->deleteSelectedItems(this);
+}
+
+void MainWindow::slotResetLabelPosition()
+{
+	m_umlGraphicsSceneActivity->resetLabelPosition();
 }
 
 void MainWindow::slotZoomIn()
@@ -336,6 +345,11 @@ void MainWindow::slotFillContextMenu(QMenu *menu)
 
 	if (m_ui->actionDeleteItem->isEnabled())
 		menu->addAction(m_ui->actionDeleteItem);
+
+	menu->addSeparator();
+
+	if (m_ui->actionResetLabelPosition->isEnabled())
+		menu->addAction(m_ui->actionResetLabelPosition);
 
 }
 

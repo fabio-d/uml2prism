@@ -36,11 +36,12 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		void renameSelectedItem(QWidget *requestingWidget);
 		void editSelectedItem(QWidget *requestingWidget);
 		void deleteSelectedItems(QWidget *requestingWidget);
+		void resetLabelPosition();
 
 	signals:
 		void sceneRectMayHaveChanged();
 		void edgeConstructionStateChanged(bool inProgress);
-		void actionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled);
+		void actionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled, bool resetLabelPosEnabled);
 		void fillContextMenu(QMenu *menu);
 		void undoCheckpointCreationRequest();
 
@@ -70,6 +71,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 
 		static bool canBeEdited(Core::UMLElement *element);
 		static bool canBeRenamed(Core::UMLElement *element);
+		static bool canResetLabelPos(Core::UMLElement *element);
 
 		// The UML diagram
 		Core::UMLDiagram *m_dia;

@@ -25,10 +25,15 @@ class GraphicsLabelItem : public QGraphicsSimpleTextItem
 
 		explicit GraphicsLabelItem(Options options, QGraphicsItem *parent = nullptr);
 
+		void resetPosition();
+		bool isAtInitialPosition() const;
+
 		void setText(const QString &text);
 		Options options() const;
 
 	private:
+		QPointF calcInitialPosition() const;
+
 		Options m_options;
 };
 

@@ -117,6 +117,8 @@
     <addaction name="actionEditItem"/>
     <addaction name="actionRenameItem"/>
     <addaction name="actionDeleteItem"/>
+    <addaction name="separator"/>
+    <addaction name="actionResetLabelPosition"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -457,6 +459,14 @@
     <string>F9</string>
    </property>
   </action>
+  <action name="actionResetLabelPosition">
+   <property name="text">
+    <string>Reset label position</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset &amp;label position</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -693,6 +703,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionResetLabelPosition</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slotResetLabelPosition()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>578</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>slotNew()</slot>
@@ -707,5 +733,6 @@
   <slot>slotZoomOut()</slot>
   <slot>slotZoomOriginal()</slot>
   <slot>slotZoomFit()</slot>
+  <slot>slotResetLabelPosition()</slot>
  </slots>
 </ui>
