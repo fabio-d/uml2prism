@@ -415,13 +415,16 @@ const QList<UMLGlobalVariables::GlobalVariable> &UMLGlobalVariables::globalVaria
 
 void UMLGlobalVariables::storeToXml(QDomElement &target, QDomDocument &doc) const
 {
+	QDomElement glbVarsElem = doc.createElement("global-variables");
+	target.appendChild(glbVarsElem);
+
 	foreach (const GlobalVariable &var, globalVariables())
 	{
 		QDomElement varElem = doc.createElement("variable");
 		QDomElement nameElem = doc.createElement("name");
 		QDomElement datatypeElem = doc.createElement("datatype");
 		QDomElement initValElem = doc.createElement("initial-value");
-		target.appendChild(varElem);
+		glbVarsElem.appendChild(varElem);
 		varElem.appendChild(nameElem);
 		varElem.appendChild(datatypeElem);
 		varElem.appendChild(initValElem);
@@ -434,8 +437,9 @@ void UMLGlobalVariables::storeToXml(QDomElement &target, QDomDocument &doc) cons
 
 bool UMLGlobalVariables::loadFromXml(const QDomElement &source)
 {
+	QDomElement glbVarsElem = source.firstChildElement("global-variables");
 	QList<GlobalVariable> values;
-	for (QDomElement varElem = source.firstChildElement();
+	for (QDomElement varElem = glbVarsElem.firstChildElement();
 		!varElem.isNull();
 		varElem = varElem.nextSiblingElement())
 	{
