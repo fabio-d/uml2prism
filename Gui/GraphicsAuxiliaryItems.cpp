@@ -11,6 +11,8 @@ static constexpr qreal MinLineShapeWidth = 10;
 
 const qreal DatatypeMargin = 7;
 
+const qreal CommentMargin = 17;
+
 namespace Gui
 {
 
@@ -269,6 +271,61 @@ void GraphicsDatatypeItem::relayout()
 	m_contents->setPos(
 		-longestWidth/2,
 		m_contents->pos().y());
+}
+
+GraphicsCommentItem::GraphicsCommentItem(QGraphicsItem *parent)
+: QGraphicsPolygonItem(parent)
+{
+	setBrush(Qt::white);
+	setZValue(-1);
+
+	m_contents = new QGraphicsSimpleTextItem(this);
+
+	QFont font = UMLGraphicsScene::sceneFont();
+	font.setFamily(QString());
+	font.setStyleHint(QFont::TypeWriter);
+	font.setPixelSize(font.pixelSize() / 2);
+	m_contents->setFont(font);
+
+	setText(QString());
+	setFlag(QGraphicsItem::ItemIsSelectable, true);
+	setFlag(QGraphicsItem::ItemIsMovable, true);
+}
+
+void GraphicsCommentItem::setText(const QString &text)
+{
+	m_contents->setText(text);
+	const QSizeF textSize = m_contents->boundingRect().size();
+	m_contents->setPos(-textSize.width() / 2, -textSize.height() / 2);
+	setShapeSize(QSizeF(
+		textSize.width() + 2*CommentMargin,
+		textSize.height() + 2*CommentMargin));
+}
+
+void GraphicsCommentItem::paint(QPainter *painter,
+	const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+	QGraphicsPolygonItem::paint(painter, option, widget);
+
+	painter->setPen(pen());
+
+	const QPolygonF p = QPolygonF()
+		<< QPointF(+m_shapeSize.width() / 2, -m_shapeSize.height() / 2 + CommentMargin)
+		<< QPointF(+m_shapeSize.width() / 2 - CommentMargin, -m_shapeSize.height() / 2 + CommentMargin)
+		<< QPointF(+m_shapeSize.width() / 2 - CommentMargin, -m_shapeSize.height() / 2);
+	painter->drawPolyline(p);
+}
+
+void GraphicsCommentItem::setShapeSize(const QSizeF &size)
+{
+	const QPolygonF p = QPolygonF()
+		<< QPointF(-size.width() / 2, -size.height() / 2)
+		<< QPointF(-size.width() / 2, +size.height() / 2)
+		<< QPointF(+size.width() / 2, +size.height() / 2)
+		<< QPointF(+size.width() / 2, -size.height() / 2 + CommentMargin)
+		<< QPointF(+size.width() / 2 - CommentMargin, -size.height() / 2);
+	m_shapeSize = size;
+	setPolygon(p);
 }
 
 }

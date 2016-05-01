@@ -588,6 +588,13 @@ void UMLGraphicsScene::notifyElementAdded(Core::UMLElement *element)
 	item->refresh();
 	addItem(item->qtItem());
 
+	UMLScriptedNodeElement *scriptedItem = dynamic_cast<UMLScriptedNodeElement*>(item);
+	if (scriptedItem != nullptr)
+	{
+		addItem(scriptedItem->scriptCommentItem());
+		addItem(scriptedItem->scriptEdgeItem());
+	}
+
 	scheduleUndoCheckpoint();
 	emit sceneRectMayHaveChanged();
 }
@@ -603,6 +610,14 @@ void UMLGraphicsScene::notifyElementChanged(Core::UMLElement *element)
 void UMLGraphicsScene::notifyElementRemoved(Core::UMLElement *element)
 {
 	UMLElement *item = UMLElement::lookup(element);
+
+	UMLScriptedNodeElement *scriptedItem = dynamic_cast<UMLScriptedNodeElement*>(item);
+	if (scriptedItem != nullptr)
+	{
+		removeItem(scriptedItem->scriptEdgeItem());
+		removeItem(scriptedItem->scriptCommentItem());
+	}
+
 	removeItem(item->qtItem());
 	delete item;
 

@@ -15,6 +15,9 @@
  *
  * Nodes may also have auxiliary child QGraphicsItem objects that are not
  * directly tracked by the Gui::UMLElement object.
+ *
+ * Core::UMLScriptedNodeElement are special: they also have an associated
+ * top-level GraphicsCommentItem and an associated top-level GraphicsEdgeItem.
  */
 
 namespace Core
@@ -31,6 +34,7 @@ class UMLForkJoinNode;
 class UMLGlobalVariables;
 class UMLInitialNode;
 class UMLNodeElement;
+class UMLScriptedNodeElement;
 class UMLSignalEdge;
 }
 
@@ -86,6 +90,7 @@ class UMLNodeElement : public UMLElement
 
 		void setLabelRelativePos(const QPointF &newPos);
 		QPointF labelRelativePos() const;
+		void setLabelText(const QString &text);
 		QSizeF labelSize() const;
 
 		void resetLabelPosition();
@@ -139,7 +144,36 @@ class UMLFinalNode : public UMLNodeElement
 		QGraphicsEllipseItem *m_qtItem;
 };
 
-class UMLActionNode : public UMLNodeElement
+class UMLScriptedNodeElement : public UMLNodeElement, protected GraphicsPositionChangeSpyItemWatcher
+{
+	public:
+		~UMLScriptedNodeElement() override;
+
+		void refresh() override;
+
+		QGraphicsItem *scriptCommentItem() const;
+		QGraphicsItem *scriptEdgeItem() const;
+
+		QPointF closestScriptOutlinePoint(const QPointF &p, bool *out_pIsInside);
+
+		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
+		bool loadFromXml(const QDomElement &source) override;
+
+	protected:
+		UMLScriptedNodeElement();
+
+		void bind(Core::UMLNodeElement *coreItem) = delete;
+		void bind(Core::UMLScriptedNodeElement *coreItem);
+
+	private:
+		void notifySpiedItemMoved() override;
+
+		Core::UMLScriptedNodeElement *m_coreItem;
+		GraphicsCommentItem *m_scriptCommentItem;
+		GraphicsEdgeItem *m_scriptEdgeItem;
+};
+
+class UMLActionNode : public UMLScriptedNodeElement
 {
 	public:
 		UMLActionNode();
@@ -154,7 +188,7 @@ class UMLActionNode : public UMLNodeElement
 		QGraphicsPathItem *m_qtItem;
 };
 
-class UMLDecisionMergeNode : public UMLNodeElement
+class UMLDecisionMergeNode : public UMLScriptedNodeElement
 {
 	public:
 		UMLDecisionMergeNode();

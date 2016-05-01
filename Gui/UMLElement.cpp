@@ -140,13 +140,7 @@ UMLNodeElement::UMLNodeElement()
 void UMLNodeElement::refresh()
 {
 	Q_ASSERT(m_coreItem != nullptr);
-
-	Core::UMLScriptedNodeElement *scriptedNodeElem = dynamic_cast<Core::UMLScriptedNodeElement*>(m_coreItem);
-
-	if (scriptedNodeElem == nullptr || !scriptedNodeElem->hasCustomScript())
-		m_labelItem->setText(m_coreItem->nodeName());
-	else
-		m_labelItem->setText(QString("%1*").arg(m_coreItem->nodeName()));
+	setLabelText(m_coreItem->nodeName());
 }
 
 void UMLNodeElement::bind(Core::UMLNodeElement *coreItem)
@@ -241,6 +235,11 @@ void UMLNodeElement::setLabelRelativePos(const QPointF &newPos)
 QPointF UMLNodeElement::labelRelativePos() const
 {
 	return m_labelItem->pos();
+}
+
+void UMLNodeElement::setLabelText(const QString &text)
+{
+	m_labelItem->setText(text);
 }
 
 QSizeF UMLNodeElement::labelSize() const
@@ -339,9 +338,117 @@ QPointF UMLFinalNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
 		p, out_pIsInside);
 }
 
+UMLScriptedNodeElement::UMLScriptedNodeElement()
+{
+	GraphicsPositionChangeSpyItem<GraphicsCommentItem> *commentItem =
+		new GraphicsPositionChangeSpyItem<GraphicsCommentItem>(this);
+	commentItem->setWatcher(this);
+
+	m_scriptCommentItem = commentItem;
+	m_scriptCommentItem->setData((int)GraphicsItemDataKey::UMLElementPtr,
+		QVariant::fromValue<void*>((UMLElement*)this));
+
+	m_scriptEdgeItem = new GraphicsEdgeItem();
+	m_scriptEdgeItem->setData((int)GraphicsItemDataKey::UMLElementPtr,
+		QVariant::fromValue<void*>((UMLElement*)this));
+	m_scriptEdgeItem->setFlag(QGraphicsItem::ItemIsMovable, false);
+	m_scriptEdgeItem->setPen(Qt::DashLine);;
+}
+
+UMLScriptedNodeElement::~UMLScriptedNodeElement()
+{
+	delete m_scriptEdgeItem;
+	delete m_scriptCommentItem;
+}
+
+void UMLScriptedNodeElement::refresh()
+{
+	Q_ASSERT(m_coreItem != nullptr);
+	if (!m_coreItem->hasCustomScript())
+	{
+		setLabelText(m_coreItem->nodeName());
+		m_scriptCommentItem->setVisible(false);
+		m_scriptEdgeItem->setVisible(false);
+	}
+	else
+	{
+		setLabelText(QString("%1*").arg(m_coreItem->nodeName()));
+		m_scriptCommentItem->setVisible(true);
+		m_scriptEdgeItem->setVisible(true);
+		m_scriptCommentItem->setText(m_coreItem->customScript().trimmed());
+
+		bool dummy;
+		const QPointF midP = (qtItem()->pos() + m_scriptCommentItem->pos()) / 2;
+		m_scriptEdgeItem->setPolyline(QPolygonF()
+			<< closestOutlinePoint(midP, &dummy)
+			<< closestScriptOutlinePoint(midP, &dummy));
+	}
+}
+
+QGraphicsItem *UMLScriptedNodeElement::scriptCommentItem() const
+{
+	return m_scriptCommentItem;
+}
+
+QGraphicsItem *UMLScriptedNodeElement::scriptEdgeItem() const
+{
+	return m_scriptEdgeItem;
+}
+
+QPointF UMLScriptedNodeElement::closestScriptOutlinePoint(const QPointF &p, bool *out_pIsInside)
+{
+	return rectClosestPoint(
+		m_scriptCommentItem->boundingRect().translated(m_scriptCommentItem->pos()),
+		p, out_pIsInside);
+}
+
+void UMLScriptedNodeElement::bind(Core::UMLScriptedNodeElement *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLNodeElement::bind(coreItem);
+}
+
+void UMLScriptedNodeElement::notifySpiedItemMoved()
+{
+	refresh();
+}
+
+void UMLScriptedNodeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	UMLNodeElement::storeToXml(target, doc); // store position
+
+	if (m_coreItem->hasCustomScript())
+	{
+		QDomElement scriptElem = doc.createElement("script");
+		target.appendChild(scriptElem);
+		QDomElement commentElem = doc.createElement("comment");
+		scriptElem.appendChild(commentElem);
+		commentElem.setAttribute("x", m_scriptCommentItem->pos().x());
+		commentElem.setAttribute("y", m_scriptCommentItem->pos().y());
+	}
+}
+
+bool UMLScriptedNodeElement::loadFromXml(const QDomElement &source)
+{
+	if (!UMLNodeElement::loadFromXml(source)) // load position
+		return false;
+
+	QDomElement scriptElem = source.firstChildElement("script");
+	QDomElement commentElem = scriptElem.firstChildElement("comment");
+	m_scriptCommentItem->setPos(QPointF(
+		commentElem.attribute("x").toDouble(),
+		commentElem.attribute("y").toDouble()));
+
+	return true;
+}
+
 UMLActionNode::UMLActionNode()
 {
-	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsPathItem>(this);
+	GraphicsPositionChangeSpyItem<QGraphicsPathItem> *actionItem =
+		new GraphicsPositionChangeSpyItem<QGraphicsPathItem>(this);
+	actionItem->setWatcher(this);
+
+	m_qtItem = actionItem;
 	m_qtItem->setBrush(Qt::white);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -354,7 +461,7 @@ UMLActionNode::UMLActionNode()
 void UMLActionNode::bind(Core::UMLActionNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLNodeElement::bind(coreItem);
+	UMLScriptedNodeElement::bind(coreItem);
 }
 
 QPointF UMLActionNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
@@ -379,7 +486,7 @@ QPointF UMLActionNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside
 
 void UMLActionNode::refresh()
 {
-	UMLNodeElement::refresh();
+	UMLScriptedNodeElement::refresh();
 	setRectPath(labelSize());
 }
 
@@ -399,8 +506,12 @@ void UMLActionNode::setRectPath(const QSizeF &size)
 
 UMLDecisionMergeNode::UMLDecisionMergeNode()
 {
-	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsPolygonItem>(this,
-		DecisionMergeNodeShape);
+	GraphicsPositionChangeSpyItem<QGraphicsPolygonItem> *decisionMergeItem =
+		new GraphicsPositionChangeSpyItem<QGraphicsPolygonItem>(this,
+			DecisionMergeNodeShape);
+	decisionMergeItem->setWatcher(this);
+
+	m_qtItem = decisionMergeItem;
 	m_qtItem->setBrush(Qt::white);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -411,7 +522,7 @@ UMLDecisionMergeNode::UMLDecisionMergeNode()
 void UMLDecisionMergeNode::bind(Core::UMLDecisionMergeNode *coreItem)
 {
 	m_coreItem = coreItem;
-	UMLNodeElement::bind(coreItem);
+	UMLScriptedNodeElement::bind(coreItem);
 }
 
 QPointF UMLDecisionMergeNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)

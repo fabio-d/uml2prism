@@ -39,17 +39,29 @@ class GraphicsLabelItem : public QGraphicsSimpleTextItem
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(GraphicsLabelItem::Options)
 
+class GraphicsPositionChangeSpyItemWatcher
+{
+	public:
+		virtual void notifySpiedItemMoved() = 0;
+};
+
 // QGraphicsItem decorator class that itercepts ItemPositionHasChanged events
-// and reports them to the UMLGraphicsScene object
+// and reports them to the UMLGraphicsScene object and, optionally, to a
+// GraphicsPositionChangeSpyItemWatcher object too
 template <class GraphicsItemType>
 class GraphicsPositionChangeSpyItem : public GraphicsItemType
 {
 	public:
 		template <typename ...Args>
 		explicit GraphicsPositionChangeSpyItem(UMLElement *watchedElement, Args&&... args) 
-		: GraphicsItemType(args...), watchedElement(watchedElement)
+		: GraphicsItemType(args...), m_watcher(nullptr), m_watchedElement(watchedElement)
 		{
 			GraphicsItemType::setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+		}
+
+		void setWatcher(GraphicsPositionChangeSpyItemWatcher *watcher)
+		{
+			m_watcher = watcher;
 		}
 
 	protected:
@@ -59,14 +71,18 @@ class GraphicsPositionChangeSpyItem : public GraphicsItemType
 			{
 				QGraphicsScene *sc = GraphicsItemType::scene();
 				if (sc != nullptr)
-					static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(watchedElement);
+					static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(m_watchedElement);
+
+				if (m_watcher != nullptr)
+					m_watcher->notifySpiedItemMoved();
 			}
 
 			return GraphicsItemType::itemChange(change, value);
 		}
 
 	private:
-		UMLElement *watchedElement;
+		GraphicsPositionChangeSpyItemWatcher *m_watcher;
+		UMLElement *m_watchedElement;
 };
 
 class GraphicsEdgeItem : public QGraphicsPathItem
@@ -136,6 +152,23 @@ class GraphicsDatatypeItem : public QGraphicsRectItem
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(GraphicsDatatypeItem::Options)
+
+class GraphicsCommentItem : public QGraphicsPolygonItem
+{
+	public:
+		GraphicsCommentItem(QGraphicsItem *parent = nullptr);
+
+		void setText(const QString &text);
+
+		void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
+			QWidget *widget = nullptr) override;
+
+	private:
+		void setShapeSize(const QSizeF &size);
+
+		QGraphicsSimpleTextItem *m_contents;
+		QSizeF m_shapeSize;
+};
 
 }
 
