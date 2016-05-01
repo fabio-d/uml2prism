@@ -30,6 +30,7 @@ class UMLGraphicsScene : public QGraphicsScene, private Core::GuiProxy
 		~UMLGraphicsScene();
 
 		static const QFont &sceneFont();
+		static const QFont &sceneCodeFont();
 
 		void notifyGeometryChanged(UMLElement *element);
 

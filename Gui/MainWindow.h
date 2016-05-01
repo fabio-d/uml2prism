@@ -36,6 +36,7 @@ class MainWindow : public QMainWindow
 		void slotOpen();
 		bool slotSave();
 		bool slotSaveAs();
+		void slotExportSvg();
 		void slotTabSwitched();
 		void slotActionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled, bool resetLabelPosEnabled);
 		void slotRenameItem();

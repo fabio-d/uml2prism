@@ -9,6 +9,7 @@
 #include <QCloseEvent>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QSvgGenerator>
 
 #include "ui_MainWindow.h"
 
@@ -219,6 +220,34 @@ bool MainWindow::slotSaveAs()
 
 	m_filename = selectedFileName;
 	return slotSave();
+}
+
+void MainWindow::slotExportSvg()
+{
+	const QString selectedFileName = QFileDialog::getSaveFileName(this,
+		"Export as SVG Image", m_filename, "SVG Image (*.svg)");
+
+	if (selectedFileName.isEmpty())
+		return;
+
+	QGraphicsScene *scene = (m_ui->centralTabWidget->currentIndex() == 0) ?
+		m_umlGraphicsSceneActivity : m_umlGraphicsSceneClass;
+	const QString title = (m_ui->centralTabWidget->currentIndex() == 0) ?
+		"Activity Diagram" : "Class Diagram";
+
+	QSvgGenerator svgGen;
+	svgGen.setFileName(selectedFileName);
+
+	const QRectF bndRect = scene->itemsBoundingRect()
+		.adjusted(-5, -5, 5, 5); // add margin
+	const QRect sceneRect = bndRect.toAlignedRect();
+	svgGen.setTitle(title);
+	svgGen.setSize(sceneRect.size());
+	svgGen.setViewBox(sceneRect);
+	svgGen.setResolution(192);
+
+	QPainter painter(&svgGen);
+	scene->render(&painter, bndRect, bndRect);
 }
 
 void MainWindow::slotTabSwitched()

@@ -47,7 +47,22 @@ const QFont &UMLGraphicsScene::sceneFont()
 	// All texts must be drawn using this font, because scene units must not
 	// depend on the current display's DPI. Note that what is called "pixel"
 	// here is actually one scene unit.
-	static QFont font = ({ QFont f = QApplication::font(); f.setPixelSize(27); f; });
+	static QFont font = ({
+		QFont f = QApplication::font();
+		f.setPixelSize(27);
+		f; });
+	return font;
+}
+
+const QFont &UMLGraphicsScene::sceneCodeFont()
+{
+	static QFont font = ({
+		QFont f = sceneFont();
+		f.setFamily(QString());
+		f.setStyleHint(QFont::TypeWriter);
+		f.setPixelSize(f.pixelSize() / 2);
+		f.setFamily(QFontInfo(f).family()); // QSvgGenerator needs a name
+		f; });
 	return font;
 }
 

@@ -280,12 +280,7 @@ GraphicsCommentItem::GraphicsCommentItem(QGraphicsItem *parent)
 	setZValue(-1);
 
 	m_contents = new QGraphicsSimpleTextItem(this);
-
-	QFont font = UMLGraphicsScene::sceneFont();
-	font.setFamily(QString());
-	font.setStyleHint(QFont::TypeWriter);
-	font.setPixelSize(font.pixelSize() / 2);
-	m_contents->setFont(font);
+	m_contents->setFont(UMLGraphicsScene::sceneCodeFont());
 
 	setText(QString());
 	setFlag(QGraphicsItem::ItemIsSelectable, true);

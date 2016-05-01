@@ -6,8 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt4 REQUIRED QtGui QtXml)
-#find_package(Qt5 REQUIRED Widgets)
+find_package(Qt4 REQUIRED QtGui QtXml QtSvg)
 
 add_definitions(-std=c++11 -Wall)
 
@@ -36,7 +35,6 @@ add_executable(UMLEditor
 	main.cpp
 )
 
-target_link_libraries(UMLEditor Qt4::QtGui Qt4::QtXml)
-#target_link_libraries(UMLEditor Qt5::Widgets)
+target_link_libraries(UMLEditor Qt4::QtGui Qt4::QtXml Qt4::QtSvg)
 
 install(TARGETS UMLEditor DESTINATION bin)
