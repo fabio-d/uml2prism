@@ -39,7 +39,7 @@ class GraphicsLabelItem : public QGraphicsSimpleTextItem
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(GraphicsLabelItem::Options)
 
-class GraphicsPositionChangeSpyItemWatcher
+class GraphicsPositionChangeSpyItemObserver
 {
 	public:
 		virtual void notifySpiedItemMoved() = 0;
@@ -47,21 +47,21 @@ class GraphicsPositionChangeSpyItemWatcher
 
 // QGraphicsItem decorator class that itercepts ItemPositionHasChanged events
 // and reports them to the UMLGraphicsScene object and, optionally, to a
-// GraphicsPositionChangeSpyItemWatcher object too
+// GraphicsPositionChangeSpyItemObserver object too
 template <class GraphicsItemType>
 class GraphicsPositionChangeSpyItem : public GraphicsItemType
 {
 	public:
 		template <typename ...Args>
-		explicit GraphicsPositionChangeSpyItem(UMLElement *watchedElement, Args&&... args) 
-		: GraphicsItemType(args...), m_watcher(nullptr), m_watchedElement(watchedElement)
+		explicit GraphicsPositionChangeSpyItem(UMLElement *observedElement, Args&&... args) 
+		: GraphicsItemType(args...), m_observer(nullptr), m_observedElement(observedElement)
 		{
 			GraphicsItemType::setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
 		}
 
-		void setWatcher(GraphicsPositionChangeSpyItemWatcher *watcher)
+		void setObserver(GraphicsPositionChangeSpyItemObserver *observer)
 		{
-			m_watcher = watcher;
+			m_observer = observer;
 		}
 
 	protected:
@@ -71,24 +71,24 @@ class GraphicsPositionChangeSpyItem : public GraphicsItemType
 			{
 				QGraphicsScene *sc = GraphicsItemType::scene();
 				if (sc != nullptr)
-					static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(m_watchedElement);
+					static_cast<UMLGraphicsScene*>(sc)->notifyGeometryChanged(m_observedElement);
 
-				if (m_watcher != nullptr)
-					m_watcher->notifySpiedItemMoved();
+				if (m_observer != nullptr)
+					m_observer->notifySpiedItemMoved();
 			}
 
 			return GraphicsItemType::itemChange(change, value);
 		}
 
 	private:
-		GraphicsPositionChangeSpyItemWatcher *m_watcher;
-		UMLElement *m_watchedElement;
+		GraphicsPositionChangeSpyItemObserver *m_observer;
+		UMLElement *m_observedElement;
 };
 
 class GraphicsEdgeItem : public QGraphicsPathItem
 {
 	public:
-		class MoveWatcher
+		class MoveObserver
 		{
 			public:
 				virtual void notifyEdgeMoved(const QPointF &delta) = 0;
@@ -100,7 +100,7 @@ class GraphicsEdgeItem : public QGraphicsPathItem
 		QPainterPath shape() const override;
 
 		QGraphicsItem *createPlaceholder(qreal atPercent);
-		void setWatcher(MoveWatcher *watcher);
+		void setObserver(MoveObserver *observer);
 
 		void setPolyline(const QPolygonF &polyline);
 
@@ -109,7 +109,7 @@ class GraphicsEdgeItem : public QGraphicsPathItem
 
 	private:
 		QMultiMap<qreal, QGraphicsItem*> m_placeholders;
-		MoveWatcher *m_watcher;
+		MoveObserver *m_observer;
 		QPointF m_lastKnownPos;
 };
 

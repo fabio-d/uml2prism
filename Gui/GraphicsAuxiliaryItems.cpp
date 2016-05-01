@@ -89,7 +89,7 @@ GraphicsLabelItem::Options GraphicsLabelItem::options() const
 }
 
 GraphicsEdgeItem::GraphicsEdgeItem(QGraphicsItem *parent)
-: QGraphicsPathItem(parent), m_watcher(nullptr), m_lastKnownPos(0, 0)
+: QGraphicsPathItem(parent), m_observer(nullptr), m_lastKnownPos(0, 0)
 {
 	setFlag(QGraphicsItem::ItemIsMovable, true);
 	setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
@@ -121,9 +121,9 @@ QGraphicsItem *GraphicsEdgeItem::createPlaceholder(qreal atPercent)
 	return ph;
 }
 
-void GraphicsEdgeItem::setWatcher(MoveWatcher *watcher)
+void GraphicsEdgeItem::setObserver(MoveObserver *observer)
 {
-	m_watcher = watcher;
+	m_observer = observer;
 }
 
 void GraphicsEdgeItem::setPolyline(const QPolygonF &polyline)
@@ -145,8 +145,8 @@ QVariant GraphicsEdgeItem::itemChange(GraphicsItemChange change, const QVariant 
 	{
 		const QPointF newPos = value.toPointF();
 
-		if (m_watcher != nullptr)
-			m_watcher->notifyEdgeMoved(newPos - m_lastKnownPos);
+		if (m_observer != nullptr)
+			m_observer->notifyEdgeMoved(newPos - m_lastKnownPos);
 
 		m_lastKnownPos = newPos;
 	}

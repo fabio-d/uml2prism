@@ -144,7 +144,7 @@ class UMLFinalNode : public UMLNodeElement
 		QGraphicsEllipseItem *m_qtItem;
 };
 
-class UMLScriptedNodeElement : public UMLNodeElement, protected GraphicsPositionChangeSpyItemWatcher
+class UMLScriptedNodeElement : public UMLNodeElement, protected GraphicsPositionChangeSpyItemObserver
 {
 	public:
 		~UMLScriptedNodeElement() override;
@@ -212,7 +212,7 @@ class UMLForkJoinNode : public UMLNodeElement
 		QGraphicsRectItem *m_qtItem;
 };
 
-class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveWatcher
+class UMLEdgeElement : public UMLElement, private GraphicsEdgeItem::MoveObserver
 {
 	public:
 		void setIntermediatePoints(const QPolygonF &intermediatePoints);

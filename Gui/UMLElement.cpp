@@ -342,7 +342,7 @@ UMLScriptedNodeElement::UMLScriptedNodeElement()
 {
 	GraphicsPositionChangeSpyItem<GraphicsCommentItem> *commentItem =
 		new GraphicsPositionChangeSpyItem<GraphicsCommentItem>(this);
-	commentItem->setWatcher(this);
+	commentItem->setObserver(this);
 
 	m_scriptCommentItem = commentItem;
 	m_scriptCommentItem->setData((int)GraphicsItemDataKey::UMLElementPtr,
@@ -446,7 +446,7 @@ UMLActionNode::UMLActionNode()
 {
 	GraphicsPositionChangeSpyItem<QGraphicsPathItem> *actionItem =
 		new GraphicsPositionChangeSpyItem<QGraphicsPathItem>(this);
-	actionItem->setWatcher(this);
+	actionItem->setObserver(this);
 
 	m_qtItem = actionItem;
 	m_qtItem->setBrush(Qt::white);
@@ -509,7 +509,7 @@ UMLDecisionMergeNode::UMLDecisionMergeNode()
 	GraphicsPositionChangeSpyItem<QGraphicsPolygonItem> *decisionMergeItem =
 		new GraphicsPositionChangeSpyItem<QGraphicsPolygonItem>(this,
 			DecisionMergeNodeShape);
-	decisionMergeItem->setWatcher(this);
+	decisionMergeItem->setObserver(this);
 
 	m_qtItem = decisionMergeItem;
 	m_qtItem->setBrush(Qt::white);
@@ -563,7 +563,7 @@ UMLEdgeElement::UMLEdgeElement(qreal labelAtPercent, bool dottedLine)
 {
 	m_qtItem = new GraphicsEdgeItem();
 	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
-	m_qtItem->setWatcher(this);
+	m_qtItem->setObserver(this);
 
 	m_labelItem = new GraphicsPositionChangeSpyItem<GraphicsLabelItem>(this,
 		GraphicsLabelItem::NoOptions, m_qtItem->createPlaceholder(labelAtPercent));
