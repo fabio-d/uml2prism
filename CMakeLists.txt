@@ -6,15 +6,30 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+find_package(BISON REQUIRED)
+find_package(FLEX REQUIRED)
 find_package(Qt4 REQUIRED QtGui QtXml QtSvg)
 
 add_definitions(-std=c++11 -Wall)
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Core/ScriptLanguage)
+bison_target(ScriptParser Core/ScriptLanguage/Parser.yy
+	${CMAKE_CURRENT_BINARY_DIR}/Core/ScriptLanguage/Parser.cpp)
+flex_target(ScriptLexer Core/ScriptLanguage/Lexer.l
+	${CMAKE_CURRENT_BINARY_DIR}/Core/ScriptLanguage/Lexer.cpp)
+add_flex_bison_dependency(ScriptLexer ScriptParser)
 
 add_executable(UMLEditor
 	Core/DatatypeName.cpp
 	Core/Document.cpp
 	Core/UMLDiagram.cpp
 	Core/UMLElement.cpp
+
+	Core/ScriptLanguage/SyntaxTree.cpp
+	Core/ScriptLanguage/SyntaxTreeGenerator.cpp
+	${BISON_ScriptParser_OUTPUTS}
+	${FLEX_ScriptLexer_OUTPUTS}
+
 	Gui/EditClassDialog.cpp
 	Gui/EditDatatypeNameWidget.cpp
 	Gui/EditEnumerationDialog.cpp

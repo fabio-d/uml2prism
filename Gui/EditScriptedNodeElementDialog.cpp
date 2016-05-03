@@ -2,7 +2,10 @@
 
 #include "Gui/IdentifierValidator.h"
 
+#include "Core/ScriptLanguage/SyntaxTreeGenerator.h"
 #include "Core/UMLElement.h"
+
+#include <QPushButton>
 
 #include "ui_EditScriptedNodeElementDialog.h"
 
@@ -40,6 +43,9 @@ EditScriptedNodeElementDialog::EditScriptedNodeElementDialog(Core::UMLScriptedNo
 	{
 		m_ui->customScriptGroupBox->setChecked(false);
 	}
+
+	QPushButton *parseButton = m_ui->buttonBox->addButton("Parse", QDialogButtonBox::ActionRole);
+	connect(parseButton, SIGNAL(clicked()), this, SLOT(slotParse()));
 }
 
 EditScriptedNodeElementDialog::~EditScriptedNodeElementDialog()
@@ -59,6 +65,13 @@ void EditScriptedNodeElementDialog::accept()
 	else
 		m_elem->unsetCustomScript();
 	QDialog::accept();
+}
+
+void EditScriptedNodeElementDialog::slotParse()
+{
+	const Core::ScriptLanguage::SyntaxTreeGenerator stgen(
+		m_ui->scriptTextEdit->toPlainText(),
+		Core::ScriptLanguage::SyntaxTreeGenerator::Action);
 }
 
 }
