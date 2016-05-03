@@ -17,7 +17,6 @@ class DatatypeName
 		{
 			Invalid,
 			Bool,
-			Integer,
 			Other,
 			Set
 		};
@@ -28,15 +27,11 @@ class DatatypeName
 		DatatypeName &operator=(const DatatypeName &other);
 
 		static DatatypeName makeBool();
-		static DatatypeName makeInteger(int rangeFrom, int rangeTo);
 		static DatatypeName makeOther(const QString &datatypeName);
 		static DatatypeName makeSet(const DatatypeName &innerDatatype);
 
 		Type type() const;
 		QString toString() const;
-
-		int integerRangeFrom() const;
-		int integerRangeTo() const;
 
 		QString datatypeName() const;
 
@@ -46,7 +41,6 @@ class DatatypeName
 
 	private:
 		Type m_type;
-		int m_rangeFrom, m_rangeTo;
 		QString m_datatypeName;
 		QScopedPointer<DatatypeName> m_innerDatatype;
 };

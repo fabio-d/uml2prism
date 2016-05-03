@@ -12,8 +12,6 @@ EditDatatypeNameWidget::EditDatatypeNameWidget(QWidget *parent)
 {
 	m_ui->setupUi(this);
 
-	m_ui->rangeFromLineEdit->setValidator(new QIntValidator(this));
-	m_ui->rangeToLineEdit->setValidator(new QIntValidator(this));
 	m_ui->otherComboBox->setValidator(new IdentifierValidator(this));
 }
 
@@ -44,10 +42,6 @@ void EditDatatypeNameWidget::setDatatypeName(const Core::DatatypeName &dt)
 	const Core::DatatypeName *datatype = isSet ? dt.innerDatatype() : &dt;
 
 	m_ui->setCheckBox->setChecked(isSet);
-	m_ui->rangeFromLineEdit->setText(QString());
-	m_ui->rangeFromLineEdit->setEnabled(false);
-	m_ui->rangeToLineEdit->setText(QString());
-	m_ui->rangeToLineEdit->setEnabled(false);
 	m_ui->otherComboBox->setEditText(QString());
 	m_ui->otherComboBox->setEnabled(false);
 
@@ -55,13 +49,6 @@ void EditDatatypeNameWidget::setDatatypeName(const Core::DatatypeName &dt)
 	{
 		case Core::DatatypeName::Bool:
 			m_ui->boolRadioButton->setChecked(true);
-			break;
-		case Core::DatatypeName::Integer:
-			m_ui->integerRadioButton->setChecked(true);
-			m_ui->rangeFromLineEdit->setText(QString::number(datatype->integerRangeFrom()));
-			m_ui->rangeFromLineEdit->setEnabled(true);
-			m_ui->rangeToLineEdit->setText(QString::number(datatype->integerRangeTo()));
-			m_ui->rangeToLineEdit->setEnabled(true);
 			break;
 		case Core::DatatypeName::Other:
 			m_ui->otherRadioButton->setChecked(true);
@@ -83,8 +70,6 @@ Core::DatatypeName EditDatatypeNameWidget::datatypeName() const
 {
 	const Core::DatatypeName res =
 		m_ui->boolRadioButton->isChecked() ? Core::DatatypeName::makeBool() :
-		m_ui->integerRadioButton->isChecked() ? Core::DatatypeName::makeInteger(
-			m_ui->rangeFromLineEdit->text().toInt(), m_ui->rangeToLineEdit->text().toInt()) :
 		Core::DatatypeName::makeOther(m_ui->otherComboBox->currentText());
 	return m_ui->setCheckBox->isChecked() ? Core::DatatypeName::makeSet(res) : res;
 }
@@ -93,12 +78,6 @@ void EditDatatypeNameWidget::slotSomethingChanged()
 {
 	if (m_ignoreEditSignals == false)
 		emit datatypeEdited();
-}
-
-void EditDatatypeNameWidget::slotIntegerRadioButtonToggled(bool checked)
-{
-	m_ui->rangeFromLineEdit->setEnabled(checked);
-	m_ui->rangeToLineEdit->setEnabled(checked);
 }
 
 void EditDatatypeNameWidget::slotOtherRadioButtonToggled(bool checked)

@@ -28,7 +28,6 @@ class EditDatatypeNameWidget : public QWidget
 
 	private slots:
 		void slotSomethingChanged();
-		void slotIntegerRadioButtonToggled(bool checked);
 		void slotOtherRadioButtonToggled(bool checked);
 
 	private:

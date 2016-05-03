@@ -23,100 +23,8 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <item row="1" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QRadioButton" name="boolRadioButton">
-       <property name="text">
-        <string>bool</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="2" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QRadioButton" name="integerRadioButton">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>integer</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string> range </string>
-       </property>
-       <property name="buddy">
-        <cstring>rangeFromLineEdit</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="rangeFromLineEdit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string> to </string>
-       </property>
-       <property name="buddy">
-        <cstring>rangeToLineEdit</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="rangeToLineEdit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="3" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <property name="spacing">
       <number>0</number>
      </property>
@@ -165,6 +73,20 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QRadioButton" name="boolRadioButton">
+       <property name="text">
+        <string>bool</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <resources/>
@@ -202,22 +124,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>integerRadioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>EditDatatypeNameWidget</receiver>
-   <slot>slotSomethingChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>77</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>205</x>
-     <y>82</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>otherRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>EditDatatypeNameWidget</receiver>
@@ -234,38 +140,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>rangeFromLineEdit</sender>
-   <signal>textEdited(QString)</signal>
-   <receiver>EditDatatypeNameWidget</receiver>
-   <slot>slotSomethingChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>269</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>205</x>
-     <y>82</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>rangeToLineEdit</sender>
-   <signal>textEdited(QString)</signal>
-   <receiver>EditDatatypeNameWidget</receiver>
-   <slot>slotSomethingChanged()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>378</x>
-     <y>95</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>205</x>
-     <y>82</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>otherComboBox</sender>
    <signal>editTextChanged(QString)</signal>
    <receiver>EditDatatypeNameWidget</receiver>
@@ -274,22 +148,6 @@
     <hint type="sourcelabel">
      <x>262</x>
      <y>142</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>205</x>
-     <y>82</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>integerRadioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>EditDatatypeNameWidget</receiver>
-   <slot>slotIntegerRadioButtonToggled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>77</x>
-     <y>95</y>
     </hint>
     <hint type="destinationlabel">
      <x>205</x>

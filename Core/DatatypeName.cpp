@@ -18,13 +18,6 @@ DatatypeName::DatatypeName(const QDomElement &fromXml)
 	{
 		m_type = Bool;
 	}
-	else if (typeStr == "integer")
-	{
-		QDomElement rangeElem = fromXml.firstChildElement("range");
-		m_type = Integer;
-		m_rangeFrom = rangeElem.attribute("from").toInt();
-		m_rangeTo = rangeElem.attribute("to").toInt();
-	}
 	else if (typeStr == "other")
 	{
 		m_type = Other;
@@ -49,8 +42,6 @@ DatatypeName::DatatypeName(const DatatypeName &other)
 DatatypeName &DatatypeName::operator=(const DatatypeName &other)
 {
 	m_type = other.m_type;
-	m_rangeFrom = other.m_rangeFrom;
-	m_rangeTo = other.m_rangeTo;
 	m_datatypeName = other.m_datatypeName;
 
 	if (!other.m_innerDatatype.isNull())
@@ -66,15 +57,6 @@ void DatatypeName::storeToXml(QDomElement &target, QDomDocument &doc) const
 		case Bool:
 		{
 			target.setAttribute("type", "bool");
-			break;
-		}
-		case Integer:
-		{
-			target.setAttribute("type", "integer");
-			QDomElement rangeElem = doc.createElement("range");
-			target.appendChild(rangeElem);
-			rangeElem.setAttribute("from", m_rangeFrom);
-			rangeElem.setAttribute("to", m_rangeTo);
 			break;
 		}
 		case Other:
@@ -105,15 +87,6 @@ DatatypeName DatatypeName::makeBool()
 	return res;
 }
 
-DatatypeName DatatypeName::makeInteger(int rangeFrom, int rangeTo)
-{
-	DatatypeName res;
-	res.m_type = Integer;
-	res.m_rangeFrom = rangeFrom;
-	res.m_rangeTo = rangeTo;
-	return res;
-}
-
 DatatypeName DatatypeName::makeOther(const QString &datatypeName)
 {
 	DatatypeName res;
@@ -141,8 +114,6 @@ QString DatatypeName::toString() const
 	{
 		case Bool:
 			return "bool";
-		case Integer:
-			return QString("integer range %1 to %2").arg(m_rangeFrom).arg(m_rangeTo);
 		case Other:
 			return m_datatypeName;
 		case Set:
@@ -151,16 +122,6 @@ QString DatatypeName::toString() const
 			qFatal("This should never happen");
 			return QString();
 	}
-}
-
-int DatatypeName::integerRangeFrom() const
-{
-	return m_rangeFrom;
-}
-
-int DatatypeName::integerRangeTo() const
-{
-	return m_rangeTo;
 }
 
 QString DatatypeName::datatypeName() const
