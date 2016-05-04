@@ -1,5 +1,8 @@
 #include "Core/ScriptLanguage/SyntaxTree.h"
 
+#include "Core/ScriptLanguage/SyntaxTreeGenerator.h"
+
+#include <QDebug>
 #include <QStringList>
 
 namespace Core
@@ -9,12 +12,31 @@ namespace ScriptLanguage
 namespace SyntaxTree
 {
 
-Expression::~Expression()
+GarbageCollectible::GarbageCollectible(SyntaxTreeGenerator *owner)
+: m_owner(owner)
+{
+	qDebug() << "ctor" << this;
+	m_owner->m_allNodes.insert(this);
+}
+
+GarbageCollectible::~GarbageCollectible()
+{
+	qDebug() << "dtor" << this;
+	m_owner->m_allNodes.remove(this);
+}
+
+Expression::Expression(SyntaxTreeGenerator *owner)
+: GarbageCollectible(owner)
 {
 }
 
-GlobalIdentifier::GlobalIdentifier(const QString &name)
-: m_name(name)
+Identifier::Identifier(SyntaxTreeGenerator *owner)
+: Expression(owner)
+{
+}
+
+GlobalIdentifier::GlobalIdentifier(SyntaxTreeGenerator *owner, const QString &name)
+: Identifier(owner), m_name(name)
 {
 }
 
@@ -23,8 +45,8 @@ QString GlobalIdentifier::toString() const
 	return QString("GlobalIdentifier(\"%1\")").arg(m_name);
 }
 
-MemberIdentifier::MemberIdentifier(Identifier *parent, const QString &name)
-: m_parent(parent), m_name(name)
+MemberIdentifier::MemberIdentifier(SyntaxTreeGenerator *owner, Identifier *parent, const QString &name)
+: Identifier(owner), m_parent(parent), m_name(name)
 {
 }
 
@@ -33,8 +55,8 @@ QString MemberIdentifier::toString() const
 	return QString("MemberIdentifier(%1, \"%2\")").arg(m_parent->toString()).arg(m_name);
 }
 
-BoolLiteral::BoolLiteral(bool value)
-: m_value(value)
+BoolLiteral::BoolLiteral(SyntaxTreeGenerator *owner, bool value)
+: Expression(owner), m_value(value)
 {
 }
 
@@ -43,8 +65,8 @@ QString BoolLiteral::toString() const
 	return QString("BoolLiteral(%1)").arg(m_value ? "true" : "false");
 }
 
-NotOperator::NotOperator(Expression *arg)
-: m_arg(arg)
+NotOperator::NotOperator(SyntaxTreeGenerator *owner, Expression *arg)
+: Expression(owner), m_arg(arg)
 {
 }
 
@@ -54,15 +76,9 @@ QString NotOperator::toString() const
 		.arg(m_arg->toString());
 }
 
-BinaryOperator::BinaryOperator(Operator op, Expression *arg1, Expression *arg2)
-: m_op(op), m_arg1(arg1), m_arg2(arg2)
+BinaryOperator::BinaryOperator(SyntaxTreeGenerator *owner, Operator op, Expression *arg1, Expression *arg2)
+: Expression(owner), m_op(op), m_arg1(arg1), m_arg2(arg2)
 {
-}
-
-BinaryOperator::~BinaryOperator()
-{
-	delete m_arg1;
-	delete m_arg2;
 }
 
 QString BinaryOperator::toString() const
@@ -91,13 +107,9 @@ QString BinaryOperator::toString() const
 		.arg(m_arg2->toString());
 }
 
-Tuple::Tuple()
+Tuple::Tuple(SyntaxTreeGenerator *owner)
+: Expression(owner)
 {
-}
-
-Tuple::~Tuple()
-{
-	qDeleteAll(m_elements);
 }
 
 void Tuple::appendElement(Expression *expr)
@@ -105,11 +117,9 @@ void Tuple::appendElement(Expression *expr)
 	m_elements.append(expr);
 }
 
-QList<Expression*> Tuple::takeElements()
+const QList<Expression*> &Tuple::elements() const
 {
-	QList<Expression*> res;
-	m_elements.swap(res);
-	return res;
+	return m_elements;
 }
 
 QString Tuple::toString() const
@@ -124,20 +134,14 @@ QString Tuple::toString() const
 	return QString("Tuple(%1)").arg(elementsStr.join(", "));
 }
 
-MethodCall::MethodCall(Identifier *method)
-: m_method(method)
+MethodCall::MethodCall(SyntaxTreeGenerator *owner, Identifier *method)
+: Expression(owner), m_method(method)
 {
 }
 
-MethodCall::MethodCall(Identifier *method, Tuple *args)
-: m_method(method), m_arguments(args->takeElements())
+MethodCall::MethodCall(SyntaxTreeGenerator *owner, Identifier *method, Tuple *args)
+: Expression(owner), m_method(method), m_arguments(args->elements())
 {
-	delete args;
-}
-
-MethodCall::~MethodCall()
-{
-	qDeleteAll(m_arguments);
 }
 
 QString MethodCall::toString() const

@@ -8,25 +8,44 @@ namespace Core
 {
 namespace ScriptLanguage
 {
+class SyntaxTreeGenerator;
+
 namespace SyntaxTree
 {
 
-class Expression
+class GarbageCollectible
 {
 	public:
-		virtual ~Expression();
+		virtual ~GarbageCollectible();
+
+	protected:
+		explicit GarbageCollectible(SyntaxTreeGenerator *owner);
+
+	private:
+		SyntaxTreeGenerator *m_owner;
+};
+
+class Expression : public GarbageCollectible
+{
+	public:
+		explicit Expression(SyntaxTreeGenerator *owner);
 
 		virtual QString toString() const = 0;
+
+	private:
+		SyntaxTreeGenerator *m_owner;
 };
 
 class Identifier : public Expression
 {
+	protected:
+		explicit Identifier(SyntaxTreeGenerator *owner);
 };
 
 class GlobalIdentifier : public Identifier
 {
 	public:
-		explicit GlobalIdentifier(const QString &name);
+		GlobalIdentifier(SyntaxTreeGenerator *owner, const QString &name);
 
 		QString toString() const override;
 
@@ -37,7 +56,7 @@ class GlobalIdentifier : public Identifier
 class MemberIdentifier : public Identifier
 {
 	public:
-		MemberIdentifier(Identifier *parent, const QString &name);
+		MemberIdentifier(SyntaxTreeGenerator *owner, Identifier *parent, const QString &name);
 
 		QString toString() const override;
 
@@ -49,7 +68,7 @@ class MemberIdentifier : public Identifier
 class BoolLiteral : public Expression
 {
 	public:
-		explicit BoolLiteral(bool value);
+		BoolLiteral(SyntaxTreeGenerator *owner, bool value);
 
 		QString toString() const override;
 
@@ -60,7 +79,7 @@ class BoolLiteral : public Expression
 class NotOperator : public Expression
 {
 	public:
-		NotOperator(Expression *arg);
+		NotOperator(SyntaxTreeGenerator *owner, Expression *arg);
 
 		QString toString() const override;
 
@@ -79,8 +98,7 @@ class BinaryOperator : public Expression
 			Or
 		};
 
-		BinaryOperator(Operator op, Expression *arg1, Expression *arg2);
-		~BinaryOperator() override;
+		BinaryOperator(SyntaxTreeGenerator *owner, Operator op, Expression *arg1, Expression *arg2);
 
 		QString toString() const override;
 
@@ -92,11 +110,10 @@ class BinaryOperator : public Expression
 class Tuple : public Expression
 {
 	public:
-		Tuple(); // Empty tuple
-		~Tuple() override;
+		explicit Tuple(SyntaxTreeGenerator *owner); // Empty tuple
 
 		void appendElement(Expression *expr);
-		QList<Expression*> takeElements();
+		const QList<Expression*> &elements() const;
 
 		QString toString() const override;
 
@@ -107,9 +124,8 @@ class Tuple : public Expression
 class MethodCall : public Expression
 {
 	public:
-		explicit MethodCall(Identifier *method); // no args
-		MethodCall(Identifier *method, Tuple *args);
-		~MethodCall() override;
+		MethodCall(SyntaxTreeGenerator *owner, Identifier *method); // no args
+		MethodCall(SyntaxTreeGenerator *owner, Identifier *method, Tuple *args);
 
 		QString toString() const override;
 

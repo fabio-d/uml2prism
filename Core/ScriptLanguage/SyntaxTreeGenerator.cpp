@@ -35,6 +35,27 @@ SyntaxTreeGenerator::SyntaxTreeGenerator(const QString &sourceCode, SourceType t
 		setError(1, 1, "Unknown error");
 }
 
+SyntaxTreeGenerator::~SyntaxTreeGenerator()
+{
+	while (m_allNodes.isEmpty() == false)
+	{
+		SyntaxTree::GarbageCollectible *gcNode = *m_allNodes.begin();
+		qDebug() << "GCing" << gcNode;
+		m_allNodes.remove(gcNode);
+		delete gcNode;
+	}
+}
+
+SyntaxTree::Expression *SyntaxTreeGenerator::takeResultScript()
+{
+	return nullptr; // TODO
+}
+
+SyntaxTree::Expression *SyntaxTreeGenerator::takeResultValue()
+{
+	return nullptr; // TODO
+}
+
 void SyntaxTreeGenerator::setError(int line, int column, const QString &message)
 {
 	// setError must not be called more than once

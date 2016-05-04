@@ -3,6 +3,7 @@
 
 #include "Core/ScriptLanguage/SyntaxTree.h"
 
+#include <QSet>
 #include <QString>
 
 namespace Core
@@ -12,6 +13,7 @@ namespace ScriptLanguage
 
 class SyntaxTreeGenerator
 {
+	friend class SyntaxTree::GarbageCollectible;
 	friend class Parser;
 
 	public:
@@ -22,6 +24,10 @@ class SyntaxTreeGenerator
 		};
 
 		SyntaxTreeGenerator(const QString &sourceCode, SourceType type);
+		~SyntaxTreeGenerator();
+
+		SyntaxTree::Expression *takeResultScript();
+		SyntaxTree::Expression *takeResultValue();
 
 	private:
 		void setError(int line, int column, const QString &message);
@@ -34,6 +40,8 @@ class SyntaxTreeGenerator
 
 		SyntaxTree::Expression *m_resultScript;
 		SyntaxTree::Expression *m_resultValue;
+
+		QSet<SyntaxTree::GarbageCollectible*> m_allNodes;
 };
 
 }
