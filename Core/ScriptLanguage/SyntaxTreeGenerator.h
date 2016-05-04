@@ -30,12 +30,12 @@ class SyntaxTreeGenerator
 		SyntaxTree::Expression *takeResultValue();
 
 	private:
-		void setError(int line, int column, const QString &message);
+		void setError(const SourceLocation &location, const QString &message);
 		void setResultScript(SyntaxTree::Expression *expr);
 		void setResultValue(SyntaxTree::Expression *expr);
 
 		bool m_success;
-		int m_errorLine, m_errorColumn;
+		SourceLocation m_errorLocation;
 		QString m_errorMessage;
 
 		SyntaxTree::Expression *m_resultScript;

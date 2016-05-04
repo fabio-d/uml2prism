@@ -32,7 +32,7 @@ SyntaxTreeGenerator::SyntaxTreeGenerator(const QString &sourceCode, SourceType t
 	Parser parser(lexer, this);
 	//parser.set_debug_level(true);
 	if (parser.parse() != 0 && m_success)
-		setError(1, 1, "Unknown error");
+		setError(SourceLocation(), "Unknown error");
 }
 
 SyntaxTreeGenerator::~SyntaxTreeGenerator()
@@ -56,17 +56,16 @@ SyntaxTree::Expression *SyntaxTreeGenerator::takeResultValue()
 	return nullptr; // TODO
 }
 
-void SyntaxTreeGenerator::setError(int line, int column, const QString &message)
+void SyntaxTreeGenerator::setError(const SourceLocation &location, const QString &message)
 {
 	// setError must not be called more than once
 	Q_ASSERT(m_success == true);
 
-	m_errorLine = line;
-	m_errorColumn = column;
+	m_errorLocation = location;
 	m_errorMessage = message;
 	m_success = false;
 
-	qDebug() << "SyntaxTreeGenerator failed at line" << line << "column" << column << ":" << message;
+	qDebug() << "SyntaxTreeGenerator failed at" << location.toString() << ":" << message;
 }
 
 void SyntaxTreeGenerator::setResultScript(SyntaxTree::Expression *expr)

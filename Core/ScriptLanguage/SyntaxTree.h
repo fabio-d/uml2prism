@@ -1,6 +1,8 @@
 #ifndef CORE_SCRIPTLANGUAGE_SYNTAXTREE_H
 #define CORE_SCRIPTLANGUAGE_SYNTAXTREE_H
 
+#include "Core/ScriptLanguage/SourceLocation.h"
+
 #include <QList>
 #include <QString>
 
@@ -18,17 +20,20 @@ class GarbageCollectible
 	public:
 		virtual ~GarbageCollectible();
 
+		const SourceLocation &location() const;
+
 	protected:
-		explicit GarbageCollectible(SyntaxTreeGenerator *owner);
+		GarbageCollectible(SyntaxTreeGenerator *owner, const SourceLocation &location);
 
 	private:
 		SyntaxTreeGenerator *m_owner;
+		SourceLocation m_location;
 };
 
 class Expression : public GarbageCollectible
 {
 	public:
-		explicit Expression(SyntaxTreeGenerator *owner);
+		Expression(SyntaxTreeGenerator *owner, const SourceLocation &location);
 
 		virtual QString toString() const = 0;
 
@@ -39,13 +44,13 @@ class Expression : public GarbageCollectible
 class Identifier : public Expression
 {
 	protected:
-		explicit Identifier(SyntaxTreeGenerator *owner);
+		Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location);
 };
 
 class GlobalIdentifier : public Identifier
 {
 	public:
-		GlobalIdentifier(SyntaxTreeGenerator *owner, const QString &name);
+		GlobalIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &name);
 
 		QString toString() const override;
 
@@ -56,19 +61,19 @@ class GlobalIdentifier : public Identifier
 class MemberIdentifier : public Identifier
 {
 	public:
-		MemberIdentifier(SyntaxTreeGenerator *owner, Identifier *parent, const QString &name);
+		MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *container, const QString &name);
 
 		QString toString() const override;
 
 	private:
-		Identifier *m_parent;
+		Identifier *m_container;
 		QString m_name;
 };
 
 class BoolLiteral : public Expression
 {
 	public:
-		BoolLiteral(SyntaxTreeGenerator *owner, bool value);
+		BoolLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location, bool value);
 
 		QString toString() const override;
 
@@ -79,7 +84,7 @@ class BoolLiteral : public Expression
 class NotOperator : public Expression
 {
 	public:
-		NotOperator(SyntaxTreeGenerator *owner, Expression *arg);
+		NotOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *arg);
 
 		QString toString() const override;
 
@@ -98,7 +103,7 @@ class BinaryOperator : public Expression
 			Or
 		};
 
-		BinaryOperator(SyntaxTreeGenerator *owner, Operator op, Expression *arg1, Expression *arg2);
+		BinaryOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Operator op, Expression *arg1, Expression *arg2);
 
 		QString toString() const override;
 
@@ -110,7 +115,7 @@ class BinaryOperator : public Expression
 class Tuple : public Expression
 {
 	public:
-		explicit Tuple(SyntaxTreeGenerator *owner); // Empty tuple
+		Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location); // Empty tuple
 
 		void appendElement(Expression *expr);
 		const QList<Expression*> &elements() const;
@@ -124,8 +129,8 @@ class Tuple : public Expression
 class MethodCall : public Expression
 {
 	public:
-		MethodCall(SyntaxTreeGenerator *owner, Identifier *method); // no args
-		MethodCall(SyntaxTreeGenerator *owner, Identifier *method, Tuple *args);
+		MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method); // no args
+		MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, Tuple *args);
 
 		QString toString() const override;
 

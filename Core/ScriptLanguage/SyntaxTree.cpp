@@ -12,10 +12,10 @@ namespace ScriptLanguage
 namespace SyntaxTree
 {
 
-GarbageCollectible::GarbageCollectible(SyntaxTreeGenerator *owner)
-: m_owner(owner)
+GarbageCollectible::GarbageCollectible(SyntaxTreeGenerator *owner, const SourceLocation &location)
+: m_owner(owner), m_location(location)
 {
-	qDebug() << "ctor" << this;
+	qDebug() << "ctor" << this << m_location.toString();
 	m_owner->m_allNodes.insert(this);
 }
 
@@ -25,18 +25,23 @@ GarbageCollectible::~GarbageCollectible()
 	m_owner->m_allNodes.remove(this);
 }
 
-Expression::Expression(SyntaxTreeGenerator *owner)
-: GarbageCollectible(owner)
+const SourceLocation &GarbageCollectible::location() const
+{
+	return m_location;
+}
+
+Expression::Expression(SyntaxTreeGenerator *owner, const SourceLocation &location)
+: GarbageCollectible(owner, location)
 {
 }
 
-Identifier::Identifier(SyntaxTreeGenerator *owner)
-: Expression(owner)
+Identifier::Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location)
+: Expression(owner, location)
 {
 }
 
-GlobalIdentifier::GlobalIdentifier(SyntaxTreeGenerator *owner, const QString &name)
-: Identifier(owner), m_name(name)
+GlobalIdentifier::GlobalIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &name)
+: Identifier(owner, location), m_name(name)
 {
 }
 
@@ -45,18 +50,18 @@ QString GlobalIdentifier::toString() const
 	return QString("GlobalIdentifier(\"%1\")").arg(m_name);
 }
 
-MemberIdentifier::MemberIdentifier(SyntaxTreeGenerator *owner, Identifier *parent, const QString &name)
-: Identifier(owner), m_parent(parent), m_name(name)
+MemberIdentifier::MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *container, const QString &name)
+: Identifier(owner, location), m_container(container), m_name(name)
 {
 }
 
 QString MemberIdentifier::toString() const
 {
-	return QString("MemberIdentifier(%1, \"%2\")").arg(m_parent->toString()).arg(m_name);
+	return QString("MemberIdentifier(%1, \"%2\")").arg(m_container->toString()).arg(m_name);
 }
 
-BoolLiteral::BoolLiteral(SyntaxTreeGenerator *owner, bool value)
-: Expression(owner), m_value(value)
+BoolLiteral::BoolLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location, bool value)
+: Expression(owner, location), m_value(value)
 {
 }
 
@@ -65,8 +70,8 @@ QString BoolLiteral::toString() const
 	return QString("BoolLiteral(%1)").arg(m_value ? "true" : "false");
 }
 
-NotOperator::NotOperator(SyntaxTreeGenerator *owner, Expression *arg)
-: Expression(owner), m_arg(arg)
+NotOperator::NotOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *arg)
+: Expression(owner, location), m_arg(arg)
 {
 }
 
@@ -76,8 +81,8 @@ QString NotOperator::toString() const
 		.arg(m_arg->toString());
 }
 
-BinaryOperator::BinaryOperator(SyntaxTreeGenerator *owner, Operator op, Expression *arg1, Expression *arg2)
-: Expression(owner), m_op(op), m_arg1(arg1), m_arg2(arg2)
+BinaryOperator::BinaryOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Operator op, Expression *arg1, Expression *arg2)
+: Expression(owner, location), m_op(op), m_arg1(arg1), m_arg2(arg2)
 {
 }
 
@@ -107,8 +112,8 @@ QString BinaryOperator::toString() const
 		.arg(m_arg2->toString());
 }
 
-Tuple::Tuple(SyntaxTreeGenerator *owner)
-: Expression(owner)
+Tuple::Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location)
+: Expression(owner, location)
 {
 }
 
@@ -134,13 +139,13 @@ QString Tuple::toString() const
 	return QString("Tuple(%1)").arg(elementsStr.join(", "));
 }
 
-MethodCall::MethodCall(SyntaxTreeGenerator *owner, Identifier *method)
-: Expression(owner), m_method(method)
+MethodCall::MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method)
+: Expression(owner, location), m_method(method)
 {
 }
 
-MethodCall::MethodCall(SyntaxTreeGenerator *owner, Identifier *method, Tuple *args)
-: Expression(owner), m_method(method), m_arguments(args->elements())
+MethodCall::MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, Tuple *args)
+: Expression(owner, location), m_method(method), m_arguments(args->elements())
 {
 }
 

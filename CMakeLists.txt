@@ -25,6 +25,7 @@ add_executable(UMLEditor
 	Core/UMLDiagram.cpp
 	Core/UMLElement.cpp
 
+	Core/ScriptLanguage/SourceLocation.cpp
 	Core/ScriptLanguage/SyntaxTree.cpp
 	Core/ScriptLanguage/SyntaxTreeGenerator.cpp
 	${BISON_ScriptParser_OUTPUTS}
