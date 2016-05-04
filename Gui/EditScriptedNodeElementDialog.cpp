@@ -71,7 +71,7 @@ void EditScriptedNodeElementDialog::slotParse()
 {
 	const Core::ScriptLanguage::SyntaxTreeGenerator stgen(
 		m_ui->scriptTextEdit->toPlainText(),
-		Core::ScriptLanguage::SyntaxTreeGenerator::Action);
+		Core::ScriptLanguage::SyntaxTreeGenerator::Script);
 }
 
 }

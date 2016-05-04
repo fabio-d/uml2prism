@@ -14,6 +14,12 @@ typedef Core::ScriptLanguage::Parser::token token;
 #define YY_USER_ACTION \
 	loc->step(); \
 	loc->columns(yyleng);
+
+void Core::ScriptLanguage::Lexer::injectToken(int token)
+{
+	m_tokenToInjectIsPresent = true;
+	m_tokenToInject = token;
+}
 %}
 
 %option c++
@@ -29,6 +35,14 @@ branchn	\"({alpha}|{digit}|_)*\"
 ws	[ \t]+
 
 %%
+
+%{
+	if (m_tokenToInjectIsPresent)
+	{
+		m_tokenToInjectIsPresent = false;
+		return m_tokenToInject;
+	}
+%}
 
 true	{
 		yylval->build<bool>(true);

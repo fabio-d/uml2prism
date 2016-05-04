@@ -23,8 +23,14 @@ class Lexer : public ScriptLanguageFlexLexer
 		{
 		}
 
+		void injectToken(int token);
+
 		int yylex(Parser::semantic_type *const lval,
 			  Parser::location_type *location);
+
+	private:
+		bool m_tokenToInjectIsPresent;
+		int m_tokenToInject;
 };
 
 }

@@ -13,10 +13,21 @@ namespace ScriptLanguage
 {
 
 SyntaxTreeGenerator::SyntaxTreeGenerator(const QString &sourceCode, SourceType type)
-: m_success(true)
+: m_success(true), m_resultScript(nullptr), m_resultValue(nullptr)
 {
 	std::istringstream is(sourceCode.toStdString());
 	Lexer lexer(&is);
+
+	// Select start symbol
+	switch (type)
+	{
+		case Script:
+			lexer.injectToken(Core::ScriptLanguage::Parser::token::START_SCRIPT);
+			break;
+		case Value:
+			lexer.injectToken(Core::ScriptLanguage::Parser::token::START_VALUE);
+			break;
+	}
 
 	Parser parser(lexer, this);
 	//parser.set_debug_level(true);
@@ -26,7 +37,7 @@ SyntaxTreeGenerator::SyntaxTreeGenerator(const QString &sourceCode, SourceType t
 
 void SyntaxTreeGenerator::setError(int line, int column, const QString &message)
 {
-	// setError should not be called more than once
+	// setError must not be called more than once
 	Q_ASSERT(m_success == true);
 
 	m_errorLine = line;
@@ -37,9 +48,19 @@ void SyntaxTreeGenerator::setError(int line, int column, const QString &message)
 	qDebug() << "SyntaxTreeGenerator failed at line" << line << "column" << column << ":" << message;
 }
 
-void SyntaxTreeGenerator::setResult(SyntaxTree::Expression *expr)
+void SyntaxTreeGenerator::setResultScript(SyntaxTree::Expression *expr)
 {
-	qDebug() << "Got result:" << expr->toString().toLatin1().constData();
+	// setError must not have been called
+	Q_ASSERT(m_success == true);
+
+	qDebug() << "Got resultScript:" << expr->toString().toLatin1().constData();
+	m_resultScript = expr;
+}
+
+void SyntaxTreeGenerator::setResultValue(SyntaxTree::Expression *expr)
+{
+	qDebug() << "Got resultValue:" << expr->toString().toLatin1().constData();
+	m_resultValue = expr;
 }
 
 }

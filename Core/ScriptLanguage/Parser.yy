@@ -51,6 +51,10 @@
 %token		<std::string> IDENTIFIER_SEGMENT
 %token		<bool> BOOL_LITERAL
 
+// Dummy tokens to select start symbol
+%token		START_SCRIPT
+%token		START_VALUE
+
 %type		<SyntaxTree::Identifier*> ident
 %type		<SyntaxTree::Tuple*> expr-list
 %type		<SyntaxTree::Expression*> expr
@@ -58,7 +62,8 @@
 %%
 
 input:
-  expr				{ owner->setResult($1); }
+  START_SCRIPT expr		{ owner->setResultScript($2); }
+| START_VALUE expr		{ owner->setResultValue($2); }
 ;
 
 ident:

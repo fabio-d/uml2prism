@@ -17,19 +17,23 @@ class SyntaxTreeGenerator
 	public:
 		enum SourceType
 		{
-			Action,
-			Expression
+			Script,		// a script (to define nodes' behaviors)
+			Value		// a value (to initialize global variales)
 		};
 
 		SyntaxTreeGenerator(const QString &sourceCode, SourceType type);
 
 	private:
 		void setError(int line, int column, const QString &message);
-		void setResult(SyntaxTree::Expression *expr);
+		void setResultScript(SyntaxTree::Expression *expr);
+		void setResultValue(SyntaxTree::Expression *expr);
 
 		bool m_success;
 		int m_errorLine, m_errorColumn;
 		QString m_errorMessage;
+
+		SyntaxTree::Expression *m_resultScript;
+		SyntaxTree::Expression *m_resultValue;
 };
 
 }
