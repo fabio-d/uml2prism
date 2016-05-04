@@ -22,6 +22,7 @@
 
 	namespace SyntaxTree
 	{
+	class GlobalIdentifier;
 	class Identifier;
 	class Expression;
 	class MethodCall;
@@ -73,7 +74,10 @@
 %token		START_VALUE
 
 %type		<SyntaxTree::Identifier*> ident
+%type		<SyntaxTree::Expression*> literal
+%type		<SyntaxTree::GlobalIdentifier*> signal
 %type		<SyntaxTree::MethodCall*> method-call
+%type		<SyntaxTree::Tuple*> tuple
 %type		<QList<SyntaxTree::Expression*>> expr-list
 %type		<SyntaxTree::Expression*> expr
 %type		<QList<SyntaxTree::Statement*>> stmt-list
@@ -92,9 +96,22 @@ ident:
 | ident '.' IDENTIFIER_SEGMENT	{ $$ = new SyntaxTree::MemberIdentifier(STDARGS, $1, QString::fromStdString($3)); }
 ;
 
+literal:
+  BOOL_LITERAL			{ $$ = new SyntaxTree::BoolLiteral(STDARGS, $1); }
+;
+
+signal:
+  IDENTIFIER_SEGMENT		{ $$ = new SyntaxTree::GlobalIdentifier(STDARGS, QString::fromStdString($1)); }
+;
+
 method-call:
   ident '(' ')'			{ $$ = new SyntaxTree::MethodCall(STDARGS, $1); }
 | ident '(' expr-list ')'	{ $$ = new SyntaxTree::MethodCall(STDARGS, $1, $3); }
+;
+
+tuple:
+  '{' '}'			{ $$ = new SyntaxTree::Tuple(STDARGS); }
+| '{' expr-list '}'		{ $$ = new SyntaxTree::Tuple(STDARGS, $2); }
 ;
 
 expr-list:
@@ -103,8 +120,8 @@ expr-list:
 ;
 
 expr:
-  BOOL_LITERAL			{ $$ = new SyntaxTree::BoolLiteral(STDARGS, $1); }
-| ident				{ $$ = $1; }
+  ident				{ $$ = $1; }
+| literal			{ $$ = $1; }
 | method-call			{ $$ = $1; }
 | '!' expr			{ $$ = new SyntaxTree::NotOperator(STDARGS, $2); }
 | expr EQUAL_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Equal, $1, $3); }
@@ -112,8 +129,7 @@ expr:
 | expr AND_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::And, $1, $3); }
 | expr OR_OPERATOR expr		{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Or, $1, $3); }
 | '(' expr ')'			{ $$ = $2; }
-| '{' '}'			{ $$ = new SyntaxTree::Tuple(STDARGS); }
-| '{' expr-list '}'		{ $$ = new SyntaxTree::Tuple(STDARGS, $2); }
+| tuple				{ $$ = $1; }
 ;
 
 stmt-list:
@@ -123,7 +139,13 @@ stmt-list:
 
 stmt:
   ';'				{ $$ = new SyntaxTree::CompoundStatement(STDARGS); }
+| ident '=' expr ';'		{ $$ = new SyntaxTree::Assignment(STDARGS, $1, $3); }
 | method-call ';'		{ $$ = $1; }
+| signal '!' ';'		{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1); }
+| signal '!' ident ';'		{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1, $3); }
+| signal '!' literal ';'	{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1, $3); }
+| signal '!' tuple ';' 		{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1, $3); }
+| signal '!' '(' expr ')' ';'	{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1, $4); }
 | '{' '}'			{ $$ = new SyntaxTree::CompoundStatement(STDARGS); }
 | '{' stmt-list '}'		{ $$ = new SyntaxTree::CompoundStatement(STDARGS, $2); }
 ;

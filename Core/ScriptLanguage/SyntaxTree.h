@@ -153,6 +153,30 @@ class MethodCall : public Expression, public Statement
 		QList<Expression*> m_arguments;
 };
 
+class Assignment : public Statement
+{
+	public:
+		Assignment(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *dest, Expression *value);
+
+		QString toString() const override;
+
+	private:
+		Identifier *m_dest;
+		Expression *m_value;
+};
+
+class SignalEmission : public Statement
+{
+	public:
+		SignalEmission(SyntaxTreeGenerator *owner, const SourceLocation &location, GlobalIdentifier *signal, Expression *value = nullptr);
+
+		QString toString() const override;
+
+	private:
+		GlobalIdentifier *m_signal;
+		Expression *m_value;
+};
+
 }
 }
 }

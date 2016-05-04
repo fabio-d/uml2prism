@@ -181,6 +181,29 @@ QString MethodCall::toString() const
 	return QString("MethodCall(%1)").arg(elementsStr.join(", "));
 }
 
+Assignment::Assignment(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *dest, Expression *value)
+: Statement(owner, location), m_dest(dest), m_value(value)
+{
+}
+
+QString Assignment::toString() const
+{
+	return QString("Assignment(%1, %2)").arg(m_dest->toString()).arg(m_value->toString());
+}
+
+SignalEmission::SignalEmission(SyntaxTreeGenerator *owner, const SourceLocation &location, GlobalIdentifier *signal, Expression *value)
+: Statement(owner, location), m_signal(signal), m_value(value)
+{
+}
+
+QString SignalEmission::toString() const
+{
+	if (m_value == nullptr)
+		return QString("SignalEmission(%1)").arg(m_signal->toString());
+	else
+		return QString("SignalEmission(%1, %2)").arg(m_signal->toString()).arg(m_value->toString());
+}
+
 }
 }
 }
