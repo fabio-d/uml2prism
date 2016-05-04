@@ -25,22 +25,46 @@ typedef Core::ScriptLanguage::Parser::token token;
 alpha	[A-Za-z]
 digit	[0-9]
 identn	({alpha}|_)({alpha}|{digit}|_)*
-number	[-+]?{digit}+
 branchn	\"({alpha}|{digit}|_)*\"
 ws	[ \t]+
 
 %%
 
-[0-9]+	{
-		yylval->build<int>(atoi(yytext));
-		return token::NUM;
+true	{
+		yylval->build<bool>(true);
+		return token::BOOL_LITERAL;
+	}
+
+false	{
+		yylval->build<bool>(false);
+		return token::BOOL_LITERAL;
+	}
+
+{identn} {
+		yylval->build<std::string>(yytext);
+		return token::IDENTIFIER_SEGMENT;
+	}
+
+==	{
+		return token::EQUAL_OPERATOR;
+	}
+
+!=	{
+		return token::NOT_EQUAL_OPERATOR;
+	}
+
+&&	{
+		return token::AND_OPERATOR;
+	}
+
+\|\|	{
+		return token::OR_OPERATOR;
 	}
 
 {ws}	/* skip whitespaces */
 
 \n	{
 		loc->lines();
-		return token::LINE;
 	}
 
 .	{

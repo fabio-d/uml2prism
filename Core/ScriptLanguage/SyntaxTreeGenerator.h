@@ -17,13 +17,15 @@ class SyntaxTreeGenerator
 	public:
 		enum SourceType
 		{
-			Action
+			Action,
+			Expression
 		};
 
 		SyntaxTreeGenerator(const QString &sourceCode, SourceType type);
 
 	private:
 		void setError(int line, int column, const QString &message);
+		void setResult(SyntaxTree::Expression *expr);
 
 		bool m_success;
 		int m_errorLine, m_errorColumn;

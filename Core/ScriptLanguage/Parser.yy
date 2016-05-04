@@ -6,6 +6,8 @@
 %define		api.value.type variant
 %define		parse.assert
 %define		parse.trace
+%locations
+%parse-param	{Lexer &lexer} {SyntaxTreeGenerator *owner}
 
 %code requires
 {
@@ -18,16 +20,14 @@
 
 	namespace SyntaxTree
 	{
-	class AddOp;
-	class Constant;
+	class Identifier;
 	class Expression;
+	class Tuple;
 	}
 
 	}
 	}
 }
-
-%parse-param	{Lexer &lexer} {SyntaxTreeGenerator *owner}
 
 %code
 {
@@ -42,41 +42,48 @@
 	#define yylex lexer.yylex
 }
 
-%locations
+%right		'='
+%left		AND_OPERATOR OR_OPERATOR
+%left		EQUAL_OPERATOR NOT_EQUAL_OPERATOR
+%precedence	'!'
+%left		'.'
 
-/* Bison declarations.  */
-%token END 0 /* eof */
+%token		<std::string> IDENTIFIER_SEGMENT
+%token		<bool> BOOL_LITERAL
 
-%token		<int> NUM
-%left		'-' '+'
-%left		'*' '/'
-%precedence	NEG /* negation--unary minus */
-%right		'^' /* exponentiation */
+%type		<SyntaxTree::Identifier*> ident
+%type		<SyntaxTree::Tuple*> expr-list
+%type		<SyntaxTree::Expression*> expr
 
-%token		LINE
-%type		<SyntaxTree::Expression*> exp
-
-%% /* The grammar follows.  */
+%%
 
 input:
-  %empty
-| input line
+  expr				{ owner->setResult($1); }
 ;
 
-line:
-  LINE
-| exp LINE  { puts($1->toString().toLatin1().constData()); }
+ident:
+  IDENTIFIER_SEGMENT		{ $$ = new SyntaxTree::GlobalIdentifier(QString::fromStdString($1)); }
+| ident '.' IDENTIFIER_SEGMENT	{ $$ = new SyntaxTree::MemberIdentifier($1, QString::fromStdString($3)); }
 ;
 
-exp:
-  NUM                { $$ = new SyntaxTree::Constant($1); }
-| exp '+' exp        { $$ = new SyntaxTree::AddOp($1, $3); }
-//| exp '-' exp        { $$ = $1 - $3;      }
-//| exp '*' exp        { $$ = $1 * $3;      }
-//| exp '/' exp        { $$ = $1 / $3;      }
-//| '-' exp  %prec NEG { $$ = -$2;          }
-//| exp '^' exp        { $$ = pow ($1, $3); }
-| '(' exp ')'        { $$ = $2;           }
+expr-list:
+  expr				{ $$ = new SyntaxTree::Tuple(); $$->appendElement($1); }
+| expr-list ',' expr 		{ $$ = $1; $1->appendElement($3); }
+;
+
+expr:
+  BOOL_LITERAL			{ $$ = new SyntaxTree::BoolLiteral($1); }
+| ident				{ $$ = $1; }
+| ident '(' ')'			{ $$ = new SyntaxTree::MethodCall($1); }
+| ident '(' expr-list ')'	{ $$ = new SyntaxTree::MethodCall($1, $3); }
+| '!' expr			{ $$ = new SyntaxTree::NotOperator($2); }
+| expr EQUAL_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(SyntaxTree::BinaryOperator::Equal, $1, $3); }
+| expr NOT_EQUAL_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(SyntaxTree::BinaryOperator::NotEqual, $1, $3); }
+| expr AND_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(SyntaxTree::BinaryOperator::And, $1, $3); }
+| expr OR_OPERATOR expr		{ $$ = new SyntaxTree::BinaryOperator(SyntaxTree::BinaryOperator::Or, $1, $3); }
+| '(' expr ')'			{ $$ = $2; }
+| '{' '}'			{ $$ = new SyntaxTree::Tuple(); }
+| '{' expr-list '}'		{ $$ = $2; }
 ;
 
 %%

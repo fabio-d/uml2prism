@@ -37,5 +37,10 @@ void SyntaxTreeGenerator::setError(int line, int column, const QString &message)
 	qDebug() << "SyntaxTreeGenerator failed at line" << line << "column" << column << ":" << message;
 }
 
+void SyntaxTreeGenerator::setResult(SyntaxTree::Expression *expr)
+{
+	qDebug() << "Got result:" << expr->toString().toLatin1().constData();
+}
+
 }
 }

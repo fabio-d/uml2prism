@@ -1,5 +1,7 @@
 #include "Core/ScriptLanguage/SyntaxTree.h"
 
+#include <QStringList>
+
 namespace Core
 {
 namespace ScriptLanguage
@@ -11,30 +13,144 @@ Expression::~Expression()
 {
 }
 
-Constant::Constant(int value)
+GlobalIdentifier::GlobalIdentifier(const QString &name)
+: m_name(name)
+{
+}
+
+QString GlobalIdentifier::toString() const
+{
+	return QString("GlobalIdentifier(\"%1\")").arg(m_name);
+}
+
+MemberIdentifier::MemberIdentifier(Identifier *parent, const QString &name)
+: m_parent(parent), m_name(name)
+{
+}
+
+QString MemberIdentifier::toString() const
+{
+	return QString("MemberIdentifier(%1, \"%2\")").arg(m_parent->toString()).arg(m_name);
+}
+
+BoolLiteral::BoolLiteral(bool value)
 : m_value(value)
 {
 }
 
-QString Constant::toString() const
+QString BoolLiteral::toString() const
 {
-	return QString("Constant(%1)").arg(m_value);
+	return QString("BoolLiteral(%1)").arg(m_value ? "true" : "false");
 }
 
-AddOp::AddOp(Expression *op1, Expression *op2)
-: m_op1(op1), m_op2(op2)
+NotOperator::NotOperator(Expression *arg)
+: m_arg(arg)
 {
 }
 
-AddOp::~AddOp()
+QString NotOperator::toString() const
 {
-	delete m_op1;
-	delete m_op2;
+	return QString("NotOperator(%1)")
+		.arg(m_arg->toString());
 }
 
-QString AddOp::toString() const
+BinaryOperator::BinaryOperator(Operator op, Expression *arg1, Expression *arg2)
+: m_op(op), m_arg1(arg1), m_arg2(arg2)
 {
-	return QString("AddOp(%1, %2)").arg(m_op1->toString()).arg(m_op2->toString());
+}
+
+BinaryOperator::~BinaryOperator()
+{
+	delete m_arg1;
+	delete m_arg2;
+}
+
+QString BinaryOperator::toString() const
+{
+	QString opStr;
+
+	switch (m_op)
+	{
+		case Equal:
+			opStr = "Equal";
+			break;
+		case NotEqual:
+			opStr = "NotEqual";
+			break;
+		case And:
+			opStr = "And";
+			break;
+		case Or:
+			opStr = "Or";
+			break;
+	}
+
+	return QString("BinaryOperator(%1, %2, %3)")
+		.arg(opStr)
+		.arg(m_arg1->toString())
+		.arg(m_arg2->toString());
+}
+
+Tuple::Tuple()
+{
+}
+
+Tuple::~Tuple()
+{
+	qDeleteAll(m_elements);
+}
+
+void Tuple::appendElement(Expression *expr)
+{
+	m_elements.append(expr);
+}
+
+QList<Expression*> Tuple::takeElements()
+{
+	QList<Expression*> res;
+	m_elements.swap(res);
+	return res;
+}
+
+QString Tuple::toString() const
+{
+	QStringList elementsStr;
+
+	elementsStr.append(QString::number(m_elements.count()));
+
+	foreach (const Expression *e, m_elements)
+		elementsStr.append(e->toString());
+
+	return QString("Tuple(%1)").arg(elementsStr.join(", "));
+}
+
+MethodCall::MethodCall(Identifier *method)
+: m_method(method)
+{
+}
+
+MethodCall::MethodCall(Identifier *method, Tuple *args)
+: m_method(method), m_arguments(args->takeElements())
+{
+	delete args;
+}
+
+MethodCall::~MethodCall()
+{
+	qDeleteAll(m_arguments);
+}
+
+QString MethodCall::toString() const
+{
+	QStringList elementsStr;
+
+	elementsStr.append(m_method->toString());
+	elementsStr.append(QString::number(m_arguments.count()));
+
+	foreach (const Expression *e, m_arguments)
+		elementsStr.append(e->toString());
+
+	return QString("MethodCall(%1)").arg(elementsStr.join(", "));
 }
 
 }
