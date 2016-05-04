@@ -11,6 +11,8 @@
 
 %code requires
 {
+	#include <QList>
+
 	namespace Core
 	{
 	namespace ScriptLanguage
@@ -22,6 +24,8 @@
 	{
 	class Identifier;
 	class Expression;
+	class MethodCall;
+	class Statement;
 	class Tuple;
 	}
 
@@ -69,13 +73,17 @@
 %token		START_VALUE
 
 %type		<SyntaxTree::Identifier*> ident
-%type		<SyntaxTree::Tuple*> expr-list
+%type		<SyntaxTree::MethodCall*> method-call
+%type		<QList<SyntaxTree::Expression*>> expr-list
 %type		<SyntaxTree::Expression*> expr
+%type		<QList<SyntaxTree::Statement*>> stmt-list
+%type		<SyntaxTree::Statement*> stmt
 
 %%
 
 input:
-  START_SCRIPT expr		{ owner->setResultScript($2); }
+  START_SCRIPT			{ owner->setResultScript(new SyntaxTree::CompoundStatement(STDARGS)); }
+| START_SCRIPT stmt-list	{ owner->setResultScript(new SyntaxTree::CompoundStatement(STDARGS, $2)); }
 | START_VALUE expr		{ owner->setResultValue($2); }
 ;
 
@@ -84,16 +92,20 @@ ident:
 | ident '.' IDENTIFIER_SEGMENT	{ $$ = new SyntaxTree::MemberIdentifier(STDARGS, $1, QString::fromStdString($3)); }
 ;
 
+method-call:
+  ident '(' ')'			{ $$ = new SyntaxTree::MethodCall(STDARGS, $1); }
+| ident '(' expr-list ')'	{ $$ = new SyntaxTree::MethodCall(STDARGS, $1, $3); }
+;
+
 expr-list:
-  expr				{ $$ = new SyntaxTree::Tuple(STDARGS); $$->appendElement($1); }
-| expr-list ',' expr 		{ $$ = $1; $1->appendElement($3); }
+  expr				{ $$ = QList<SyntaxTree::Expression*>() << $1; }
+| expr-list ',' expr 		{ $$ = $1; $$ << $3; }
 ;
 
 expr:
   BOOL_LITERAL			{ $$ = new SyntaxTree::BoolLiteral(STDARGS, $1); }
 | ident				{ $$ = $1; }
-| ident '(' ')'			{ $$ = new SyntaxTree::MethodCall(STDARGS, $1); }
-| ident '(' expr-list ')'	{ $$ = new SyntaxTree::MethodCall(STDARGS, $1, $3); }
+| method-call			{ $$ = $1; }
 | '!' expr			{ $$ = new SyntaxTree::NotOperator(STDARGS, $2); }
 | expr EQUAL_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Equal, $1, $3); }
 | expr NOT_EQUAL_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::NotEqual, $1, $3); }
@@ -101,7 +113,19 @@ expr:
 | expr OR_OPERATOR expr		{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Or, $1, $3); }
 | '(' expr ')'			{ $$ = $2; }
 | '{' '}'			{ $$ = new SyntaxTree::Tuple(STDARGS); }
-| '{' expr-list '}'		{ $$ = $2; }
+| '{' expr-list '}'		{ $$ = new SyntaxTree::Tuple(STDARGS, $2); }
+;
+
+stmt-list:
+  stmt				{ $$ = QList<SyntaxTree::Statement*>() << $1; }
+| stmt-list stmt 		{ $$ = $1; $$ << $2; }
+;
+
+stmt:
+  ';'				{ $$ = new SyntaxTree::CompoundStatement(STDARGS); }
+| method-call ';'		{ $$ = $1; }
+| '{' '}'			{ $$ = new SyntaxTree::CompoundStatement(STDARGS); }
+| '{' stmt-list '}'		{ $$ = new SyntaxTree::CompoundStatement(STDARGS, $2); }
 ;
 
 %%

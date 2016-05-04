@@ -40,13 +40,13 @@ SyntaxTreeGenerator::~SyntaxTreeGenerator()
 	while (m_allNodes.isEmpty() == false)
 	{
 		SyntaxTree::GarbageCollectible *gcNode = *m_allNodes.begin();
-		qDebug() << "GCing" << gcNode;
+		//qDebug() << "GCing" << gcNode;
 		m_allNodes.remove(gcNode);
 		delete gcNode;
 	}
 }
 
-SyntaxTree::Expression *SyntaxTreeGenerator::takeResultScript()
+SyntaxTree::Statement *SyntaxTreeGenerator::takeResultScript()
 {
 	return nullptr; // TODO
 }
@@ -68,7 +68,7 @@ void SyntaxTreeGenerator::setError(const SourceLocation &location, const QString
 	qDebug() << "SyntaxTreeGenerator failed at" << location.toString() << ":" << message;
 }
 
-void SyntaxTreeGenerator::setResultScript(SyntaxTree::Expression *expr)
+void SyntaxTreeGenerator::setResultScript(SyntaxTree::Statement *expr)
 {
 	// setError must not have been called
 	Q_ASSERT(m_success == true);

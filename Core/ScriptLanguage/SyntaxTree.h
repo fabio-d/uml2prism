@@ -34,11 +34,18 @@ class Expression : public GarbageCollectible
 {
 	public:
 		Expression(SyntaxTreeGenerator *owner, const SourceLocation &location);
+		~Expression();
 
 		virtual QString toString() const = 0;
+};
 
-	private:
-		SyntaxTreeGenerator *m_owner;
+class Statement : public GarbageCollectible
+{
+	public:
+		Statement(SyntaxTreeGenerator *owner, const SourceLocation &location);
+		~Statement();
+
+		virtual QString toString() const = 0;
 };
 
 class Identifier : public Expression
@@ -115,10 +122,7 @@ class BinaryOperator : public Expression
 class Tuple : public Expression
 {
 	public:
-		Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location); // Empty tuple
-
-		void appendElement(Expression *expr);
-		const QList<Expression*> &elements() const;
+		Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Expression*> &elements = QList<Expression*>());
 
 		QString toString() const override;
 
@@ -126,11 +130,21 @@ class Tuple : public Expression
 		QList<Expression*> m_elements;
 };
 
-class MethodCall : public Expression
+class CompoundStatement : public Statement
 {
 	public:
-		MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method); // no args
-		MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, Tuple *args);
+		CompoundStatement(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Statement*> &statements = QList<Statement*>());
+
+		QString toString() const override;
+
+	private:
+		QList<Statement*> m_statements;
+};
+
+class MethodCall : public Expression, public Statement
+{
+	public:
+		MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, const QList<Expression*> &arguments = QList<Expression*>());
 
 		QString toString() const override;
 

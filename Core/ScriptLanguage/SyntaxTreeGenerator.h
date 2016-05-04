@@ -26,19 +26,19 @@ class SyntaxTreeGenerator
 		SyntaxTreeGenerator(const QString &sourceCode, SourceType type);
 		~SyntaxTreeGenerator();
 
-		SyntaxTree::Expression *takeResultScript();
+		SyntaxTree::Statement *takeResultScript();
 		SyntaxTree::Expression *takeResultValue();
 
 	private:
 		void setError(const SourceLocation &location, const QString &message);
-		void setResultScript(SyntaxTree::Expression *expr);
+		void setResultScript(SyntaxTree::Statement *expr);
 		void setResultValue(SyntaxTree::Expression *expr);
 
 		bool m_success;
 		SourceLocation m_errorLocation;
 		QString m_errorMessage;
 
-		SyntaxTree::Expression *m_resultScript;
+		SyntaxTree::Statement *m_resultScript;
 		SyntaxTree::Expression *m_resultValue;
 
 		QSet<SyntaxTree::GarbageCollectible*> m_allNodes;

@@ -15,13 +15,13 @@ namespace SyntaxTree
 GarbageCollectible::GarbageCollectible(SyntaxTreeGenerator *owner, const SourceLocation &location)
 : m_owner(owner), m_location(location)
 {
-	qDebug() << "ctor" << this << m_location.toString();
+	//qDebug() << "gc ctor" << this << m_location.toString();
 	m_owner->m_allNodes.insert(this);
 }
 
 GarbageCollectible::~GarbageCollectible()
 {
-	qDebug() << "dtor" << this;
+	//qDebug() << "gc dtor" << this;
 	m_owner->m_allNodes.remove(this);
 }
 
@@ -33,6 +33,23 @@ const SourceLocation &GarbageCollectible::location() const
 Expression::Expression(SyntaxTreeGenerator *owner, const SourceLocation &location)
 : GarbageCollectible(owner, location)
 {
+	//qDebug() << "expr ctor" << this;
+}
+
+Expression::~Expression()
+{
+	//qDebug() << "expr dtor" << this;
+}
+
+Statement::Statement(SyntaxTreeGenerator *owner, const SourceLocation &location)
+: GarbageCollectible(owner, location)
+{
+	//qDebug() << "stmt ctor" << this;
+}
+
+Statement::~Statement()
+{
+	//qDebug() << "stmt dtor" << this;
 }
 
 Identifier::Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location)
@@ -112,19 +129,9 @@ QString BinaryOperator::toString() const
 		.arg(m_arg2->toString());
 }
 
-Tuple::Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location)
-: Expression(owner, location)
+Tuple::Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Expression*> &elements)
+: Expression(owner, location), m_elements(elements)
 {
-}
-
-void Tuple::appendElement(Expression *expr)
-{
-	m_elements.append(expr);
-}
-
-const QList<Expression*> &Tuple::elements() const
-{
-	return m_elements;
 }
 
 QString Tuple::toString() const
@@ -139,13 +146,25 @@ QString Tuple::toString() const
 	return QString("Tuple(%1)").arg(elementsStr.join(", "));
 }
 
-MethodCall::MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method)
-: Expression(owner, location), m_method(method)
+CompoundStatement::CompoundStatement(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Statement*> &statements)
+: Statement(owner, location), m_statements(statements)
 {
 }
 
-MethodCall::MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, Tuple *args)
-: Expression(owner, location), m_method(method), m_arguments(args->elements())
+QString CompoundStatement::toString() const
+{
+	QStringList statementsStr;
+
+	statementsStr.append(QString::number(m_statements.count()));
+
+	foreach (const Statement *s, m_statements)
+		statementsStr.append(s->toString());
+
+	return QString("CompoundStatement(%1)").arg(statementsStr.join(", "));
+}
+
+MethodCall::MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, const QList<Expression*> &arguments)
+: Expression(owner, location), Statement(owner, location), m_method(method), m_arguments(arguments)
 {
 }
 
