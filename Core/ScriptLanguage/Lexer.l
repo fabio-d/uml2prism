@@ -78,6 +78,13 @@ or	{
 		return token::OR;
 	}
 
+{branchn} {
+		const std::string text_with_quotes(yytext);
+		const std::string text_without_quotes(text_with_quotes.substr(1, text_with_quotes.length() - 2));
+		yylval->build<std::string>(text_without_quotes);
+		return token::BRANCH_LABEL;
+	}
+
 {identn} {
 		yylval->build<std::string>(yytext);
 		return token::IDENTIFIER_SEGMENT;

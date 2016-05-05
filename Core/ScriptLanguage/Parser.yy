@@ -70,6 +70,7 @@
 %left		'.'
 
 %token		<std::string> IDENTIFIER_SEGMENT
+%token		<std::string> BRANCH_LABEL
 %token		<bool> BOOL_LITERAL
 %token		NIL_LITERAL
 
@@ -148,6 +149,7 @@ stmt-list:
 stmt:
   ';'				{ $$ = new SyntaxTree::CompoundStatement(STDARGS); }
 | ident '=' expr ';'		{ $$ = new SyntaxTree::Assignment(STDARGS, $1, $3); }
+| BRANCH BRANCH_LABEL ';'	{ $$ = new SyntaxTree::Branch(STDARGS, QString::fromStdString($2)); }
 | method-call ';'		{ $$ = $1; }
 | signal '!' ';'		{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1); }
 | signal '!' ident ';'		{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1, $3); }

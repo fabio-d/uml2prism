@@ -208,6 +208,17 @@ class ChoiceOr : public Statement
 		Statement *m_alt1, *m_alt2;
 };
 
+class Branch : public Statement
+{
+	public:
+		Branch(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &label);
+
+		QString toString() const override;
+
+	private:
+		QString m_label;
+};
+
 }
 }
 }

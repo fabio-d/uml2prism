@@ -234,6 +234,16 @@ QString ChoiceOr::toString() const
 	return QString("ChoiceOr(%1, %2)").arg(m_alt1->toString()).arg(m_alt2->toString());
 }
 
+Branch::Branch(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &label)
+: Statement(owner, location), m_label(label)
+{
+}
+
+QString Branch::toString() const
+{
+	return QString("Branch(\"%1\")").arg(m_label);
+}
+
 }
 }
 }
