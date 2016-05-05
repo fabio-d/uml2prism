@@ -69,6 +69,26 @@ const QList<UMLEdgeElement*> &UMLNodeElement::outgoingEdges() const
 	return m_outgoingEdges;
 }
 
+QList<UMLControlFlowEdge*> UMLNodeElement::incomingControlFlowEdges() const
+{
+	return filterUMLControlFlowEdges(m_incomingEdges);
+}
+
+QList<UMLControlFlowEdge*> UMLNodeElement::outgoingControlFlowEdges() const
+{
+	return filterUMLControlFlowEdges(m_outgoingEdges);
+}
+
+QList<UMLSignalEdge*> UMLNodeElement::incomingSignalEdges() const
+{
+	return filterUMLSignalEdgeEdges(m_incomingEdges);
+}
+
+QList<UMLSignalEdge*> UMLNodeElement::outgoingSignalEdges() const
+{
+	return filterUMLSignalEdgeEdges(m_outgoingEdges);
+}
+
 void UMLNodeElement::storeToXml(QDomElement &target, QDomDocument &doc) const
 {
 	target.setAttribute("nodeName", nodeName());
@@ -78,6 +98,30 @@ bool UMLNodeElement::loadFromXml(const QDomElement &source)
 {
 	setNodeName(source.attribute("nodeName"));
 	return true;
+}
+
+QList<UMLControlFlowEdge*> UMLNodeElement::filterUMLControlFlowEdges(const QList<UMLEdgeElement*> &list)
+{
+	QList<UMLControlFlowEdge*> res;
+	foreach (UMLEdgeElement *e, list)
+	{
+		UMLControlFlowEdge *ce = dynamic_cast<UMLControlFlowEdge*>(e);
+		if (ce != nullptr)
+			res.append(ce);
+	}
+	return res;
+}
+
+QList<UMLSignalEdge*> UMLNodeElement::filterUMLSignalEdgeEdges(const QList<UMLEdgeElement*> &list)
+{
+	QList<UMLSignalEdge*> res;
+	foreach (UMLEdgeElement *e, list)
+	{
+		UMLSignalEdge *ce = dynamic_cast<UMLSignalEdge*>(e);
+		if (ce != nullptr)
+			res.append(ce);
+	}
+	return res;
 }
 
 UMLInitialNode::UMLInitialNode()

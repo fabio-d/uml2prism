@@ -13,7 +13,9 @@ class QDomElement;
 namespace Core
 {
 
+class UMLControlFlowEdge;
 class UMLEdgeElement;
+class UMLSignalEdge;
 
 // These types are listed in a order such that objects that can be referenced by
 // other objects always come first:
@@ -81,10 +83,19 @@ class UMLNodeElement : public UMLElement
 		const QList<UMLEdgeElement*> &incomingEdges() const;
 		const QList<UMLEdgeElement*> &outgoingEdges() const;
 
+		QList<UMLControlFlowEdge*> incomingControlFlowEdges() const;
+		QList<UMLControlFlowEdge*> outgoingControlFlowEdges() const;
+
+		QList<UMLSignalEdge*> incomingSignalEdges() const;
+		QList<UMLSignalEdge*> outgoingSignalEdges() const;
+
 		void storeToXml(QDomElement &target, QDomDocument &doc) const override;
 		bool loadFromXml(const QDomElement &source) override;
 
 	private:
+		static QList<UMLControlFlowEdge*> filterUMLControlFlowEdges(const QList<UMLEdgeElement*> &list);
+		static QList<UMLSignalEdge*> filterUMLSignalEdgeEdges(const QList<UMLEdgeElement*> &list);
+
 		QString m_nodeName;
 		QList<UMLEdgeElement*> m_incomingEdges;
 		QList<UMLEdgeElement*> m_outgoingEdges;

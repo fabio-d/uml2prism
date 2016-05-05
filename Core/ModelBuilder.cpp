@@ -31,7 +31,12 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	qDebug() << "ModelBuilder started";
 
 	qDebug() << "Checking that no duplicate names are present...";
-	checkDuplicateNames();
+	checkDuplicateGlobalNames();
+	if (m_error)
+		return;
+
+	qDebug() << "Checking that control edges are used properly...";
+	checkControlEdges();
 	if (m_error)
 		return;
 
@@ -42,13 +47,18 @@ ModelBuilder::~ModelBuilder()
 {
 }
 
+void ModelBuilder::emitWarning(const QString &location, const QString &description)
+{
+	qDebug() << "WARNING:" << location << ":" << description;
+}
+
 void ModelBuilder::emitError(const QString &location, const QString &description)
 {
 	qDebug() << "ERROR:" << location << ":" << description;
 	m_error = true;
 }
 
-void ModelBuilder::checkDuplicateNames()
+void ModelBuilder::checkDuplicateGlobalNames()
 {
 	// name -> description of the origin of the name
 	QMultiMap<QString, QString> definitionOrigins;
@@ -106,7 +116,6 @@ void ModelBuilder::checkDuplicateNames()
 						var.name,
 						"c/global variable");
 				}
-
 				break;
 			case UMLElementType::Enumeration:
 				{
@@ -208,6 +217,111 @@ void ModelBuilder::checkDuplicateNames()
 		}
 
 		emitError(name, "Name defined multiple times " + locText);
+	}
+}
+
+void ModelBuilder::checkControlEdges()
+{
+	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
+	{
+		const UMLNodeElement *nodeElem = dynamic_cast<const UMLNodeElement*>(elem);
+		if (nodeElem == nullptr)
+			continue;
+
+		const QString nodeName = nodeElem->nodeName();
+
+		switch (nodeElem->type())
+		{
+			case UMLElementType::InitialNode:
+				foreach (const UMLControlFlowEdge *edge, nodeElem->incomingControlFlowEdges())
+				{
+					if (edge->from()->type() != UMLElementType::FinalNode)
+					{
+						emitError(nodeName, "Initial nodes' incoming control-flow edges can only originate from final nodes");
+						break;
+					}
+				}
+				if (nodeElem->outgoingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Initial node without any outgoing control-flow edge");
+				else if (nodeElem->outgoingControlFlowEdges().count() > 1)
+					emitError(nodeName, "Initial nodes cannot have multiple outgoing control-flow edges");
+				break;
+			case UMLElementType::FinalNode:
+				if (nodeElem->incomingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Final node without any incoming control-flow edge");
+				else if (nodeElem->incomingControlFlowEdges().count() > 1)
+					emitError(nodeName, "Final nodes cannot have multiple incoming control-flow edges");
+				if (nodeElem->outgoingControlFlowEdges().count() > 1)
+					emitError(nodeName, "Final nodes cannot have multiple outgoing control-flow edges");
+				foreach (const UMLControlFlowEdge *edge, nodeElem->outgoingControlFlowEdges())
+				{
+					if (edge->to()->type() != UMLElementType::InitialNode)
+					{
+						emitError(nodeName, "Final nodes' outgoing control-flow edges can only point to initial nodes");
+						break;
+					}
+				}
+				break;
+			case UMLElementType::ActionNode:
+				if (nodeElem->incomingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Action node without any incoming control-flow edge");
+				else if (nodeElem->incomingControlFlowEdges().count() > 1)
+					emitError(nodeName, "Action nodes cannot have multiple incoming control-flow edges");
+				if (nodeElem->outgoingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Action node without any outgoing control-flow edge");
+				else if (nodeElem->outgoingControlFlowEdges().count() > 1)
+					emitError(nodeName, "Action nodes cannot have multiple outgoing control-flow edges");
+				break;
+			case UMLElementType::ForkJoinNode:
+				if (nodeElem->incomingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Fork/Join node without any incoming control-flow edge");
+				if (nodeElem->outgoingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Fork/Join node without any outgoing control-flow edge");
+				if (nodeElem->incomingControlFlowEdges().count() == 1
+					&& nodeElem->outgoingControlFlowEdges().count() == 1)
+				{
+					emitWarning(nodeName, "Fork/Join node with only one incoming and only one outgoing control-flow edge is useless");
+				}
+				break;
+			case UMLElementType::DecisionMergeNode:
+				if (nodeElem->incomingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Decision/Merge node without any incoming control-flow edge");
+				if (nodeElem->outgoingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Decision/Merge node without any outgoing control-flow edge");
+				if (nodeElem->incomingControlFlowEdges().count() == 1
+					&& nodeElem->outgoingControlFlowEdges().count() == 1)
+				{
+					emitWarning(nodeName, "Decision/Merge node with only one incoming and only one outgoing control-flow edge is useless");
+				}
+				break;
+			default:
+				qFatal("This should never happen");
+				break;
+		}
+
+		if (nodeElem->type() != UMLElementType::DecisionMergeNode
+			|| nodeElem->outgoingControlFlowEdges().count() == 1) // or merge node
+		{
+			foreach (const UMLControlFlowEdge *edge, nodeElem->outgoingControlFlowEdges())
+			{
+				if (edge->branchName().isEmpty() == false)
+				{
+					emitWarning(nodeName, "Non-decision node's outgoing control-flow edge's label is useless");
+					break;
+				}
+			}
+		}
+		else
+		{
+			foreach (const UMLControlFlowEdge *edge, nodeElem->outgoingControlFlowEdges())
+			{
+				if (edge->branchName().isEmpty() == true)
+				{
+					emitWarning(nodeName, "Decision node's outgoing control-flow edge has no label");
+					break;
+				}
+			}
+		}
 	}
 }
 

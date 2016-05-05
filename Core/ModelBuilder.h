@@ -15,9 +15,11 @@ class ModelBuilder
 		~ModelBuilder();
 
 	private:
+		void emitWarning(const QString &location, const QString &description);
 		void emitError(const QString &location, const QString &description);
 
-		void checkDuplicateNames();
+		void checkDuplicateGlobalNames();
+		void checkControlEdges();
 
 		const Document *m_doc;
 		bool m_error;
