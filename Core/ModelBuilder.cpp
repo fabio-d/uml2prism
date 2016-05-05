@@ -35,8 +35,11 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	if (m_error)
 		return;
 
-	qDebug() << "Checking that control edges are used properly...";
-	checkControlEdges();
+	// TODO: check types
+
+	qDebug() << "Checking that control-flow and signal edges are used properly...";
+	checkControlFlowEdges();
+	checkSignalEdges();
 	if (m_error)
 		return;
 
@@ -220,7 +223,7 @@ void ModelBuilder::checkDuplicateGlobalNames()
 	}
 }
 
-void ModelBuilder::checkControlEdges()
+void ModelBuilder::checkControlFlowEdges()
 {
 	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
 	{
@@ -321,6 +324,38 @@ void ModelBuilder::checkControlEdges()
 					break;
 				}
 			}
+		}
+	}
+}
+
+void ModelBuilder::checkSignalEdges()
+{
+	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
+	{
+		const UMLSignalEdge *signalElem = dynamic_cast<const UMLSignalEdge*>(elem);
+		if (signalElem == nullptr)
+			continue;
+
+		switch (signalElem->from()->type())
+		{
+			case UMLElementType::ActionNode:
+			case UMLElementType::DecisionMergeNode:
+				break;
+			default:
+				emitError(signalElem->signalName(),
+					"Signals' origin nodes can only be action, decision or merge nodes");
+				break;
+		}
+
+		switch (signalElem->to()->type())
+		{
+			case UMLElementType::ActionNode:
+			case UMLElementType::DecisionMergeNode:
+				break;
+			default:
+				emitError(signalElem->signalName(),
+					"Signals' destination nodes can only be action, decision or merge nodes");
+				break;
 		}
 	}
 }

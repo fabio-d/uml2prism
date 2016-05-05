@@ -19,7 +19,8 @@ class ModelBuilder
 		void emitError(const QString &location, const QString &description);
 
 		void checkDuplicateGlobalNames();
-		void checkControlEdges();
+		void checkControlFlowEdges();
+		void checkSignalEdges();
 
 		const Document *m_doc;
 		bool m_error;
