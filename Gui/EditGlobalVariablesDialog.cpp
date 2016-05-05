@@ -80,7 +80,12 @@ void EditGlobalVariablesDialog::accept()
 {
 	QList<Core::UMLGlobalVariables::GlobalVariable> values;
 	foreach (const QVariant &val, m_ui->editListWidget->values())
-		values.append(unpackQVariant(val));
+	{
+		const Core::UMLGlobalVariables::GlobalVariable var = unpackQVariant(val);
+		if (!StrictIdentifierValidator::checkVariableNameWithMessageBox(this, var.name))
+			return;
+		values.append(var);
+	}
 
 	m_globalVariables->setGlobalVariables(values);
 

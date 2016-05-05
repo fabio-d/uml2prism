@@ -81,7 +81,12 @@ void EditClassDialog::accept()
 
 	QList<Core::UMLClass::MemberVariable> values;
 	foreach (const QVariant &val, m_ui->editListWidget->values())
-		values.append(unpackQVariant(val));
+	{
+		const Core::UMLClass::MemberVariable var = unpackQVariant(val);
+		if (!StrictIdentifierValidator::checkVariableNameWithMessageBox(this, var.name))
+			return;
+		values.append(var);
+	}
 
 	m_class->setDatatypeName(m_ui->nameLineEdit->text());
 	m_class->setMemberVariables(values);

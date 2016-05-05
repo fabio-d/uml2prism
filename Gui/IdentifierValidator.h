@@ -22,6 +22,7 @@ class StrictIdentifierValidator : public QRegExpValidator
 		static bool checkEnumValueWithMessageBox(QWidget *parent, const QString &str);
 		static bool checkDatatypeWithMessageBox(QWidget *parent, const QString &str);
 		static bool checkSignalNameWithMessageBox(QWidget *parent, const QString &str);
+		static bool checkVariableNameWithMessageBox(QWidget *parent, const QString &str);
 };
 
 }

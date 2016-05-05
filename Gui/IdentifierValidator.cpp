@@ -5,6 +5,8 @@
 static const QRegExp regexp("^[_a-zA-Z0-9]*$");
 static const QRegExp strict_regexp("^[_a-zA-Z][_a-zA-Z0-9]*$");
 
+static QString notAllowedWordsMessage = "The following words are also forbidden: true, false, bool, nil, branch, if, else, choice, or.";
+
 namespace Gui
 {
 
@@ -20,7 +22,16 @@ StrictIdentifierValidator::StrictIdentifierValidator(QObject *parent)
 
 bool StrictIdentifierValidator::isAcceptable(const QString &str)
 {
-	return strict_regexp.exactMatch(str);
+	return strict_regexp.exactMatch(str)
+		&& str != "true"
+		&& str != "false"
+		&& str != "bool"
+		&& str != "nil"
+		&& str != "branch"
+		&& str != "if"
+		&& str != "else"
+		&& str != "choice"
+		&& str != "or";
 }
 
 bool StrictIdentifierValidator::checkNodeNameWithMessageBox(QWidget *parent, const QString &str)
@@ -31,7 +42,7 @@ bool StrictIdentifierValidator::checkNodeNameWithMessageBox(QWidget *parent, con
 	if (str.isEmpty())
 		QMessageBox::warning(parent, "Invalid node name", "Node names cannot be empty strings");
 	else
-		QMessageBox::warning(parent, "Invalid node name", "Node names can only contain letters, digits or underscores and must not start with a digit");
+		QMessageBox::warning(parent, "Invalid node name", "Node names can only contain letters, digits or underscores and must not start with a digit\n" + notAllowedWordsMessage);
 
 	return false;
 }
@@ -44,7 +55,7 @@ bool StrictIdentifierValidator::checkEnumValueWithMessageBox(QWidget *parent, co
 	if (str.isEmpty())
 		QMessageBox::warning(parent, "Invalid value", "Enumeration values cannot be empty strings");
 	else
-		QMessageBox::warning(parent, "Invalid value", "Enumeration values can only contain letters, digits or underscores and must not start with a digit");
+		QMessageBox::warning(parent, "Invalid value", "Enumeration values can only contain letters, digits or underscores and must not start with a digit\n" + notAllowedWordsMessage);
 
 	return false;
 }
@@ -57,7 +68,7 @@ bool StrictIdentifierValidator::checkDatatypeWithMessageBox(QWidget *parent, con
 	if (str.isEmpty())
 		QMessageBox::warning(parent, "Invalid type name", "Type names cannot be empty strings");
 	else
-		QMessageBox::warning(parent, "Invalid type name", "Type names can only contain letters, digits or underscores and must not start with a digit");
+		QMessageBox::warning(parent, "Invalid type name", "Type names can only contain letters, digits or underscores and must not start with a digit\n" + notAllowedWordsMessage);
 
 	return false;
 }
@@ -70,7 +81,20 @@ bool StrictIdentifierValidator::checkSignalNameWithMessageBox(QWidget *parent, c
 	if (str.isEmpty())
 		QMessageBox::warning(parent, "Invalid signal name", "Signal names cannot be empty strings");
 	else
-		QMessageBox::warning(parent, "Invalid signal name", "Signal names can only contain letters, digits or underscores and must not start with a digit");
+		QMessageBox::warning(parent, "Invalid signal name", "Signal names can only contain letters, digits or underscores and must not start with a digit\n" + notAllowedWordsMessage);
+
+	return false;
+}
+
+bool StrictIdentifierValidator::checkVariableNameWithMessageBox(QWidget *parent, const QString &str)
+{
+	if (isAcceptable(str))
+		return true;
+
+	if (str.isEmpty())
+		QMessageBox::warning(parent, "Invalid variable name", "Variable names cannot be empty strings");
+	else
+		QMessageBox::warning(parent, "Invalid variable name", "Variable names can only contain letters, digits or underscores and must not start with a digit\n" + notAllowedWordsMessage);
 
 	return false;
 }
