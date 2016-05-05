@@ -6,6 +6,7 @@
 %define		api.value.type variant
 %define		parse.assert
 %define		parse.trace
+%expect		2 // if-else and choice-or
 %locations
 %parse-param	{Lexer &lexer} {SyntaxTreeGenerator *owner}
 
@@ -22,8 +23,10 @@
 
 	namespace SyntaxTree
 	{
+	class ChoiceOr;
 	class GlobalIdentifier;
 	class Identifier;
+	class IfElse;
 	class Expression;
 	class MethodCall;
 	class Statement;
@@ -84,6 +87,8 @@
 %type		<SyntaxTree::Expression*> expr
 %type		<QList<SyntaxTree::Statement*>> stmt-list
 %type		<SyntaxTree::Statement*> stmt
+%type		<SyntaxTree::IfElse*> if-else
+%type		<SyntaxTree::ChoiceOr*> choice-or
 
 %%
 
@@ -151,6 +156,18 @@ stmt:
 | signal '!' '(' expr ')' ';'	{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1, $4); }
 | '{' '}'			{ $$ = new SyntaxTree::CompoundStatement(STDARGS); }
 | '{' stmt-list '}'		{ $$ = new SyntaxTree::CompoundStatement(STDARGS, $2); }
+| if-else			{ $$ = $1; }
+| choice-or			{ $$ = $1; }
+;
+
+if-else:
+  IF '(' expr ')' stmt		{ $$ = new SyntaxTree::IfElse(STDARGS, $3, $5, new SyntaxTree::CompoundStatement(STDARGS)); }
+| IF '(' expr ')' stmt ELSE stmt{ $$ = new SyntaxTree::IfElse(STDARGS, $3, $5, $7); }
+;
+
+choice-or:
+  CHOICE stmt OR stmt		{ $$ = new SyntaxTree::ChoiceOr(STDARGS, $2, $4); }
+| choice-or OR stmt		{ $$ = new SyntaxTree::ChoiceOr(STDARGS, $1, $3); }
 ;
 
 %%

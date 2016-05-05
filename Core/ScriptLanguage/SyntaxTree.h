@@ -185,6 +185,29 @@ class SignalEmission : public Statement
 		Expression *m_value;
 };
 
+class IfElse : public Statement
+{
+	public:
+		IfElse(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *condition, Statement *trueBranch, Statement *falseBranch);
+
+		QString toString() const override;
+
+	private:
+		Expression *m_condition;
+		Statement *m_trueBranch, *m_falseBranch;
+};
+
+class ChoiceOr : public Statement
+{
+	public:
+		ChoiceOr(SyntaxTreeGenerator *owner, const SourceLocation &location, Statement *alt1, Statement *alt2);
+
+		QString toString() const override;
+
+	private:
+		Statement *m_alt1, *m_alt2;
+};
+
 }
 }
 }

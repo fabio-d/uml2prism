@@ -214,6 +214,26 @@ QString SignalEmission::toString() const
 		return QString("SignalEmission(%1, %2)").arg(m_signal->toString()).arg(m_value->toString());
 }
 
+IfElse::IfElse(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *condition, Statement *trueBranch, Statement *falseBranch)
+: Statement(owner, location), m_condition(condition), m_trueBranch(trueBranch), m_falseBranch(falseBranch)
+{
+}
+
+QString IfElse::toString() const
+{
+	return QString("IfElse(%1, %2, %3)").arg(m_condition->toString()).arg(m_trueBranch->toString()).arg(m_falseBranch->toString());
+}
+
+ChoiceOr::ChoiceOr(SyntaxTreeGenerator *owner, const SourceLocation &location, Statement *alt1, Statement *alt2)
+: Statement(owner, location), m_alt1(alt1), m_alt2(alt2)
+{
+}
+
+QString ChoiceOr::toString() const
+{
+	return QString("ChoiceOr(%1, %2)").arg(m_alt1->toString()).arg(m_alt2->toString());
+}
+
 }
 }
 }
