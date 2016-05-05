@@ -103,7 +103,7 @@
     <addaction name="separator"/>
     <addaction name="actionExportSvg"/>
     <addaction name="separator"/>
-    <addaction name="actionCheck"/>
+    <addaction name="actionBuild"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
@@ -247,7 +247,7 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
-   <addaction name="actionCheck"/>
+   <addaction name="actionBuild"/>
   </widget>
   <widget class="QToolBar" name="toolBarView">
    <property name="windowTitle">
@@ -449,13 +449,13 @@
     <string>&amp;Redo</string>
    </property>
   </action>
-  <action name="actionCheck">
+  <action name="actionBuild">
    <property name="icon">
     <iconset theme="roll" resource="../resources/resources.qrc">
      <normaloff>:/kde_icons/roll.png</normaloff>:/kde_icons/roll.png</iconset>
    </property>
    <property name="text">
-    <string>Chec&amp;k Model...</string>
+    <string>&amp;Build Model...</string>
    </property>
    <property name="shortcut">
     <string>F9</string>
@@ -742,6 +742,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionBuild</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slotBuild()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>578</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>slotNew()</slot>
@@ -758,5 +774,6 @@
   <slot>slotZoomFit()</slot>
   <slot>slotResetLabelPosition()</slot>
   <slot>slotExportSvg()</slot>
+  <slot>slotBuild()</slot>
  </slots>
 </ui>

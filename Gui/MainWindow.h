@@ -48,6 +48,7 @@ class MainWindow : public QMainWindow
 		void slotZoomOut();
 		void slotZoomOriginal();
 		void slotZoomFit();
+		void slotBuild();
 
 	private:
 		bool queryClose();

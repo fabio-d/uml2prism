@@ -4,6 +4,7 @@
 #include "Gui/UndoManager.h"
 
 #include "Core/Document.h"
+#include "Core/ModelBuilder.h"
 #include "Core/UMLDiagram.h"
 
 #include <QCloseEvent>
@@ -380,6 +381,11 @@ void MainWindow::slotFillContextMenu(QMenu *menu)
 	if (m_ui->actionResetLabelPosition->isEnabled())
 		menu->addAction(m_ui->actionResetLabelPosition);
 
+}
+
+void MainWindow::slotBuild()
+{
+	Core::ModelBuilder builder(m_doc);
 }
 
 }

@@ -31,6 +31,9 @@ class UMLDiagram : public QObject
 		void setGuiProxy(GuiProxy *guiProxy);
 		GuiProxy *guiProxy() const;
 
+		// List all elements
+		const QList<UMLElement*> &elements() const;
+
 		// Add/delete elements (delete methods also destroy the object)
 		void addUMLElement(UMLElement *element);
 		void deleteUMLElement(UMLElement *element);

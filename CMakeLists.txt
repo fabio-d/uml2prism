@@ -22,6 +22,7 @@ add_flex_bison_dependency(ScriptLexer ScriptParser)
 add_executable(UMLEditor
 	Core/DatatypeName.cpp
 	Core/Document.cpp
+	Core/ModelBuilder.cpp
 	Core/UMLDiagram.cpp
 	Core/UMLElement.cpp
 

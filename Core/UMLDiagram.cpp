@@ -39,6 +39,11 @@ GuiProxy *UMLDiagram::guiProxy() const
 	return m_guiProxy;
 }
 
+const QList<UMLElement*> &UMLDiagram::elements() const
+{
+	return m_elements;
+}
+
 void UMLDiagram::addUMLElement(UMLElement *element)
 {
 	Q_ASSERT(m_elements.contains(element) == false);
