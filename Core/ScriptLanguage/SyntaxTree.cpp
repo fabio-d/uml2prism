@@ -77,6 +77,16 @@ QString MemberIdentifier::toString() const
 	return QString("MemberIdentifier(%1, \"%2\")").arg(m_container->toString()).arg(m_name);
 }
 
+NilLiteral::NilLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location)
+: Expression(owner, location)
+{
+}
+
+QString NilLiteral::toString() const
+{
+	return QString("NilLiteral");
+}
+
 BoolLiteral::BoolLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location, bool value)
 : Expression(owner, location), m_value(value)
 {

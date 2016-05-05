@@ -54,6 +54,30 @@ false	{
 		return token::BOOL_LITERAL;
 	}
 
+nil	{
+		return token::NIL_LITERAL;
+	}
+
+branch	{
+		return token::BRANCH;
+	}
+
+if	{
+		return token::IF;
+	}
+
+else	{
+		return token::ELSE;
+	}
+
+choice	{
+		return token::CHOICE;
+	}
+
+or	{
+		return token::OR;
+	}
+
 {identn} {
 		yylval->build<std::string>(yytext);
 		return token::IDENTIFIER_SEGMENT;

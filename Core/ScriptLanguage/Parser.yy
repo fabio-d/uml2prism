@@ -68,10 +68,12 @@
 
 %token		<std::string> IDENTIFIER_SEGMENT
 %token		<bool> BOOL_LITERAL
+%token		NIL_LITERAL
+
+%token		BRANCH IF ELSE CHOICE OR
 
 // Dummy tokens to select start symbol
-%token		START_SCRIPT
-%token		START_VALUE
+%token		START_SCRIPT START_VALUE
 
 %type		<SyntaxTree::Identifier*> ident
 %type		<SyntaxTree::Expression*> literal
@@ -98,6 +100,7 @@ ident:
 
 literal:
   BOOL_LITERAL			{ $$ = new SyntaxTree::BoolLiteral(STDARGS, $1); }
+| NIL_LITERAL			{ $$ = new SyntaxTree::NilLiteral(STDARGS); }
 ;
 
 signal:

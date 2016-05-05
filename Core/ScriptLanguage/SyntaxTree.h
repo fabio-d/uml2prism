@@ -77,6 +77,14 @@ class MemberIdentifier : public Identifier
 		QString m_name;
 };
 
+class NilLiteral : public Expression
+{
+	public:
+		NilLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location);
+
+		QString toString() const override;
+};
+
 class BoolLiteral : public Expression
 {
 	public:
