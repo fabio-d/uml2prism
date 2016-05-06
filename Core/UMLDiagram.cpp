@@ -114,7 +114,8 @@ QStringList UMLDiagram::listNames(bool datatypesOnly) const
 		switch (elem->type())
 		{
 			case UMLElementType::InitialNode:
-			case UMLElementType::FinalNode:
+			case UMLElementType::FlowFinalNode:
+			case UMLElementType::ActivityFinalNode:
 			case UMLElementType::ActionNode:
 			case UMLElementType::DecisionMergeNode:
 			case UMLElementType::ForkJoinNode:
@@ -180,8 +181,12 @@ void UMLDiagram::storeToXml(QDomElement &target, QDomDocument &doc) const
 				rootElem.setAttribute("type", "Initial");
 				rootElem.setAttribute("id", m_elements.indexOf(elem));
 				break;
-			case UMLElementType::FinalNode:
-				rootElem.setAttribute("type", "Final");
+			case UMLElementType::FlowFinalNode:
+				rootElem.setAttribute("type", "FlowFinal");
+				rootElem.setAttribute("id", m_elements.indexOf(elem));
+				break;
+			case UMLElementType::ActivityFinalNode:
+				rootElem.setAttribute("type", "ActivityFinal");
 				rootElem.setAttribute("id", m_elements.indexOf(elem));
 				break;
 			case UMLElementType::ActionNode:
@@ -253,9 +258,13 @@ bool UMLDiagram::loadFromXml(const QDomElement &source)
 		{
 			elem = *idToNodeMap.insert(id, new Core::UMLInitialNode());
 		}
-		else if (type == "Final")
+		else if (type == "FlowFinal")
 		{
-			elem = *idToNodeMap.insert(id, new Core::UMLFinalNode());
+			elem = *idToNodeMap.insert(id, new Core::UMLFlowFinalNode());
+		}
+		else if (type == "ActivityFinal")
+		{
+			elem = *idToNodeMap.insert(id, new Core::UMLActivityFinalNode());
 		}
 		else if (type == "Action")
 		{

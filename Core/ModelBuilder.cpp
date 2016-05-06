@@ -94,10 +94,15 @@ void ModelBuilder::checkDuplicateGlobalNames()
 					static_cast<const UMLNodeElement*>(elem)->nodeName(),
 					"a/initial node");
 				break;
-			case UMLElementType::FinalNode:
+			case UMLElementType::FlowFinalNode:
 				definitionOrigins.insert(
 					static_cast<const UMLNodeElement*>(elem)->nodeName(),
-					"a/final node");
+					"a/flow final node");
+				break;
+			case UMLElementType::ActivityFinalNode:
+				definitionOrigins.insert(
+					static_cast<const UMLNodeElement*>(elem)->nodeName(),
+					"a/activity final node");
 				break;
 			case UMLElementType::ActionNode:
 				definitionOrigins.insert(
@@ -260,9 +265,9 @@ void ModelBuilder::checkControlFlowEdges()
 			case UMLElementType::InitialNode:
 				foreach (const UMLControlFlowEdge *edge, nodeElem->incomingControlFlowEdges())
 				{
-					if (edge->from()->type() != UMLElementType::FinalNode)
+					if (edge->from()->type() != UMLElementType::ActivityFinalNode)
 					{
-						emitError(nodeName, "Initial nodes' incoming control-flow edges can only originate from final nodes");
+						emitError(nodeName, "Initial nodes' incoming control-flow edges can only originate from activity final nodes");
 						break;
 					}
 				}
@@ -271,18 +276,26 @@ void ModelBuilder::checkControlFlowEdges()
 				else if (nodeElem->outgoingControlFlowEdges().count() > 1)
 					emitError(nodeName, "Initial nodes cannot have multiple outgoing control-flow edges");
 				break;
-			case UMLElementType::FinalNode:
+			case UMLElementType::FlowFinalNode:
 				if (nodeElem->incomingControlFlowEdges().count() == 0)
-					emitWarning(nodeName, "Final node without any incoming control-flow edge");
+					emitWarning(nodeName, "Flow final node without any incoming control-flow edge");
 				else if (nodeElem->incomingControlFlowEdges().count() > 1)
-					emitError(nodeName, "Final nodes cannot have multiple incoming control-flow edges");
+					emitError(nodeName, "Flow final nodes cannot have multiple incoming control-flow edges");
+				if (nodeElem->outgoingControlFlowEdges().count() != 0)
+					emitError(nodeName, "Flow final nodes cannot have outgoing control-flow edges");
+				break;
+			case UMLElementType::ActivityFinalNode:
+				if (nodeElem->incomingControlFlowEdges().count() == 0)
+					emitWarning(nodeName, "Activity final node without any incoming control-flow edge");
+				else if (nodeElem->incomingControlFlowEdges().count() > 1)
+					emitError(nodeName, "Activity final nodes cannot have multiple incoming control-flow edges");
 				if (nodeElem->outgoingControlFlowEdges().count() > 1)
-					emitError(nodeName, "Final nodes cannot have multiple outgoing control-flow edges");
+					emitError(nodeName, "Activity final nodes cannot have multiple outgoing control-flow edges");
 				foreach (const UMLControlFlowEdge *edge, nodeElem->outgoingControlFlowEdges())
 				{
 					if (edge->to()->type() != UMLElementType::InitialNode)
 					{
-						emitError(nodeName, "Final nodes' outgoing control-flow edges can only point to initial nodes");
+						emitError(nodeName, "Activity final nodes' outgoing control-flow edges can only point to initial nodes");
 						break;
 					}
 				}

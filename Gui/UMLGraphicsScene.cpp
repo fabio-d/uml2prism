@@ -369,12 +369,23 @@ void UMLGraphicsScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 			m_dia->addUMLElement(elem);
 		}
-		else if (elementTypeString == "FinalNode")
+		else if (elementTypeString == "FlowFinalNode")
 		{
-			Core::UMLFinalNode *elem = new Core::UMLFinalNode();
-			elem->setNodeName(m_dia->document()->generateFreshName("FinalNode"));
+			Core::UMLFlowFinalNode *elem = new Core::UMLFlowFinalNode();
+			elem->setNodeName(m_dia->document()->generateFreshName("FlowFinalNode"));
 
-			UMLFinalNode *item = new UMLFinalNode();
+			UMLFlowFinalNode *item = new UMLFlowFinalNode();
+			item->bind(elem);
+			item->setPos(scenePos);
+
+			m_dia->addUMLElement(elem);
+		}
+		else if (elementTypeString == "ActivityFinalNode")
+		{
+			Core::UMLActivityFinalNode *elem = new Core::UMLActivityFinalNode();
+			elem->setNodeName(m_dia->document()->generateFreshName("ActivityFinalNode"));
+
+			UMLActivityFinalNode *item = new UMLActivityFinalNode();
 			item->bind(elem);
 			item->setPos(scenePos);
 
@@ -661,10 +672,17 @@ bool UMLGraphicsScene::loadGuiDataFromXml(Core::UMLElement *coreElem, const QDom
 			gui->loadFromXml(source);
 			break;
 		}
-		case Core::UMLElementType::FinalNode:
+		case Core::UMLElementType::FlowFinalNode:
 		{
-			UMLFinalNode *gui = new UMLFinalNode();
-			gui->bind(static_cast<Core::UMLFinalNode*>(coreElem));
+			UMLFlowFinalNode *gui = new UMLFlowFinalNode();
+			gui->bind(static_cast<Core::UMLFlowFinalNode*>(coreElem));
+			gui->loadFromXml(source);
+			break;
+		}
+		case Core::UMLElementType::ActivityFinalNode:
+		{
+			UMLActivityFinalNode *gui = new UMLActivityFinalNode();
+			gui->bind(static_cast<Core::UMLActivityFinalNode*>(coreElem));
 			gui->loadFromXml(source);
 			break;
 		}
@@ -777,7 +795,8 @@ bool UMLGraphicsScene::canBeEdited(Core::UMLElement *element)
 	switch (element->type())
 	{
 		case Core::UMLElementType::InitialNode:
-		case Core::UMLElementType::FinalNode:
+		case Core::UMLElementType::FlowFinalNode:
+		case Core::UMLElementType::ActivityFinalNode:
 		case Core::UMLElementType::ForkJoinNode:
 		case Core::UMLElementType::ControlFlowEdge:
 			return false;
@@ -796,7 +815,8 @@ bool UMLGraphicsScene::canResetLabelPos(Core::UMLElement *element)
 	switch (element->type())
 	{
 		case Core::UMLElementType::InitialNode:
-		case Core::UMLElementType::FinalNode:
+		case Core::UMLElementType::FlowFinalNode:
+		case Core::UMLElementType::ActivityFinalNode:
 		case Core::UMLElementType::DecisionMergeNode:
 		case Core::UMLElementType::ForkJoinNode:
 		{

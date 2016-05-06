@@ -30,7 +30,13 @@ RenameDialog::RenameDialog(Core::UMLElement *elem, QWidget *parent)
 			m_ui->label->setText("New node name");
 			m_ui->lineEdit->setText(m_nodeElem->nodeName());
 			break;
-		case Core::UMLElementType::FinalNode:
+		case Core::UMLElementType::FlowFinalNode:
+			setWindowTitle(QString("Rename %1").arg(m_nodeElem->nodeName()));
+			setWindowIcon(QIcon(":/topcased_icons/FlowFinalNode_24.gif"));
+			m_ui->label->setText("New node name");
+			m_ui->lineEdit->setText(m_nodeElem->nodeName());
+			break;
+		case Core::UMLElementType::ActivityFinalNode:
 			setWindowTitle(QString("Rename %1").arg(m_nodeElem->nodeName()));
 			setWindowIcon(QIcon(":/topcased_icons/ActivityFinalNode_24.gif"));
 			m_ui->label->setText("New node name");

@@ -129,8 +129,13 @@ UMLInitialNode::UMLInitialNode()
 {
 }
 
-UMLFinalNode::UMLFinalNode()
-: UMLNodeElement(UMLElementType::FinalNode)
+UMLFlowFinalNode::UMLFlowFinalNode()
+: UMLNodeElement(UMLElementType::FlowFinalNode)
+{
+}
+
+UMLActivityFinalNode::UMLActivityFinalNode()
+: UMLNodeElement(UMLElementType::ActivityFinalNode)
 {
 }
 

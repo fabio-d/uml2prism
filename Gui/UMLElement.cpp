@@ -309,7 +309,39 @@ QPointF UMLInitialNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInsid
 		p, out_pIsInside);
 }
 
-UMLFinalNode::UMLFinalNode()
+UMLFlowFinalNode::UMLFlowFinalNode()
+{
+	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsEllipseItem>(this,
+		-FinalNodeRadius, -FinalNodeRadius,
+		FinalNodeRadius * 2, FinalNodeRadius * 2);
+	m_qtItem->setBrush(Qt::white);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsMovable, true);
+	m_qtItem->setFlag(QGraphicsItem::ItemIsSelectable, true);
+
+	const qreal crossOffset = FinalNodeRadius / qSqrt(2);
+	new QGraphicsLineItem( // top-left bottom-right
+		-crossOffset, -crossOffset,
+		+crossOffset, +crossOffset, m_qtItem);
+	new QGraphicsLineItem( // top-right bottom-left
+		+crossOffset, -crossOffset,
+		-crossOffset, +crossOffset, m_qtItem);
+
+	UMLNodeElement::bind(m_qtItem, GraphicsLabelItem::InitiallyOnTheRight);
+}
+
+void UMLFlowFinalNode::bind(Core::UMLFlowFinalNode *coreItem)
+{
+	m_coreItem = coreItem;
+	UMLNodeElement::bind(coreItem);
+}
+
+QPointF UMLFlowFinalNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
+{
+	return circleClosestPoint(m_qtItem->pos(), FinalNodeRadius,
+		p, out_pIsInside);
+}
+
+UMLActivityFinalNode::UMLActivityFinalNode()
 {
 	m_qtItem = new GraphicsPositionChangeSpyItem<QGraphicsEllipseItem>(this,
 		-FinalNodeRadius, -FinalNodeRadius,
@@ -326,13 +358,13 @@ UMLFinalNode::UMLFinalNode()
 	UMLNodeElement::bind(m_qtItem, GraphicsLabelItem::InitiallyOnTheRight);
 }
 
-void UMLFinalNode::bind(Core::UMLFinalNode *coreItem)
+void UMLActivityFinalNode::bind(Core::UMLActivityFinalNode *coreItem)
 {
 	m_coreItem = coreItem;
 	UMLNodeElement::bind(coreItem);
 }
 
-QPointF UMLFinalNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
+QPointF UMLActivityFinalNode::closestOutlinePoint(const QPointF &p, bool *out_pIsInside)
 {
 	return circleClosestPoint(m_qtItem->pos(), FinalNodeRadius,
 		p, out_pIsInside);

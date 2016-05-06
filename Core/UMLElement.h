@@ -25,7 +25,8 @@ enum class UMLElementType
 {
 	// Activity diagrams
 	InitialNode,
-	FinalNode,
+	FlowFinalNode,
+	ActivityFinalNode,
 	ActionNode,
 	DecisionMergeNode,
 	ForkJoinNode,
@@ -107,10 +108,16 @@ class UMLInitialNode : public UMLNodeElement
 		UMLInitialNode();
 };
 
-class UMLFinalNode : public UMLNodeElement
+class UMLFlowFinalNode : public UMLNodeElement
 {
 	public:
-		UMLFinalNode();
+		UMLFlowFinalNode();
+};
+
+class UMLActivityFinalNode : public UMLNodeElement
+{
+	public:
+		UMLActivityFinalNode();
 };
 
 class UMLScriptedNodeElement : public UMLNodeElement

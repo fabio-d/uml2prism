@@ -23,13 +23,14 @@
 namespace Core
 {
 class UMLActionNode;
+class UMLActivityFinalNode;
 class UMLClass;
 class UMLControlFlowEdge;
 class UMLDecisionMergeNode;
 class UMLEdgeElement;
 class UMLElement;
 class UMLEnumeration;
-class UMLFinalNode;
+class UMLFlowFinalNode;
 class UMLForkJoinNode;
 class UMLGlobalVariables;
 class UMLInitialNode;
@@ -132,15 +133,27 @@ class UMLInitialNode : public UMLNodeElement
 		QGraphicsEllipseItem *m_qtItem;
 };
 
-class UMLFinalNode : public UMLNodeElement
+class UMLFlowFinalNode : public UMLNodeElement
 {
 	public:
-		UMLFinalNode();
-		void bind(Core::UMLFinalNode *coreItem);
+		UMLFlowFinalNode();
+		void bind(Core::UMLFlowFinalNode *coreItem);
 		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
 
 	private:
-		Core::UMLFinalNode *m_coreItem;
+		Core::UMLFlowFinalNode *m_coreItem;
+		QGraphicsEllipseItem *m_qtItem;
+};
+
+class UMLActivityFinalNode : public UMLNodeElement
+{
+	public:
+		UMLActivityFinalNode();
+		void bind(Core::UMLActivityFinalNode *coreItem);
+		QPointF closestOutlinePoint(const QPointF &p, bool *out_pIsInside) override;
+
+	private:
+		Core::UMLActivityFinalNode *m_coreItem;
 		QGraphicsEllipseItem *m_qtItem;
 };
 

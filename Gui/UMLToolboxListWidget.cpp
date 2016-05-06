@@ -80,9 +80,13 @@ UMLActivityDiagramToolboxListWidget::UMLActivityDiagramToolboxListWidget(QWidget
 		QIcon(":/topcased_icons/JoinNode_24.gif"),
 		"application/x-uml-create-node", "JoinNode");
 
-	addTool("Final Node",
+	addTool("Flow Final Node",
+		QIcon(":/topcased_icons/FlowFinalNode_24.gif"),
+		"application/x-uml-create-node", "FlowFinalNode");
+
+	addTool("Activity Final Node",
 		QIcon(":/topcased_icons/ActivityFinalNode_24.gif"),
-		"application/x-uml-create-node", "FinalNode");
+		"application/x-uml-create-node", "ActivityFinalNode");
 
 	addTool("Control Flow",
 		QIcon(":/topcased_icons/ControlFlow_24.gif"),
