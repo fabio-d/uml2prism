@@ -30,16 +30,17 @@ ModelBuilder::ModelBuilder(const Document *doc)
 {
 	qDebug() << "ModelBuilder started";
 
-	qDebug() << "Checking that no duplicate names are present...";
+	qDebug() << "Checking that no duplicate global names are present...";
 	checkDuplicateGlobalNames();
 	if (m_error)
 		return;
 
-	// TODO: check types
-
 	qDebug() << "Checking that control-flow and signal edges are used properly...";
 	checkControlFlowEdges();
 	checkSignalEdges();
+
+	qDebug() << "Checking that types are sound...";
+	registerTypes();
 	if (m_error)
 		return;
 
@@ -59,6 +60,25 @@ void ModelBuilder::emitError(const QString &location, const QString &description
 {
 	qDebug() << "ERROR:" << location << ":" << description;
 	m_error = true;
+}
+
+const ScriptLanguage::SemanticContext::Type *ModelBuilder::resolveType(const DatatypeName *dt) const
+{
+	switch (dt->type())
+	{
+		case DatatypeName::Bool:
+			return m_semanticContext.boolType();
+		case DatatypeName::Other:
+			return m_semanticContext.findOtherType(dt->datatypeName());
+		case DatatypeName::Set:
+		{
+			const ScriptLanguage::SemanticContext::Type *inner = resolveType(dt->innerDatatype());
+			return inner != nullptr ? m_semanticContext.findSetType(inner) : nullptr;
+		}
+		default:
+			qFatal("This should never happen");
+			return nullptr;
+	}
 }
 
 void ModelBuilder::checkDuplicateGlobalNames()
@@ -233,6 +253,8 @@ void ModelBuilder::checkControlFlowEdges()
 
 		const QString nodeName = nodeElem->nodeName();
 
+		// TODO: branch names must be locally unique
+
 		switch (nodeElem->type())
 		{
 			case UMLElementType::InitialNode:
@@ -356,6 +378,85 @@ void ModelBuilder::checkSignalEdges()
 				emitError(signalElem->signalName(),
 					"Signals' destination nodes can only be action, decision or merge nodes");
 				break;
+		}
+	}
+}
+
+void ModelBuilder::registerTypes()
+{
+	// Register enumarations first. Classes and global variables will be handled later
+	QMap<const UMLClass*, Core::ScriptLanguage::SemanticContext::ClassType*> umlClasses;
+	QList<const UMLGlobalVariables*> umlGlobalVars;
+	foreach (const UMLElement *elem, m_doc->classDiagram()->elements())
+	{
+		switch (elem->type())
+		{
+			case UMLElementType::GlobalVariables:
+				umlGlobalVars.append(static_cast<const UMLGlobalVariables*>(elem));
+				break;
+			case UMLElementType::Enumeration:
+				{
+					const UMLEnumeration *enm = static_cast<const UMLEnumeration*>(elem);
+					Core::ScriptLanguage::SemanticContext::EnumerationType *obj = m_semanticContext.registerEnumeration(enm->datatypeName());
+					foreach (const QString &val, enm->values())
+						obj->registerValue(val);
+				}
+				break;
+			case UMLElementType::Class:
+				{
+					const UMLClass *cls = static_cast<const UMLClass*>(elem);
+					umlClasses.insert(cls,
+						m_semanticContext.registerClass(cls->datatypeName()));
+				}
+				break;
+			default:
+				qFatal("This should never happen");
+				break;
+		}
+	}
+
+	// Register classes' member variables
+	foreach (const UMLClass *cls, umlClasses.keys())
+	{
+		Core::ScriptLanguage::SemanticContext::ClassType *obj = umlClasses[cls];
+
+		// TODO: Check that member variables have distinct names
+
+		foreach (const UMLClass::MemberVariable &var, cls->memberVariables())
+		{
+			const ScriptLanguage::SemanticContext::Type *type = resolveType(&var.datatypeName);
+			if (type != nullptr)
+				obj->registerMemberVariable(var.name, type);
+			else
+				emitError(
+					QString("%1:%2").arg(cls->datatypeName()).arg(var.name),
+					QString("Cannot resolve type \"%1\"").arg(var.datatypeName.toString()));
+		}
+	}
+
+	// Check that no type is defined in terms of itself
+	foreach (Core::ScriptLanguage::SemanticContext::ClassType *obj, umlClasses)
+	{
+		QSet<const Core::ScriptLanguage::SemanticContext::Type*> referencedTypes;
+		obj->fillReferencedTypes(referencedTypes);
+		if (referencedTypes.contains(obj))
+			emitError(
+				QString("%1").arg(obj->datatypeName()),
+				"Classes cannot be defined in terms of themselves (recursive datatypes are not supported)");
+	}
+
+	// Register global variables
+	foreach (const UMLGlobalVariables *gv, umlGlobalVars)
+	{
+		foreach (const UMLGlobalVariables::GlobalVariable &var, gv->globalVariables())
+		{
+			const ScriptLanguage::SemanticContext::Type *type = resolveType(&var.datatypeName);
+			if (type != nullptr)
+				m_semanticContext.registerGlobalVariable(var.name, type);
+			else
+				emitError(
+					QString("(global):%1").arg(var.name),
+					QString("Cannot resolve type \"%1\"").arg(var.datatypeName.toString()));
 		}
 	}
 }
