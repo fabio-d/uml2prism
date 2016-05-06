@@ -1,11 +1,11 @@
-#ifndef CORE_SCRIPTLANGUAGE_SOURCELOCATION_H
-#define CORE_SCRIPTLANGUAGE_SOURCELOCATION_H
+#ifndef CORE_COMPILER_SOURCELOCATION_H
+#define CORE_COMPILER_SOURCELOCATION_H
 
 #include <QString>
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 
 class SourceLocation
@@ -31,4 +31,4 @@ class SourceLocation
 }
 }
 
-#endif // CORE_SCRIPTLANGUAGE_SOURCELOCATION_H
+#endif // CORE_COMPILER_SOURCELOCATION_H

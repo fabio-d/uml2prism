@@ -1,8 +1,8 @@
-#include "Core/ScriptLanguage/SourceLocation.h"
+#include "Core/Compiler/SourceLocation.h"
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 
 SourceLocation::SourceLocation()

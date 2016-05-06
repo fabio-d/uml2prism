@@ -1,14 +1,14 @@
-#ifndef CORE_SCRIPTLANGUAGE_SYNTAXTREE_H
-#define CORE_SCRIPTLANGUAGE_SYNTAXTREE_H
+#ifndef CORE_COMPILER_SYNTAXTREE_H
+#define CORE_COMPILER_SYNTAXTREE_H
 
-#include "Core/ScriptLanguage/SourceLocation.h"
+#include "Core/Compiler/SourceLocation.h"
 
 #include <QList>
 #include <QString>
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 class SyntaxTreeGenerator;
 
@@ -223,4 +223,4 @@ class Branch : public Statement
 }
 }
 
-#endif // CORE_SCRIPTLANGUAGE_SYNTAXTREE_H
+#endif // CORE_COMPILER_SYNTAXTREE_H

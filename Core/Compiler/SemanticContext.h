@@ -1,5 +1,5 @@
-#ifndef CORE_SCRIPTLANGUAGE_SEMANTICCONTEXT_H
-#define CORE_SCRIPTLANGUAGE_SEMANTICCONTEXT_H
+#ifndef CORE_COMPILER_SEMANTICCONTEXT_H
+#define CORE_COMPILER_SEMANTICCONTEXT_H
 
 #include <QMap>
 #include <QSet>
@@ -7,7 +7,7 @@
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 
 class SemanticContext
@@ -87,4 +87,4 @@ class SemanticContext
 }
 }
 
-#endif // CORE_SCRIPTLANGUAGE_SEMANTICCONTEXT_H
+#endif // CORE_COMPILER_SEMANTICCONTEXT_H

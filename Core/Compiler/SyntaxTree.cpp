@@ -1,13 +1,13 @@
-#include "Core/ScriptLanguage/SyntaxTree.h"
+#include "Core/Compiler/SyntaxTree.h"
 
-#include "Core/ScriptLanguage/SyntaxTreeGenerator.h"
+#include "Core/Compiler/SyntaxTreeGenerator.h"
 
 #include <QDebug>
 #include <QStringList>
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 namespace SyntaxTree
 {

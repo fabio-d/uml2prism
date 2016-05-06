@@ -1,7 +1,7 @@
 #ifndef CORE_MODELBUILDER_H
 #define CORE_MODELBUILDER_H
 
-#include "Core/ScriptLanguage/SemanticContext.h"
+#include "Core/Compiler/SemanticContext.h"
 
 namespace Core
 {
@@ -19,7 +19,7 @@ class ModelBuilder
 		void emitWarning(const QString &location, const QString &description);
 		void emitError(const QString &location, const QString &description);
 
-		const ScriptLanguage::SemanticContext::Type *resolveType(const DatatypeName *dt) const;
+		const Compiler::SemanticContext::Type *resolveType(const DatatypeName *dt) const;
 
 		void checkDuplicateGlobalNames();
 		void checkControlFlowEdges();
@@ -29,7 +29,7 @@ class ModelBuilder
 		const Document *m_doc;
 		bool m_error;
 
-		ScriptLanguage::SemanticContext m_semanticContext;
+		Compiler::SemanticContext m_semanticContext;
 };
 
 }

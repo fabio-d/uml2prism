@@ -12,12 +12,12 @@ find_package(Qt4 REQUIRED QtGui QtXml QtSvg)
 
 add_definitions(-std=c++11 -Wall)
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Core/ScriptLanguage)
-bison_target(ScriptParser Core/ScriptLanguage/Parser.yy
-	${CMAKE_CURRENT_BINARY_DIR}/Core/ScriptLanguage/Parser.cpp)
-flex_target(ScriptLexer Core/ScriptLanguage/Lexer.l
-	${CMAKE_CURRENT_BINARY_DIR}/Core/ScriptLanguage/Lexer.cpp)
-add_flex_bison_dependency(ScriptLexer ScriptParser)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Core/Compiler)
+bison_target(CompilerParser Core/Compiler/Parser.yy
+	${CMAKE_CURRENT_BINARY_DIR}/Core/Compiler/Parser.cpp)
+flex_target(CompilerLexer Core/Compiler/Lexer.l
+	${CMAKE_CURRENT_BINARY_DIR}/Core/Compiler/Lexer.cpp)
+add_flex_bison_dependency(CompilerLexer CompilerParser)
 
 add_executable(UMLEditor
 	Core/DatatypeName.cpp
@@ -26,12 +26,12 @@ add_executable(UMLEditor
 	Core/UMLDiagram.cpp
 	Core/UMLElement.cpp
 
-	Core/ScriptLanguage/SemanticContext.cpp
-	Core/ScriptLanguage/SourceLocation.cpp
-	Core/ScriptLanguage/SyntaxTree.cpp
-	Core/ScriptLanguage/SyntaxTreeGenerator.cpp
-	${BISON_ScriptParser_OUTPUTS}
-	${FLEX_ScriptLexer_OUTPUTS}
+	Core/Compiler/SemanticContext.cpp
+	Core/Compiler/SourceLocation.cpp
+	Core/Compiler/SyntaxTree.cpp
+	Core/Compiler/SyntaxTreeGenerator.cpp
+	${BISON_CompilerParser_OUTPUTS}
+	${FLEX_CompilerLexer_OUTPUTS}
 
 	Gui/EditClassDialog.cpp
 	Gui/EditDatatypeNameWidget.cpp

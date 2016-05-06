@@ -1,10 +1,10 @@
-#include "Core/ScriptLanguage/SemanticContext.h"
+#include "Core/Compiler/SemanticContext.h"
 
 #include <QDebug>
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 
 void SemanticContext::Type::fillReferencedTypes(QSet<const Type*> &target) const

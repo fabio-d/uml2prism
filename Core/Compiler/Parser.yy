@@ -1,7 +1,7 @@
 %skeleton	"lalr1.cc"
 %require	"3.0"
 %defines
-%define		api.namespace {Core::ScriptLanguage}
+%define		api.namespace {Core::Compiler}
 %define		parser_class_name {Parser}
 %define		api.value.type variant
 %define		parse.assert
@@ -16,7 +16,7 @@
 
 	namespace Core
 	{
-	namespace ScriptLanguage
+	namespace Compiler
 	{
 	class SyntaxTreeGenerator;
 	class Lexer;
@@ -43,15 +43,15 @@
 	#include <cstdlib>
 	#include <fstream>
 
-	#include "Core/ScriptLanguage/Lexer.h"
-	#include "Core/ScriptLanguage/SyntaxTreeGenerator.h"
+	#include "Core/Compiler/Lexer.h"
+	#include "Core/Compiler/SyntaxTreeGenerator.h"
 
 	#undef yylex
 	#define yylex lexer.yylex
 
-	static Core::ScriptLanguage::SourceLocation convertLocation(const Core::ScriptLanguage::location &l)
+	static Core::Compiler::SourceLocation convertLocation(const Core::Compiler::location &l)
 	{
-		return Core::ScriptLanguage::SourceLocation(
+		return Core::Compiler::SourceLocation(
 			l.begin.line, l.begin.column,
 			l.end.line, l.end.column > 0 ? (l.end.column - 1) : 0);
 	}
@@ -173,7 +173,7 @@ choice-or:
 ;
 
 %%
-void Core::ScriptLanguage::Parser::error(const location_type &l, const std::string &err_message)
+void Core::Compiler::Parser::error(const location_type &l, const std::string &err_message)
 {
 	owner->setError(convertLocation(l), QString::fromStdString(err_message));
 }

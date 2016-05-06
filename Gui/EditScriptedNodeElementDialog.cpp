@@ -2,7 +2,7 @@
 
 #include "Gui/IdentifierValidator.h"
 
-#include "Core/ScriptLanguage/SyntaxTreeGenerator.h"
+#include "Core/Compiler/SyntaxTreeGenerator.h"
 #include "Core/UMLElement.h"
 
 #include <QPushButton>
@@ -69,9 +69,9 @@ void EditScriptedNodeElementDialog::accept()
 
 void EditScriptedNodeElementDialog::slotParse()
 {
-	const Core::ScriptLanguage::SyntaxTreeGenerator stgen(
+	const Core::Compiler::SyntaxTreeGenerator stgen(
 		m_ui->scriptTextEdit->toPlainText(),
-		Core::ScriptLanguage::SyntaxTreeGenerator::Script);
+		Core::Compiler::SyntaxTreeGenerator::Script);
 }
 
 }

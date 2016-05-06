@@ -1,25 +1,25 @@
-#ifndef CORE_SCRIPTLANGUAGE_LEXER_H
-#define CORE_SCRIPTLANGUAGE_LEXER_H
+#ifndef CORE_COMPILER_LEXER_H
+#define CORE_COMPILER_LEXER_H
 
 #ifndef yyFlexLexerOnce
 # undef yyFlexLexer
-# define yyFlexLexer ScriptLanguageFlexLexer
+# define yyFlexLexer CompilerFlexLexer
 # include <FlexLexer.h>
 # undef yyFlexLexer
 #endif
 
-#include "Core/ScriptLanguage/Parser.h"
+#include "Core/Compiler/Parser.h"
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 
-class Lexer : public ScriptLanguageFlexLexer
+class Lexer : public CompilerFlexLexer
 {
 	public:
 		Lexer(std::istream *in)
-		: ScriptLanguageFlexLexer(in)
+		: CompilerFlexLexer(in)
 		{
 		}
 
@@ -36,4 +36,4 @@ class Lexer : public ScriptLanguageFlexLexer
 }
 }
 
-#endif // CORE_SCRIPTLANGUAGE_LEXER_H
+#endif // CORE_COMPILER_LEXER_H

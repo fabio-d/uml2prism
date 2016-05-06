@@ -1,7 +1,7 @@
-#include "Core/ScriptLanguage/SyntaxTreeGenerator.h"
+#include "Core/Compiler/SyntaxTreeGenerator.h"
 
-#include "Core/ScriptLanguage/Lexer.h"
-#include "Core/ScriptLanguage/Parser.h"
+#include "Core/Compiler/Lexer.h"
+#include "Core/Compiler/Parser.h"
 
 #include <QDebug>
 
@@ -9,7 +9,7 @@
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 
 SyntaxTreeGenerator::SyntaxTreeGenerator(const QString &sourceCode, SourceType type)
@@ -22,10 +22,10 @@ SyntaxTreeGenerator::SyntaxTreeGenerator(const QString &sourceCode, SourceType t
 	switch (type)
 	{
 		case Script:
-			lexer.injectToken(Core::ScriptLanguage::Parser::token::START_SCRIPT);
+			lexer.injectToken(Core::Compiler::Parser::token::START_SCRIPT);
 			break;
 		case Value:
-			lexer.injectToken(Core::ScriptLanguage::Parser::token::START_VALUE);
+			lexer.injectToken(Core::Compiler::Parser::token::START_VALUE);
 			break;
 	}
 

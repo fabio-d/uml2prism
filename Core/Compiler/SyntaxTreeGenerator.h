@@ -1,14 +1,14 @@
-#ifndef CORE_SCRIPTLANGUAGE_SYNTAXTREEGENERATOR_H
-#define CORE_SCRIPTLANGUAGE_SYNTAXTREEGENERATOR_H
+#ifndef CORE_COMPILER_SYNTAXTREEGENERATOR_H
+#define CORE_COMPILER_SYNTAXTREEGENERATOR_H
 
-#include "Core/ScriptLanguage/SyntaxTree.h"
+#include "Core/Compiler/SyntaxTree.h"
 
 #include <QSet>
 #include <QString>
 
 namespace Core
 {
-namespace ScriptLanguage
+namespace Compiler
 {
 
 class SyntaxTreeGenerator
@@ -47,4 +47,4 @@ class SyntaxTreeGenerator
 }
 }
 
-#endif // CORE_SCRIPTLANGUAGE_SYNTAXTREEGENERATOR_H
+#endif // CORE_COMPILER_SYNTAXTREEGENERATOR_H

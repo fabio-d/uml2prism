@@ -1,13 +1,13 @@
 %{
-#include "Core/ScriptLanguage/Lexer.h"
+#include "Core/Compiler/Lexer.h"
 
-typedef Core::ScriptLanguage::Parser::token token;
+typedef Core::Compiler::Parser::token token;
 
 #undef YY_DECL
 #define YY_DECL \
-	int Core::ScriptLanguage::Lexer::yylex( \
-		Core::ScriptLanguage::Parser::semantic_type *const yylval, \
-		Core::ScriptLanguage::Parser::location_type *loc)
+	int Core::Compiler::Lexer::yylex( \
+		Core::Compiler::Parser::semantic_type *const yylval, \
+		Core::Compiler::Parser::location_type *loc)
 
 #define YY_NO_UNISTD_H
 
@@ -15,7 +15,7 @@ typedef Core::ScriptLanguage::Parser::token token;
 	loc->step(); \
 	loc->columns(yyleng);
 
-void Core::ScriptLanguage::Lexer::injectToken(int token)
+void Core::Compiler::Lexer::injectToken(int token)
 {
 	m_tokenToInjectIsPresent = true;
 	m_tokenToInject = token;
@@ -25,8 +25,8 @@ void Core::ScriptLanguage::Lexer::injectToken(int token)
 %option c++
 %option nodefault
 %option noyywrap
-%option prefix="ScriptLanguage"
-%option yyclass="Core::ScriptLanguage::Lexer"
+%option prefix="Compiler"
+%option yyclass="Core::Compiler::Lexer"
 
 alpha	[A-Za-z]
 digit	[0-9]
