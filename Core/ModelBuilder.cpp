@@ -441,10 +441,21 @@ void ModelBuilder::registerTypes()
 	{
 		Core::ScriptLanguage::SemanticContext::ClassType *obj = umlClasses[cls];
 
-		// TODO: Check that member variables have distinct names
+		QMap<QString, int> seenNames;
+		foreach (const UMLClass::MemberVariable &var, cls->memberVariables())
+		{
+			if (seenNames[var.name]++ == 1)
+				emitError(
+					QString("%1:%2").arg(cls->datatypeName()).arg(var.name),
+					"Variable defined more than once");
+		}
 
 		foreach (const UMLClass::MemberVariable &var, cls->memberVariables())
 		{
+			// Skip variables that are not unambiguously defined
+			if (seenNames[var.name] > 1)
+				continue;
+
 			const ScriptLanguage::SemanticContext::Type *type = resolveType(&var.datatypeName);
 			if (type != nullptr)
 				obj->registerMemberVariable(var.name, type);
