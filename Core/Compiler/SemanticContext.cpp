@@ -128,5 +128,10 @@ void SemanticContext::registerGlobalVariable(const QString &name, const Type *ty
 	m_globalVariables.insert(name, type);
 }
 
+void SemanticContext::registerSignal(const QString &name, const Type *type)
+{
+	m_signals.insert(name, type);
+}
+
 }
 }

@@ -77,11 +77,13 @@ class SemanticContext
 		EnumerationType *registerEnumeration(const QString &enumName);
 		ClassType *registerClass(const QString &className);
 		void registerGlobalVariable(const QString &name, const Type *type);
+		void registerSignal(const QString &name, const Type *type); // type==nullptr means no attached message
 
 	private:
 		QMap<QString, const Type*> m_classAndEnumTypes; // EnumerationType and ClassType instances by name
 		mutable QMap<const Type*, const SetType*> m_setTypes; // SetType instances by innerType
 		QMap<QString, const Type*> m_globalVariables;
+		QMap<QString, const Type*> m_signals;
 };
 
 }

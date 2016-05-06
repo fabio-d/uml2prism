@@ -44,6 +44,11 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	if (m_error)
 		return;
 
+	qDebug() << "Registering signals...";
+	registerSignals();
+	if (m_error)
+		return;
+
 	qDebug() << "Success";
 }
 
@@ -490,6 +495,38 @@ void ModelBuilder::registerTypes()
 					QString("(global):%1").arg(var.name),
 					QString("Cannot resolve type \"%1\"").arg(var.datatypeName.toString()));
 		}
+	}
+}
+
+void ModelBuilder::registerSignals()
+{
+	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
+	{
+		const UMLSignalEdge *signalElem = dynamic_cast<const UMLSignalEdge*>(elem);
+		if (signalElem == nullptr)
+			continue;
+
+		const QString &signalName = signalElem->signalName();
+		const DatatypeName &datatype = signalElem->messageDatatypeName();
+		const Core::Compiler::SemanticContext::Type *resolvedType;
+
+		if (datatype.type() == DatatypeName::Invalid)
+		{
+			resolvedType = nullptr;
+		}
+		else
+		{
+			resolvedType = resolveType(&datatype);
+
+			if (resolvedType == nullptr)
+			{
+				emitError(signalName,
+					QString("Cannot resolve type \"%1\"").arg(datatype.toString()));
+				continue;
+			}
+		}
+
+		m_semanticContext.registerSignal(signalName, resolvedType);
 	}
 }
 
