@@ -256,9 +256,17 @@ void ModelBuilder::checkControlFlowEdges()
 		if (nodeElem == nullptr)
 			continue;
 
-		const QString nodeName = nodeElem->nodeName();
+		const QString &nodeName = nodeElem->nodeName();
 
-		// TODO: branch names must be locally unique
+		QMap<QString, int> seenBranches;
+		foreach (const UMLControlFlowEdge *edge, nodeElem->outgoingControlFlowEdges())
+		{
+			const QString &branchName = edge->branchName();
+			if (!branchName.isEmpty() && seenBranches[branchName]++ == 1)
+				emitError(
+					QString("%1:[%2]").arg(nodeName).arg(branchName),
+					"Branch name used more than once");
+		}
 
 		switch (nodeElem->type())
 		{
