@@ -67,7 +67,7 @@ void ModelBuilder::emitError(const QString &location, const QString &description
 	m_error = true;
 }
 
-const Compiler::SemanticContext::Type *ModelBuilder::resolveType(const DatatypeName *dt) const
+const Compiler::SemanticTree::Type *ModelBuilder::resolveType(const DatatypeName *dt) const
 {
 	switch (dt->type())
 	{
@@ -77,7 +77,7 @@ const Compiler::SemanticContext::Type *ModelBuilder::resolveType(const DatatypeN
 			return m_semanticContext.findOtherType(dt->datatypeName());
 		case DatatypeName::Set:
 		{
-			const Compiler::SemanticContext::Type *inner = resolveType(dt->innerDatatype());
+			const Compiler::SemanticTree::Type *inner = resolveType(dt->innerDatatype());
 			return inner != nullptr ? m_semanticContext.findSetType(inner) : nullptr;
 		}
 		default:
@@ -411,7 +411,7 @@ void ModelBuilder::checkSignalEdges()
 void ModelBuilder::registerTypes()
 {
 	// Register enumarations first. Classes and global variables will be handled later
-	QMap<const UMLClass*, Core::Compiler::SemanticContext::ClassType*> umlClasses;
+	QMap<const UMLClass*, Core::Compiler::SemanticTree::ClassType*> umlClasses;
 	QList<const UMLGlobalVariables*> umlGlobalVars;
 	foreach (const UMLElement *elem, m_doc->classDiagram()->elements())
 	{
@@ -423,7 +423,7 @@ void ModelBuilder::registerTypes()
 			case UMLElementType::Enumeration:
 				{
 					const UMLEnumeration *enm = static_cast<const UMLEnumeration*>(elem);
-					Core::Compiler::SemanticContext::EnumerationType *obj = m_semanticContext.registerEnumeration(enm->datatypeName());
+					Core::Compiler::SemanticTree::EnumerationType *obj = m_semanticContext.registerEnumeration(enm->datatypeName());
 					foreach (const QString &val, enm->values())
 						obj->registerValue(val);
 				}
@@ -444,7 +444,7 @@ void ModelBuilder::registerTypes()
 	// Register classes' member variables
 	foreach (const UMLClass *cls, umlClasses.keys())
 	{
-		Core::Compiler::SemanticContext::ClassType *obj = umlClasses[cls];
+		Core::Compiler::SemanticTree::ClassType *obj = umlClasses[cls];
 
 		QMap<QString, int> seenNames;
 		foreach (const UMLClass::MemberVariable &var, cls->memberVariables())
@@ -461,7 +461,7 @@ void ModelBuilder::registerTypes()
 			if (seenNames[var.name] > 1)
 				continue;
 
-			const Compiler::SemanticContext::Type *type = resolveType(&var.datatypeName);
+			const Compiler::SemanticTree::Type *type = resolveType(&var.datatypeName);
 			if (type != nullptr)
 				obj->registerMemberVariable(var.name, type);
 			else
@@ -472,9 +472,9 @@ void ModelBuilder::registerTypes()
 	}
 
 	// Check that no type is defined in terms of itself
-	foreach (Core::Compiler::SemanticContext::ClassType *obj, umlClasses)
+	foreach (Core::Compiler::SemanticTree::ClassType *obj, umlClasses)
 	{
-		QSet<const Core::Compiler::SemanticContext::Type*> referencedTypes;
+		QSet<const Core::Compiler::SemanticTree::Type*> referencedTypes;
 		obj->fillReferencedTypes(referencedTypes);
 		if (referencedTypes.contains(obj))
 			emitError(
@@ -487,7 +487,7 @@ void ModelBuilder::registerTypes()
 	{
 		foreach (const UMLGlobalVariables::GlobalVariable &var, gv->globalVariables())
 		{
-			const Compiler::SemanticContext::Type *type = resolveType(&var.datatypeName);
+			const Compiler::SemanticTree::Type *type = resolveType(&var.datatypeName);
 			if (type != nullptr)
 				m_semanticContext.registerGlobalVariable(var.name, type);
 			else
@@ -508,7 +508,7 @@ void ModelBuilder::registerSignals()
 
 		const QString &signalName = signalElem->signalName();
 		const DatatypeName &datatype = signalElem->messageDatatypeName();
-		const Core::Compiler::SemanticContext::Type *resolvedType;
+		const Core::Compiler::SemanticTree::Type *resolvedType;
 
 		if (datatype.type() == DatatypeName::Invalid)
 		{

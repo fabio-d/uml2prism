@@ -19,7 +19,7 @@ class ModelBuilder
 		void emitWarning(const QString &location, const QString &description);
 		void emitError(const QString &location, const QString &description);
 
-		const Compiler::SemanticContext::Type *resolveType(const DatatypeName *dt) const;
+		const Compiler::SemanticTree::Type *resolveType(const DatatypeName *dt) const;
 
 		void checkDuplicateGlobalNames();
 		void checkControlFlowEdges();
