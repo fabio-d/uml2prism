@@ -15,6 +15,9 @@ class ModelBuilder
 		explicit ModelBuilder(const Document *doc);
 		~ModelBuilder();
 
+		bool success() const;
+		const Compiler::SemanticContext *semanticContext() const;
+
 	private:
 		void emitWarning(const QString &location, const QString &description);
 		void emitError(const QString &location, const QString &description);

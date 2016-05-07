@@ -26,8 +26,12 @@ class SyntaxTreeGenerator
 		SyntaxTreeGenerator(const QString &sourceCode, SourceType type);
 		~SyntaxTreeGenerator();
 
-		SyntaxTree::Statement *takeResultScript();
-		SyntaxTree::Expression *takeResultValue();
+		bool success() const;
+		const SourceLocation &errorLocation() const;
+		const QString &errorMessage() const;
+
+		SyntaxTree::Statement *resultScript();
+		SyntaxTree::Expression *resultValue();
 
 	private:
 		void setError(const SourceLocation &location, const QString &message);

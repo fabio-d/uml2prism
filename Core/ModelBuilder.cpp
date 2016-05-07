@@ -57,6 +57,16 @@ ModelBuilder::~ModelBuilder()
 {
 }
 
+bool ModelBuilder::success() const
+{
+	return !m_error;
+}
+
+const Compiler::SemanticContext *ModelBuilder::semanticContext() const
+{
+	return &m_semanticContext;
+}
+
 void ModelBuilder::emitWarning(const QString &location, const QString &description)
 {
 	qDebug() << "WARNING:" << location << ":" << description;

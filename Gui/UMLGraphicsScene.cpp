@@ -135,7 +135,7 @@ void UMLGraphicsScene::editSelectedItem(QWidget *requestingWidget)
 
 	if (scriptedNodeElem)
 	{
-		diag = new EditScriptedNodeElementDialog(scriptedNodeElem, requestingWidget);
+		diag = new EditScriptedNodeElementDialog(m_dia->document(), scriptedNodeElem, requestingWidget);
 	}
 	else if (signalEdgeElem)
 	{

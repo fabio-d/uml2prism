@@ -91,6 +91,10 @@ class SetType : public Type
 		const Type *m_innerType;
 };
 
+class Expression
+{
+};
+
 }
 }
 }

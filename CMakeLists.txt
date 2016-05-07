@@ -59,6 +59,7 @@ add_executable(UMLEditor
 
 	Core/Compiler/SemanticContext.cpp
 	Core/Compiler/SemanticTree.cpp
+	Core/Compiler/SemanticTreeGenerator.cpp
 	Core/Compiler/SourceLocation.cpp
 	Core/Compiler/SyntaxTree.cpp
 	Core/Compiler/SyntaxTreeGenerator.cpp

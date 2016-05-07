@@ -46,14 +46,33 @@ SyntaxTreeGenerator::~SyntaxTreeGenerator()
 	}
 }
 
-SyntaxTree::Statement *SyntaxTreeGenerator::takeResultScript()
+bool SyntaxTreeGenerator::success() const
 {
-	return nullptr; // TODO
+	return m_success;
 }
 
-SyntaxTree::Expression *SyntaxTreeGenerator::takeResultValue()
+const SourceLocation &SyntaxTreeGenerator::errorLocation() const
 {
-	return nullptr; // TODO
+	Q_ASSERT(m_success == false);
+	return m_errorLocation;
+}
+
+const QString &SyntaxTreeGenerator::errorMessage() const
+{
+	Q_ASSERT(m_success == false);
+	return m_errorMessage;
+}
+
+SyntaxTree::Statement *SyntaxTreeGenerator::resultScript()
+{
+	Q_ASSERT(m_success == true);
+	return m_resultScript;
+}
+
+SyntaxTree::Expression *SyntaxTreeGenerator::resultValue()
+{
+	Q_ASSERT(m_success == true);
+	return m_resultValue;
 }
 
 void SyntaxTreeGenerator::setError(const SourceLocation &location, const QString &message)

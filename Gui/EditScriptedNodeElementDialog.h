@@ -7,6 +7,7 @@ class Ui_EditScriptedNodeElementDialog;
 
 namespace Core
 {
+class Document;
 class UMLScriptedNodeElement;
 }
 
@@ -18,7 +19,7 @@ class EditScriptedNodeElementDialog : public QDialog
 	Q_OBJECT
 
 	public:
-		explicit EditScriptedNodeElementDialog(Core::UMLScriptedNodeElement *elem, QWidget *parent = nullptr);
+		EditScriptedNodeElementDialog(Core::Document *doc, Core::UMLScriptedNodeElement *elem, QWidget *parent = nullptr);
 		~EditScriptedNodeElementDialog();
 
 		void accept() override;
@@ -28,6 +29,7 @@ class EditScriptedNodeElementDialog : public QDialog
 
 	private:
 		Ui_EditScriptedNodeElementDialog *m_ui;
+		Core::Document *m_doc;
 		Core::UMLScriptedNodeElement *m_elem;
 };
 

@@ -2,7 +2,8 @@
 
 #include "Gui/IdentifierValidator.h"
 
-#include "Core/Compiler/SyntaxTreeGenerator.h"
+#include "Core/Compiler/SemanticTreeGenerator.h"
+#include "Core/ModelBuilder.h"
 #include "Core/UMLElement.h"
 
 #include <QPushButton>
@@ -12,8 +13,8 @@
 namespace Gui
 {
 
-EditScriptedNodeElementDialog::EditScriptedNodeElementDialog(Core::UMLScriptedNodeElement *elem, QWidget *parent)
-: QDialog(parent), m_ui(new Ui_EditScriptedNodeElementDialog), m_elem(elem)
+EditScriptedNodeElementDialog::EditScriptedNodeElementDialog(Core::Document *doc, Core::UMLScriptedNodeElement *elem, QWidget *parent)
+: QDialog(parent), m_ui(new Ui_EditScriptedNodeElementDialog), m_doc(doc), m_elem(elem)
 {
 	m_ui->setupUi(this);
 	m_ui->nameLineEdit->setValidator(new IdentifierValidator(this));
@@ -69,9 +70,14 @@ void EditScriptedNodeElementDialog::accept()
 
 void EditScriptedNodeElementDialog::slotParse()
 {
-	const Core::Compiler::SyntaxTreeGenerator stgen(
-		m_ui->scriptTextEdit->toPlainText(),
-		Core::Compiler::SyntaxTreeGenerator::Script);
+	Core::ModelBuilder builder(m_doc);
+	if (builder.success())
+	{
+		const Core::Compiler::SemanticTreeGenerator stgen(
+			m_ui->scriptTextEdit->toPlainText(),
+			builder.semanticContext()->boolType(),
+			builder.semanticContext());
+	}
 }
 
 }
