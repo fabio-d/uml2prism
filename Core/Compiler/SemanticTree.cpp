@@ -38,7 +38,7 @@ ClassType::ClassType(const QString &datatypeName)
 
 void ClassType::registerMemberVariable(const QString &variableName, const Type *type)
 {
-	m_memberVariables.insert(variableName, type);
+	m_memberVariables.append(QPair<QString, const Type*>(variableName, type));
 }
 
 const QString ClassType::datatypeName() const
@@ -49,8 +49,10 @@ const QString ClassType::datatypeName() const
 void ClassType::fillReferencedTypes(QSet<const Type*> &target) const
 {
 	QSet<const Type*> res;
-	foreach (const Type *t, m_memberVariables)
+	for (QList<QPair<QString, const Type*>>::const_iterator it = m_memberVariables.begin();
+		it != m_memberVariables.end(); ++it)
 	{
+		const Type *t = it->second;
 		if (target.contains(t))
 			continue;
 

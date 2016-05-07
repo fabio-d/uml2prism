@@ -7,10 +7,6 @@ namespace Core
 namespace Compiler
 {
 
-SemanticContext::SemanticContext()
-{
-}
-
 SemanticContext::~SemanticContext()
 {
 	qDeleteAll(m_classAndEnumTypes);
@@ -19,8 +15,7 @@ SemanticContext::~SemanticContext()
 
 const SemanticTree::BoolType *SemanticContext::boolType() const
 {
-	static SemanticTree::BoolType singleton;
-	return &singleton;
+	return &m_boolType;
 }
 
 const SemanticTree::Type *SemanticContext::findOtherType(const QString &name) const

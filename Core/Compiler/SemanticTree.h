@@ -1,7 +1,6 @@
 #ifndef CORE_COMPILER_SEMANTICTREE_H
 #define CORE_COMPILER_SEMANTICTREE_H
 
-#include <QMap>
 #include <QSet>
 #include <QStringList>
 
@@ -51,7 +50,7 @@ class ClassType : public Type
 
 	private:
 		QString m_datatypeName;
-		QMap<QString, const Type*> m_memberVariables;
+		QList<QPair<QString, const Type*>> m_memberVariables;
 };
 
 class SetType : public Type
