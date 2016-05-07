@@ -25,6 +25,7 @@ class ModelBuilder
 		void checkControlFlowEdges();
 		void checkSignalEdges();
 		void registerTypes();
+		void registerGlobalVariables();
 		void registerSignals();
 
 		const Document *m_doc;

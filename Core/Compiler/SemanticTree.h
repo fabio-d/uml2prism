@@ -1,6 +1,8 @@
 #ifndef CORE_COMPILER_SEMANTICTREE_H
 #define CORE_COMPILER_SEMANTICTREE_H
 
+#include "Core/Compiler/Bindings_stub.h"
+
 #include <QSet>
 #include <QStringList>
 
@@ -14,14 +16,29 @@ namespace SemanticTree
 class Type
 {
 	public:
+		virtual ~Type();
+
 		virtual const QString datatypeName() const = 0;
 		virtual void fillReferencedTypes(QSet<const Type*> &target) const;
+
+		HsStablePtr haskellHandle() const;
+
+	protected:
+		Type();
+		virtual HsStablePtr createHaskellHandle() const = 0;
+		bool hasHaskellHandleBeenCreated() const;
+
+	private:
+		mutable HsStablePtr m_haskellHandle;
 };
 
 class BoolType : public Type
 {
 	public:
 		const QString datatypeName() const override;
+
+	protected:
+		HsStablePtr createHaskellHandle() const override;
 };
 
 class EnumerationType : public Type
@@ -32,6 +49,9 @@ class EnumerationType : public Type
 		void registerValue(const QString &valueName);
 
 		const QString datatypeName() const override;
+
+	protected:
+		HsStablePtr createHaskellHandle() const override;
 
 	private:
 		QString m_datatypeName;
@@ -48,6 +68,9 @@ class ClassType : public Type
 		const QString datatypeName() const override;
 		void fillReferencedTypes(QSet<const Type*> &target) const override;
 
+	protected:
+		HsStablePtr createHaskellHandle() const override;
+
 	private:
 		QString m_datatypeName;
 		QList<QPair<QString, const Type*>> m_memberVariables;
@@ -60,6 +83,9 @@ class SetType : public Type
 
 		const QString datatypeName() const override;
 		void fillReferencedTypes(QSet<const Type*> &target) const override;
+
+	protected:
+		HsStablePtr createHaskellHandle() const override;
 
 	private:
 		const Type *m_innerType;

@@ -12,8 +12,6 @@ int main(int argc, char *argv[])
 	hs_init(&argc, &argv);
 	hs_add_root(__stginit_Bindings);
 
-	hsHelloWorld();
-
 	QApplication app(argc, argv);
 	QStringList args = QApplication::arguments();
 	Gui::MainWindow *mw = new Gui::MainWindow();

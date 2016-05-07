@@ -45,6 +45,7 @@ flex_target(CompilerLexer Core/Compiler/Lexer.l
 add_flex_bison_dependency(CompilerLexer CompilerParser)
 
 add_library(Haskell_CoreCompiler STATIC
+	Core/Compiler/SemanticTree.hs
 	Core/Compiler/Bindings.hs
 )
 set_property(TARGET Haskell_CoreCompiler PROPERTY LINKER_LANGUAGE Haskell)

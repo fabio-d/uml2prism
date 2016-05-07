@@ -44,8 +44,9 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	if (m_error)
 		return;
 
-	qDebug() << "Registering signals...";
+	qDebug() << "Registering signals and global variables...";
 	registerSignals();
+	registerGlobalVariables();
 	if (m_error)
 		return;
 
@@ -412,13 +413,11 @@ void ModelBuilder::registerTypes()
 {
 	// Register enumarations first. Classes and global variables will be handled later
 	QMap<const UMLClass*, Core::Compiler::SemanticTree::ClassType*> umlClasses;
-	QList<const UMLGlobalVariables*> umlGlobalVars;
 	foreach (const UMLElement *elem, m_doc->classDiagram()->elements())
 	{
 		switch (elem->type())
 		{
 			case UMLElementType::GlobalVariables:
-				umlGlobalVars.append(static_cast<const UMLGlobalVariables*>(elem));
 				break;
 			case UMLElementType::Enumeration:
 				{
@@ -480,6 +479,26 @@ void ModelBuilder::registerTypes()
 			emitError(
 				QString("%1").arg(obj->datatypeName()),
 				"Classes cannot be defined in terms of themselves (recursive datatypes are not supported)");
+	}
+}
+
+void ModelBuilder::registerGlobalVariables()
+{
+	QList<const UMLGlobalVariables*> umlGlobalVars;
+	foreach (const UMLElement *elem, m_doc->classDiagram()->elements())
+	{
+		switch (elem->type())
+		{
+			case UMLElementType::GlobalVariables:
+				umlGlobalVars.append(static_cast<const UMLGlobalVariables*>(elem));
+				break;
+			case UMLElementType::Enumeration:
+			case UMLElementType::Class:
+				break;
+			default:
+				qFatal("This should never happen");
+				break;
+		}
 	}
 
 	// Register global variables
