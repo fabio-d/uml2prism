@@ -12,8 +12,8 @@ namespace Compiler
 namespace SyntaxTree
 {
 
-Node::Node(SyntaxTreeGenerator *owner, const SourceLocation &location)
-: m_owner(owner), m_location(location)
+Node::Node(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType)
+: m_owner(owner), m_location(location), m_nodeType(nodeType)
 {
 	//qDebug() << "gc ctor" << this << m_location.toString();
 	m_owner->m_allNodes.insert(this);
@@ -30,8 +30,13 @@ const SourceLocation &Node::location() const
 	return m_location;
 }
 
-Expression::Expression(SyntaxTreeGenerator *owner, const SourceLocation &location)
-: Node(owner, location)
+NodeType Node::nodeType() const
+{
+	return m_nodeType;
+}
+
+Expression::Expression(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType)
+: Node(owner, location, nodeType)
 {
 	//qDebug() << "expr ctor" << this;
 }
@@ -41,8 +46,8 @@ Expression::~Expression()
 	//qDebug() << "expr dtor" << this;
 }
 
-Statement::Statement(SyntaxTreeGenerator *owner, const SourceLocation &location)
-: Node(owner, location)
+Statement::Statement(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType)
+: Node(owner, location, nodeType)
 {
 	//qDebug() << "stmt ctor" << this;
 }
@@ -52,13 +57,13 @@ Statement::~Statement()
 	//qDebug() << "stmt dtor" << this;
 }
 
-Identifier::Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location)
-: Expression(owner, location)
+Identifier::Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType)
+: Expression(owner, location, nodeType)
 {
 }
 
 GlobalIdentifier::GlobalIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &name)
-: Identifier(owner, location), m_name(name)
+: Identifier(owner, location, NodeType::GlobalIdentifier), m_name(name)
 {
 }
 
@@ -68,7 +73,7 @@ QString GlobalIdentifier::toString() const
 }
 
 MemberIdentifier::MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *container, const QString &name)
-: Identifier(owner, location), m_container(container), m_name(name)
+: Identifier(owner, location, NodeType::MemberIdentifier), m_container(container), m_name(name)
 {
 }
 
@@ -78,7 +83,7 @@ QString MemberIdentifier::toString() const
 }
 
 NilLiteral::NilLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location)
-: Expression(owner, location)
+: Expression(owner, location, NodeType::NilLiteral)
 {
 }
 
@@ -88,7 +93,7 @@ QString NilLiteral::toString() const
 }
 
 BoolLiteral::BoolLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location, bool value)
-: Expression(owner, location), m_value(value)
+: Expression(owner, location, NodeType::BoolLiteral), m_value(value)
 {
 }
 
@@ -98,7 +103,7 @@ QString BoolLiteral::toString() const
 }
 
 NotOperator::NotOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *arg)
-: Expression(owner, location), m_arg(arg)
+: Expression(owner, location, NodeType::NotOperator), m_arg(arg)
 {
 }
 
@@ -109,7 +114,7 @@ QString NotOperator::toString() const
 }
 
 BinaryOperator::BinaryOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Operator op, Expression *arg1, Expression *arg2)
-: Expression(owner, location), m_op(op), m_arg1(arg1), m_arg2(arg2)
+: Expression(owner, location, NodeType::BinaryOperator), m_op(op), m_arg1(arg1), m_arg2(arg2)
 {
 }
 
@@ -140,7 +145,7 @@ QString BinaryOperator::toString() const
 }
 
 Tuple::Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Expression*> &elements)
-: Expression(owner, location), m_elements(elements)
+: Expression(owner, location, NodeType::Tuple), m_elements(elements)
 {
 }
 
@@ -157,7 +162,7 @@ QString Tuple::toString() const
 }
 
 CompoundStatement::CompoundStatement(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Statement*> &statements)
-: Statement(owner, location), m_statements(statements)
+: Statement(owner, location, NodeType::CompoundStatement), m_statements(statements)
 {
 }
 
@@ -174,7 +179,7 @@ QString CompoundStatement::toString() const
 }
 
 MethodCall::MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, const QList<Expression*> &arguments)
-: Expression(owner, location), Statement(owner, location), m_method(method), m_arguments(arguments)
+: Expression(owner, location, NodeType::MethodCall), Statement(owner, location, NodeType::MethodCall), m_method(method), m_arguments(arguments)
 {
 }
 
@@ -192,7 +197,7 @@ QString MethodCall::toString() const
 }
 
 Assignment::Assignment(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *dest, Expression *value)
-: Statement(owner, location), m_dest(dest), m_value(value)
+: Statement(owner, location, NodeType::Assignment), m_dest(dest), m_value(value)
 {
 }
 
@@ -202,7 +207,7 @@ QString Assignment::toString() const
 }
 
 SignalEmission::SignalEmission(SyntaxTreeGenerator *owner, const SourceLocation &location, GlobalIdentifier *signal, Expression *value)
-: Statement(owner, location), m_signal(signal), m_value(value)
+: Statement(owner, location, NodeType::SignalEmission), m_signal(signal), m_value(value)
 {
 }
 
@@ -215,7 +220,7 @@ QString SignalEmission::toString() const
 }
 
 IfElse::IfElse(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *condition, Statement *trueBranch, Statement *falseBranch)
-: Statement(owner, location), m_condition(condition), m_trueBranch(trueBranch), m_falseBranch(falseBranch)
+: Statement(owner, location, NodeType::IfElse), m_condition(condition), m_trueBranch(trueBranch), m_falseBranch(falseBranch)
 {
 }
 
@@ -225,7 +230,7 @@ QString IfElse::toString() const
 }
 
 ChoiceOr::ChoiceOr(SyntaxTreeGenerator *owner, const SourceLocation &location, Statement *alt1, Statement *alt2)
-: Statement(owner, location), m_alt1(alt1), m_alt2(alt2)
+: Statement(owner, location, NodeType::ChoiceOr), m_alt1(alt1), m_alt2(alt2)
 {
 }
 
@@ -235,7 +240,7 @@ QString ChoiceOr::toString() const
 }
 
 Branch::Branch(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &label)
-: Statement(owner, location), m_label(label)
+: Statement(owner, location, NodeType::Branch), m_label(label)
 {
 }
 

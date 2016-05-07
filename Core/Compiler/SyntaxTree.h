@@ -15,25 +15,45 @@ class SyntaxTreeGenerator;
 namespace SyntaxTree
 {
 
+enum class NodeType
+{
+	GlobalIdentifier,
+	MemberIdentifier,
+	NilLiteral,
+	BoolLiteral,
+	NotOperator,
+	BinaryOperator,
+	Tuple,
+	CompoundStatement,
+	MethodCall,
+	Assignment,
+	SignalEmission,
+	IfElse,
+	ChoiceOr,
+	Branch
+};
+
 class Node
 {
 	public:
 		virtual ~Node();
 
 		const SourceLocation &location() const;
+		NodeType nodeType() const;
 
 	protected:
-		Node(SyntaxTreeGenerator *owner, const SourceLocation &location);
+		Node(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType);
 
 	private:
 		SyntaxTreeGenerator *m_owner;
 		SourceLocation m_location;
+		NodeType m_nodeType;
 };
 
 class Expression : public Node
 {
 	public:
-		Expression(SyntaxTreeGenerator *owner, const SourceLocation &location);
+		Expression(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType);
 		~Expression();
 
 		virtual QString toString() const = 0;
@@ -42,7 +62,7 @@ class Expression : public Node
 class Statement : public Node
 {
 	public:
-		Statement(SyntaxTreeGenerator *owner, const SourceLocation &location);
+		Statement(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType);
 		~Statement();
 
 		virtual QString toString() const = 0;
@@ -51,7 +71,7 @@ class Statement : public Node
 class Identifier : public Expression
 {
 	protected:
-		Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location);
+		Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType);
 };
 
 class GlobalIdentifier : public Identifier
