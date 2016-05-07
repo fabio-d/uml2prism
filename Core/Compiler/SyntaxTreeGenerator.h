@@ -13,7 +13,7 @@ namespace Compiler
 
 class SyntaxTreeGenerator
 {
-	friend class SyntaxTree::GarbageCollectible;
+	friend class SyntaxTree::Node;
 	friend class Parser;
 
 	public:
@@ -45,7 +45,7 @@ class SyntaxTreeGenerator
 		SyntaxTree::Statement *m_resultScript;
 		SyntaxTree::Expression *m_resultValue;
 
-		QSet<SyntaxTree::GarbageCollectible*> m_allNodes;
+		QSet<SyntaxTree::Node*> m_allNodes;
 };
 
 }

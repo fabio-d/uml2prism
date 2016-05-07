@@ -15,22 +15,22 @@ class SyntaxTreeGenerator;
 namespace SyntaxTree
 {
 
-class GarbageCollectible
+class Node
 {
 	public:
-		virtual ~GarbageCollectible();
+		virtual ~Node();
 
 		const SourceLocation &location() const;
 
 	protected:
-		GarbageCollectible(SyntaxTreeGenerator *owner, const SourceLocation &location);
+		Node(SyntaxTreeGenerator *owner, const SourceLocation &location);
 
 	private:
 		SyntaxTreeGenerator *m_owner;
 		SourceLocation m_location;
 };
 
-class Expression : public GarbageCollectible
+class Expression : public Node
 {
 	public:
 		Expression(SyntaxTreeGenerator *owner, const SourceLocation &location);
@@ -39,7 +39,7 @@ class Expression : public GarbageCollectible
 		virtual QString toString() const = 0;
 };
 
-class Statement : public GarbageCollectible
+class Statement : public Node
 {
 	public:
 		Statement(SyntaxTreeGenerator *owner, const SourceLocation &location);

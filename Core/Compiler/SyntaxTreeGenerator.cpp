@@ -39,10 +39,10 @@ SyntaxTreeGenerator::~SyntaxTreeGenerator()
 {
 	while (m_allNodes.isEmpty() == false)
 	{
-		SyntaxTree::GarbageCollectible *gcNode = *m_allNodes.begin();
-		//qDebug() << "GCing" << gcNode;
-		m_allNodes.remove(gcNode);
-		delete gcNode;
+		SyntaxTree::Node *node = *m_allNodes.begin();
+		//qDebug() << "GCing" << node;
+		m_allNodes.remove(node);
+		delete node;
 	}
 }
 

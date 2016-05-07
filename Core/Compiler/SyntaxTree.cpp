@@ -12,26 +12,26 @@ namespace Compiler
 namespace SyntaxTree
 {
 
-GarbageCollectible::GarbageCollectible(SyntaxTreeGenerator *owner, const SourceLocation &location)
+Node::Node(SyntaxTreeGenerator *owner, const SourceLocation &location)
 : m_owner(owner), m_location(location)
 {
 	//qDebug() << "gc ctor" << this << m_location.toString();
 	m_owner->m_allNodes.insert(this);
 }
 
-GarbageCollectible::~GarbageCollectible()
+Node::~Node()
 {
 	//qDebug() << "gc dtor" << this;
 	m_owner->m_allNodes.remove(this);
 }
 
-const SourceLocation &GarbageCollectible::location() const
+const SourceLocation &Node::location() const
 {
 	return m_location;
 }
 
 Expression::Expression(SyntaxTreeGenerator *owner, const SourceLocation &location)
-: GarbageCollectible(owner, location)
+: Node(owner, location)
 {
 	//qDebug() << "expr ctor" << this;
 }
@@ -42,7 +42,7 @@ Expression::~Expression()
 }
 
 Statement::Statement(SyntaxTreeGenerator *owner, const SourceLocation &location)
-: GarbageCollectible(owner, location)
+: Node(owner, location)
 {
 	//qDebug() << "stmt ctor" << this;
 }
