@@ -37,9 +37,27 @@ class SemanticTreeGenerator
 		void setError(const SourceLocation &location, const QString &message);
 		void setUnexpectedTypeError(const SourceLocation &location, const SemanticTree::Type *expectedType, const SemanticTree::Type *actualType);
 
-		const SemanticTree::Identifier *resolveIdentifier(const SyntaxTree::Identifier *ident);
+		// Some identifiers cannot be used in some context. This value
+		// tells resolveIdentifier how the resulting identifier is going
+		// to be used
+		enum IdentifierPurpose
+		{
+			Read,
+			SendSignalWithoutMessage,
+			SendSignalWithMessage,
+			WriteVariable
+		};
+
+		const SemanticTree::Identifier *resolveIdentifier(const SyntaxTree::Identifier *ident, IdentifierPurpose purpose);
 		const SemanticTree::Type *deduceType(const SyntaxTree::Expression *expression);
-		const SemanticTree::Identifier *expectSetMethod(const SyntaxTree::MethodCall *mCall, const QString &methodName);
+
+		enum SetMethod
+		{
+			Contains,
+			Insert
+		};
+
+		const SemanticTree::Identifier *expectSetMethod(const SyntaxTree::MethodCall *mCall, SetMethod method);
 
 		const SemanticTree::Expr *convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType);
 		const SemanticTree::Stmt *convertStatement(const SyntaxTree::Statement *statement);

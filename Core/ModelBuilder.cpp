@@ -48,7 +48,7 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	qDebug() << "Registering global variables, signals and states...";
 	registerGlobalVariables(); // this must be done before registering signals, see comment inside
 	registerSignals();
-	registerStates();
+	registerStates(); // <-- TODO: move it after actions' scripts have been parsed
 	if (m_error)
 		return;
 

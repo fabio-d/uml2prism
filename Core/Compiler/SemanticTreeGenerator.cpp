@@ -25,7 +25,8 @@ SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const Se
 
 SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const SemanticContext *context,
 	const QStringList &writableSignals, const QMap<QString, QString> &labelMap)
-: m_success(true), m_context(context), m_resultExpr(nullptr), m_resultStmt(nullptr)
+: m_success(true), m_context(context), m_resultExpr(nullptr), m_resultStmt(nullptr),
+  m_writableSignals(writableSignals), m_labelMap(labelMap)
 {
 	SyntaxTreeGenerator sygen(sourceCode, SyntaxTreeGenerator::Script);
 	if (!sygen.success())
@@ -100,7 +101,7 @@ void SemanticTreeGenerator::setUnexpectedTypeError(const SourceLocation &locatio
 			.arg(actualType->datatypeName()));
 }
 
-const SemanticTree::Identifier *SemanticTreeGenerator::resolveIdentifier(const SyntaxTree::Identifier *ident)
+const SemanticTree::Identifier *SemanticTreeGenerator::resolveIdentifier(const SyntaxTree::Identifier *ident, IdentifierPurpose purpose)
 {
 	QList<const SyntaxTree::MemberIdentifier*> memberSegments;
 
@@ -122,6 +123,27 @@ const SemanticTree::Identifier *SemanticTreeGenerator::resolveIdentifier(const S
 	if (varType == nullptr)
 	{
 		setError(baseVar->location(), QString("Unresolved identifier: %1").arg(baseVar->name()));
+		return nullptr;
+	}
+
+	if ((purpose == SendSignalWithoutMessage || purpose == SendSignalWithMessage) && !m_writableSignals.contains(baseVar->name()))
+	{
+		setError(baseVar->location(), QString("Invalid signal emission: %1 cannot be emitted by this node").arg(baseVar->name()));
+		return nullptr;
+	}
+	else if ((purpose == SendSignalWithoutMessage && !m_context->isSignalWithoutMessage(baseVar->name()))
+		|| (purpose == SendSignalWithMessage && !m_context->isSignalWithMessage(baseVar->name())))
+	{
+		const QString gap = purpose == SendSignalWithoutMessage ? "without" : "with";
+		setError(baseVar->location(),
+			 QString("Invalid signal emission: %1 is not a signal %2 attachment")
+				.arg(baseVar->name())
+				.arg(gap));
+		return nullptr;
+	}
+	else if (purpose == WriteVariable && !m_context->isGlobalVariable(baseVar->name()))
+	{
+		setError(baseVar->location(), QString("Invalid assignment: %1 is not a variable").arg(baseVar->name()));
 		return nullptr;
 	}
 
@@ -183,7 +205,7 @@ const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Ex
 		{
 			const SyntaxTree::MemberIdentifier *node =
 				static_cast<const SyntaxTree::MemberIdentifier*>(expression);
-			QScopedPointer<const SemanticTree::Identifier> res(resolveIdentifier(node));
+			QScopedPointer<const SemanticTree::Identifier> res(resolveIdentifier(node, Read));
 			if (res.isNull())
 			{
 				return nullptr;
@@ -220,7 +242,7 @@ const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Ex
 			const SyntaxTree::MethodCall *node =
 				static_cast<const SyntaxTree::MethodCall*>(expression);
 
-			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, "contains"));
+			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, Contains));
 			if (setObject.isNull())
 				return nullptr;
 			else
@@ -233,7 +255,7 @@ const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Ex
 }
 
 // Check that mCall is a valid operation on a set, and return the set identifier.
-const SemanticTree::Identifier *SemanticTreeGenerator::expectSetMethod(const SyntaxTree::MethodCall *mCall, const QString &methodName)
+const SemanticTree::Identifier *SemanticTreeGenerator::expectSetMethod(const SyntaxTree::MethodCall *mCall, SetMethod method)
 {
 	if (mCall->object() == nullptr)
 	{
@@ -242,7 +264,7 @@ const SemanticTree::Identifier *SemanticTreeGenerator::expectSetMethod(const Syn
 		return nullptr;
 	}
 
-	QScopedPointer<const SemanticTree::Identifier> object(resolveIdentifier(mCall->object()));
+	QScopedPointer<const SemanticTree::Identifier> object(resolveIdentifier(mCall->object(), method == Contains ? Read : WriteVariable));
 	if (object.isNull())
 		return nullptr;
 
@@ -253,7 +275,7 @@ const SemanticTree::Identifier *SemanticTreeGenerator::expectSetMethod(const Syn
 		return nullptr;
 	}
 
-	if (mCall->methodName() != methodName)
+	if (mCall->methodName() != (method == Contains ? "contains" : "insert"))
 	{
 		setError(mCall->location(),
 			QString("Invalid method: %1").arg(mCall->methodName()));
@@ -326,7 +348,7 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 		{
 			const SyntaxTree::MemberIdentifier *node =
 				static_cast<const SyntaxTree::MemberIdentifier*>(expression);
-			const SemanticTree::Identifier *res = resolveIdentifier(node);
+			const SemanticTree::Identifier *res = resolveIdentifier(node, Read);
 			if (res == nullptr)
 			{
 				return nullptr;
@@ -542,7 +564,7 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 			const SyntaxTree::MethodCall *node =
 				static_cast<const SyntaxTree::MethodCall*>(expression);
 
-			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, "contains"));
+			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, Contains));
 			if (setObject.isNull())
 				return nullptr;
 
@@ -591,7 +613,7 @@ const SemanticTree::Stmt *SemanticTreeGenerator::convertStatement(const SyntaxTr
 			const SyntaxTree::MethodCall *node =
 				static_cast<const SyntaxTree::MethodCall*>(statement);
 
-			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, "insert"));
+			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, Insert));
 			if (setObject.isNull())
 				return nullptr;
 
@@ -608,7 +630,7 @@ const SemanticTree::Stmt *SemanticTreeGenerator::convertStatement(const SyntaxTr
 		{
 			const SyntaxTree::Assignment *node =
 				static_cast<const SyntaxTree::Assignment*>(statement);
-			QScopedPointer<const SemanticTree::Identifier> dest(resolveIdentifier(node->dest()));
+			QScopedPointer<const SemanticTree::Identifier> dest(resolveIdentifier(node->dest(), WriteVariable));
 			if (dest.isNull())
 				return nullptr;
 			const SemanticTree::Expr *val = convertExpression(node->value(), dest->type());
@@ -620,10 +642,14 @@ const SemanticTree::Stmt *SemanticTreeGenerator::convertStatement(const SyntaxTr
 		{
 			const SyntaxTree::SignalEmission *node =
 				static_cast<const SyntaxTree::SignalEmission*>(statement);
-			QScopedPointer<const SemanticTree::Identifier> dest(resolveIdentifier(node->signal()));
+			const bool withMessage = node->value() != nullptr;
+			QScopedPointer<const SemanticTree::Identifier> dest(resolveIdentifier(node->signal(),
+				withMessage ? SendSignalWithMessage : SendSignalWithoutMessage));
 			if (dest.isNull())
 				return nullptr;
-			const SemanticTree::Expr *val = convertExpression(node->value(), dest->type());
+			const SemanticTree::Expr *val =
+				withMessage ? convertExpression(node->value(), dest->type())
+					: new SemanticTree::ExprBoolLiteral(true);
 			if (val == nullptr)
 				return nullptr;
 			return new SemanticTree::StmtAssignment(dest.take(), val);

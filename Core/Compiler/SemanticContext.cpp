@@ -96,5 +96,20 @@ bool SemanticContext::findStateOrSignalWithoutMessage(const QString &name) const
 		return false;
 }
 
+bool SemanticContext::isSignalWithMessage(const QString &name) const
+{
+	return m_signals.value(name, nullptr) != nullptr;
+}
+
+bool SemanticContext::isSignalWithoutMessage(const QString &name) const
+{
+	return m_signals.contains(name) && m_signals.value(name) == nullptr;
+}
+
+bool SemanticContext::isGlobalVariable(const QString &name) const
+{
+	return m_globalVariables.contains(name);
+}
+
 }
 }

@@ -29,6 +29,10 @@ class SemanticContext
 		const SemanticTree::Type *findGlobalVariableOrSignalWithMessage(const QString &name) const;
 		bool findStateOrSignalWithoutMessage(const QString &name) const;
 
+		bool isSignalWithMessage(const QString &name) const;
+		bool isSignalWithoutMessage(const QString &name) const;
+		bool isGlobalVariable(const QString &name) const;
+
 	private:
 		SemanticTree::BoolType m_boolType;
 		QMap<QString, const SemanticTree::Type*> m_classAndEnumTypes; // EnumerationType and ClassType instances by name
