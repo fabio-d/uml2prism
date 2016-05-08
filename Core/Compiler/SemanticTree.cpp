@@ -172,12 +172,22 @@ HsStablePtr SetType::createHaskellHandle() const
 	return hsTypeSet_create(m_innerType->haskellHandle());
 }
 
+Identifier::Identifier(const Type *type)
+: m_type(type)
+{
+}
+
 Identifier::~Identifier()
 {
 }
 
+const Type *Identifier::type() const
+{
+	return m_type;
+}
+
 GlobalIdentifier::GlobalIdentifier(const QString &name, const Type *type)
-: m_name(name), m_type(type)
+: Identifier(type), m_name(name)
 {
 }
 
@@ -187,18 +197,13 @@ QString GlobalIdentifier::toString() const
 }
 
 MemberIdentifier::MemberIdentifier(const Identifier *container, const QString &name, const Type *type)
-: m_container(container), m_name(name), m_type(type)
+: Identifier(type), m_container(container), m_name(name)
 {
 }
 
 MemberIdentifier::~MemberIdentifier()
 {
 	delete m_container;
-}
-
-const Type *MemberIdentifier::type() const
-{
-	return m_type;
 }
 
 QString MemberIdentifier::toString() const
@@ -336,6 +341,24 @@ QString ExprTuple::toString() const
 		l.append(e->toString());
 
 	return QString("ExprTuple(%1)").arg(l.join(", "));
+}
+
+ExprSetContains::ExprSetContains(const Identifier *setIdentifier, const Expr *elementToTest)
+: m_setIdentifier(setIdentifier), m_elementToTest(elementToTest)
+{
+}
+
+ExprSetContains::~ExprSetContains()
+{
+	delete m_setIdentifier;
+	delete m_elementToTest;
+}
+
+QString ExprSetContains::toString() const
+{
+	return QString("ExprSetContains(%1, %2)")
+		.arg(m_setIdentifier->toString())
+		.arg(m_elementToTest->toString());
 }
 
 }

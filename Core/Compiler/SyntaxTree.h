@@ -70,8 +70,14 @@ class Statement : public Node
 
 class Identifier : public Expression
 {
+	public:
+		const QString &name() const;
+
 	protected:
-		Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType);
+		Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType, const QString &name);
+
+	private:
+		QString m_name;
 };
 
 class GlobalIdentifier : public Identifier
@@ -79,12 +85,7 @@ class GlobalIdentifier : public Identifier
 	public:
 		GlobalIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &name);
 
-		const QString &name() const;
-
 		QString toString() const override;
-
-	private:
-		QString m_name;
 };
 
 class MemberIdentifier : public Identifier
@@ -93,13 +94,11 @@ class MemberIdentifier : public Identifier
 		MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *container, const QString &name);
 
 		const Identifier *container() const;
-		const QString &name() const;
 
 		QString toString() const override;
 
 	private:
 		Identifier *m_container;
-		QString m_name;
 };
 
 class NilLiteral : public Expression
@@ -188,6 +187,14 @@ class MethodCall : public Expression, public Statement
 {
 	public:
 		MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, const QList<Expression*> &arguments = QList<Expression*>());
+
+		const Identifier *object() const; // nullptr if "global method" (i.e. a function)
+		const QString &methodName() const;
+		const QList<Expression*> &arguments() const;
+
+		// Convenience method to resolve ambiguity between
+		// Expression::location() and Statement::location()
+		const SourceLocation &location() const;
 
 		QString toString() const override;
 

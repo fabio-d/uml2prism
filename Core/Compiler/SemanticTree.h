@@ -99,9 +99,15 @@ class SetType : public Type
 class Identifier
 {
 	public:
+		explicit Identifier(const Type *type);
 		virtual ~Identifier();
 
+		const Type *type() const;
+
 		virtual QString toString() const = 0;
+
+	private:
+		const Type *m_type;
 };
 
 class GlobalIdentifier : public Identifier
@@ -113,7 +119,6 @@ class GlobalIdentifier : public Identifier
 
 	private:
 		QString m_name;
-		const Type *m_type;
 };
 
 class MemberIdentifier : public Identifier
@@ -122,14 +127,11 @@ class MemberIdentifier : public Identifier
 		MemberIdentifier(const Identifier *container, const QString &name, const Type *type);
 		~MemberIdentifier() override;
 
-		const Type *type() const;
-
 		QString toString() const override;
 
 	private:
 		const Identifier *m_container;
 		QString m_name;
-		const Type *m_type;
 };
 
 class Expr

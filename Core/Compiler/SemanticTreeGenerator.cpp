@@ -56,19 +56,19 @@ void SemanticTreeGenerator::setUnexpectedTypeError(const SourceLocation &locatio
 			.arg(actualType->datatypeName()));
 }
 
-const SemanticTree::MemberIdentifier *SemanticTreeGenerator::resolveMemberIdentifier(const SyntaxTree::MemberIdentifier *membIdent)
+const SemanticTree::Identifier *SemanticTreeGenerator::resolveIdentifier(const SyntaxTree::Identifier *ident)
 {
 	QList<const SyntaxTree::MemberIdentifier*> memberSegments;
 
-	const SyntaxTree::MemberIdentifier *currSegm = membIdent;
-	const SyntaxTree::Identifier *nextSegm;
-	do
+	const SyntaxTree::MemberIdentifier *currSegm = dynamic_cast<const SyntaxTree::MemberIdentifier*>(ident);
+	const SyntaxTree::Identifier *nextSegm = ident;
+
+	while (currSegm != nullptr)
 	{
 		memberSegments.insert(0, currSegm);
 		nextSegm = currSegm->container();
 		currSegm = dynamic_cast<const SyntaxTree::MemberIdentifier*>(nextSegm);
 	}
-	while (currSegm != nullptr);
 
 	const SyntaxTree::GlobalIdentifier *baseVar = static_cast<const SyntaxTree::GlobalIdentifier*>(nextSegm);
 	const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignal(baseVar->name());
@@ -99,8 +99,7 @@ const SemanticTree::MemberIdentifier *SemanticTreeGenerator::resolveMemberIdenti
 		res.reset(new SemanticTree::MemberIdentifier(res.take(), m->name(), varType));
 	}
 
-	// We can always upcast because the previous loop was executed at least once
-	return static_cast<const SemanticTree::MemberIdentifier*>(res.take());
+	return res.take();
 }
 
 const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Expression *expression)
@@ -135,7 +134,7 @@ const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Ex
 		{
 			const SyntaxTree::MemberIdentifier *node =
 				static_cast<const SyntaxTree::MemberIdentifier*>(expression);
-			QScopedPointer<const SemanticTree::MemberIdentifier> res(resolveMemberIdentifier(node));
+			QScopedPointer<const SemanticTree::Identifier> res(resolveIdentifier(node));
 			if (res.isNull())
 			{
 				return nullptr;
@@ -169,13 +168,62 @@ const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Ex
 		}
 		case SyntaxTree::NodeType::MethodCall:
 		{
-			// TODO
-			return nullptr;
+			const SyntaxTree::MethodCall *node =
+				static_cast<const SyntaxTree::MethodCall*>(expression);
+
+			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, "contains"));
+			if (setObject.isNull())
+				return nullptr;
+			else
+				return m_context->boolType();
 		}
 		default:
 			qFatal("This should never happen");
 			return nullptr;
 	}
+}
+
+// Check that mCall is a valid operation on a set, and return the set identifier.
+const SemanticTree::Identifier *SemanticTreeGenerator::expectSetMethod(const SyntaxTree::MethodCall *mCall, const QString &methodName)
+{
+	if (mCall->object() == nullptr)
+	{
+		setError(mCall->location(),
+			QString("No function called %1").arg(mCall->methodName()));
+		return nullptr;
+	}
+
+	QScopedPointer<const SemanticTree::Identifier> object(resolveIdentifier(mCall->object()));
+	if (object.isNull())
+		return nullptr;
+
+	const SemanticTree::SetType *setType = dynamic_cast<const SemanticTree::SetType*>(object->type());
+	if (setType == nullptr)
+	{
+		setError(mCall->location(), QString("Not a set type: %1").arg(object->type()->datatypeName()));
+		return nullptr;
+	}
+
+	if (mCall->methodName() != methodName)
+	{
+		setError(mCall->location(),
+			QString("Invalid method: %1").arg(mCall->methodName()));
+		return nullptr;
+	}
+
+	if (mCall->arguments().count() == 0)
+	{
+		setError(mCall->location(), "One argument is required");
+		return nullptr;
+	}
+
+	if (mCall->arguments().count() > 1)
+	{
+		setError(mCall->location(), "Too many arguments: method takes only one argument");
+		return nullptr;
+	}
+
+	return object.take();
 }
 
 const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType)
@@ -226,7 +274,7 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 		{
 			const SyntaxTree::MemberIdentifier *node =
 				static_cast<const SyntaxTree::MemberIdentifier*>(expression);
-			const SemanticTree::MemberIdentifier *res = resolveMemberIdentifier(node);
+			const SemanticTree::Identifier *res = resolveIdentifier(node);
 			if (res == nullptr)
 			{
 				return nullptr;
@@ -441,14 +489,24 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 		{
 			const SyntaxTree::MethodCall *node =
 				static_cast<const SyntaxTree::MethodCall*>(expression);
-			break;
+
+			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, "contains"));
+			if (setObject.isNull())
+				return nullptr;
+
+			const SemanticTree::SetType *setType =
+				static_cast<const SemanticTree::SetType*>(setObject->type());
+			const SyntaxTree::Expression *arg = node->arguments().first();
+			const SemanticTree::Expr *argval(convertExpression(arg, setType->innerType()));
+			if (argval == nullptr)
+				return nullptr;
+
+			return new SemanticTree::ExprSetContains(setObject.take(), argval);
 		}
 		default:
 			qFatal("This should never happen");
-			break;
+			return nullptr;
 	}
-	setError(expression->location(), "Not implemented yet");
-	return nullptr;
 }
 
 #if 0

@@ -7,6 +7,7 @@
 #include "Core/UMLElement.h"
 
 #include <QPushButton>
+#include <QDebug>
 
 #include "ui_EditScriptedNodeElementDialog.h"
 
@@ -73,10 +74,12 @@ void EditScriptedNodeElementDialog::slotParse()
 	Core::ModelBuilder builder(m_doc);
 	if (builder.success())
 	{
-		const Core::Compiler::SemanticTreeGenerator stgen(
+		Core::Compiler::SemanticTreeGenerator stgen(
 			m_ui->scriptTextEdit->toPlainText(),
 			builder.semanticContext()->boolType(),
 			builder.semanticContext());
+		if (stgen.success())
+			qDebug() << stgen.takeResultExpr()->toString();
 	}
 }
 

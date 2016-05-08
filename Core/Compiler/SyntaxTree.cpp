@@ -57,28 +57,28 @@ Statement::~Statement()
 	//qDebug() << "stmt dtor" << this;
 }
 
-Identifier::Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType)
-: Expression(owner, location, nodeType)
+Identifier::Identifier(SyntaxTreeGenerator *owner, const SourceLocation &location, NodeType nodeType, const QString &name)
+: Expression(owner, location, nodeType), m_name(name)
 {
 }
 
-GlobalIdentifier::GlobalIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &name)
-: Identifier(owner, location, NodeType::GlobalIdentifier), m_name(name)
-{
-}
-
-const QString &GlobalIdentifier::name() const
+const QString &Identifier::name() const
 {
 	return m_name;
 }
 
+GlobalIdentifier::GlobalIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &name)
+: Identifier(owner, location, NodeType::GlobalIdentifier, name)
+{
+}
+
 QString GlobalIdentifier::toString() const
 {
-	return QString("GlobalIdentifier(\"%1\")").arg(m_name);
+	return QString("GlobalIdentifier(\"%1\")").arg(name());
 }
 
 MemberIdentifier::MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *container, const QString &name)
-: Identifier(owner, location, NodeType::MemberIdentifier), m_container(container), m_name(name)
+: Identifier(owner, location, NodeType::MemberIdentifier, name), m_container(container)
 {
 }
 
@@ -87,14 +87,9 @@ const Identifier *MemberIdentifier::container() const
 	return m_container;
 }
 
-const QString &MemberIdentifier::name() const
-{
-	return m_name;
-}
-
 QString MemberIdentifier::toString() const
 {
-	return QString("MemberIdentifier(%1, \"%2\")").arg(m_container->toString()).arg(m_name);
+	return QString("MemberIdentifier(%1, \"%2\")").arg(m_container->toString()).arg(name());
 }
 
 NilLiteral::NilLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location)
@@ -226,6 +221,30 @@ QString CompoundStatement::toString() const
 MethodCall::MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, const QList<Expression*> &arguments)
 : Expression(owner, location, NodeType::MethodCall), Statement(owner, location, NodeType::MethodCall), m_method(method), m_arguments(arguments)
 {
+}
+
+const Identifier *MethodCall::object() const
+{
+	if (m_method->nodeType() == NodeType::GlobalIdentifier)
+		return nullptr;
+
+	const MemberIdentifier *mId = static_cast<const MemberIdentifier*>(m_method);
+	return mId->container();
+}
+
+const QString &MethodCall::methodName() const
+{
+	return m_method->name();
+}
+
+const QList<Expression*> &MethodCall::arguments() const
+{
+	return m_arguments;
+}
+
+const SourceLocation &MethodCall::location() const
+{
+	return Expression::location();
 }
 
 QString MethodCall::toString() const
