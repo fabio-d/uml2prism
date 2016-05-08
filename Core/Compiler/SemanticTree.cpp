@@ -68,10 +68,11 @@ const QString EnumerationType::datatypeName() const
 HsStablePtr EnumerationType::createHaskellHandle() const
 {
 	HsStablePtr res = hsTypeEnumeration_create();
-	foreach (const QString &val, m_values)
+	int i = m_values.count();
+	while (i-- != 0)
 	{
-		const QByteArray valArr = val.toLatin1();
-		HsStablePtr updated = hsTypeEnumeration_registerValue(res, (void*)valArr.constData());
+		const QByteArray valArr = m_values[i].toLatin1();
+		HsStablePtr updated = hsTypeEnumeration_prependValue(res, (void*)valArr.constData());
 		hsType_free(res);
 		res = updated;
 	}
@@ -134,12 +135,13 @@ void ClassType::fillReferencedTypes(QSet<const Type*> &target) const
 HsStablePtr ClassType::createHaskellHandle() const
 {
 	HsStablePtr res = hsTypeClass_create();
-	for (QList<QPair<QString, const Type*>>::const_iterator it = m_memberVariables.begin();
-		it != m_memberVariables.end(); ++it)
+	int i = m_memberVariables.count();
+	while (i-- != 0)
 	{
-		const QByteArray n = it->first.toLatin1();
-		const Type *t = it->second;
-		HsStablePtr updated = hsTypeClass_registerMemberVariable(res, (void*)n.constData(), t->haskellHandle());
+		const QPair<QString, const Type*> &var = m_memberVariables[i];
+		const QByteArray n = var.first.toLatin1();
+		const Type *t = var.second;
+		HsStablePtr updated = hsTypeClass_prependMemberVariable(res, (void*)n.constData(), t->haskellHandle());
 		hsType_free(res);
 		res = updated;
 	}

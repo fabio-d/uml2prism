@@ -13,8 +13,8 @@ data Type =
 	deriving (Show, Data, Typeable)
 
 data Idnt =
-	  IdntGlobal String Type
-	| IdntMember Idnt String Type
+	  IdntGlobal String Type	-- global variable with given name and type
+	| IdntMember Idnt String Type	-- member variable with given name and type (contained inside a variable)
 	deriving (Data, Typeable)
 
 instance Show Idnt where
@@ -32,7 +32,7 @@ data Expr =
 	| ExprOrOp Expr Expr		-- boolean or operator
 	| ExprNotOp Expr		-- boolean not operator
 	| ExprTuple Type [Expr]		-- either a non-nil TypeClass value or a TypeSet (set of values)
-	| ExprSetContains Idnt Expr -- test whether a set (first arg) contains a given element (second arg)
+	| ExprSetContains Idnt Expr	-- test whether a set (first arg) contains a given element (second arg)
 	deriving (Show, Data, Typeable)
 
 data Stmt =
