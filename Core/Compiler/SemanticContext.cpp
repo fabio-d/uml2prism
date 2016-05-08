@@ -59,6 +59,7 @@ void SemanticContext::registerGlobalVariable(const QString &name, const Semantic
 void SemanticContext::registerSignal(const QString &name, const SemanticTree::Type *type)
 {
 	m_signals.insert(name, type);
+	qDebug() << "REG-SN" << name << (type ? type->datatypeName() : "default-bool");
 }
 
 const SemanticTree::EnumerationType *SemanticContext::findEnumerationValue(const QString &value) const
@@ -73,10 +74,18 @@ const SemanticTree::EnumerationType *SemanticContext::findEnumerationValue(const
 	return nullptr;
 }
 
-const SemanticTree::Type *SemanticContext::findGlobalVariableOrSignal(const QString &name) const
+const SemanticTree::Type *SemanticContext::findGlobalVariableOrSignalWithMessage(const QString &name) const
 {
 	return m_globalVariables.value(name, nullptr) ?:
-		m_signals.value(name, nullptr) ?: nullptr;
+		m_signals.value(name, nullptr);
+}
+
+bool SemanticContext::findStateOrSignalWithoutMessage(const QString &name) const
+{
+	if (m_signals.contains(name) && m_signals.value(name) == nullptr)
+		return true;
+	else
+		return false;
 }
 
 }

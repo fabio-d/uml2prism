@@ -25,7 +25,8 @@ class SemanticContext
 		void registerSignal(const QString &name, const SemanticTree::Type *type); // type==nullptr means no attached message
 
 		const SemanticTree::EnumerationType *findEnumerationValue(const QString &value) const;
-		const SemanticTree::Type *findGlobalVariableOrSignal(const QString &name) const;
+		const SemanticTree::Type *findGlobalVariableOrSignalWithMessage(const QString &name) const;
+		bool findStateOrSignalWithoutMessage(const QString &name) const;
 
 	private:
 		SemanticTree::BoolType m_boolType;

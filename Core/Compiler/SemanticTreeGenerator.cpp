@@ -90,7 +90,9 @@ const SemanticTree::Identifier *SemanticTreeGenerator::resolveIdentifier(const S
 	}
 
 	const SyntaxTree::GlobalIdentifier *baseVar = static_cast<const SyntaxTree::GlobalIdentifier*>(nextSegm);
-	const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignal(baseVar->name());
+	const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignalWithMessage(baseVar->name());
+	if (varType == nullptr && m_context->findStateOrSignalWithoutMessage(baseVar->name()))
+		varType = m_context->boolType();
 
 	if (varType == nullptr)
 	{
@@ -134,7 +136,10 @@ const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Ex
 
 			// Try to resolve it as variable or signal name
 			const SemanticTree::EnumerationType *enumType = m_context->findEnumerationValue(node->name());
-			const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignal(node->name());
+			const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignalWithMessage(node->name());
+			if (varType == nullptr && m_context->findStateOrSignalWithoutMessage(node->name()))
+				varType = m_context->boolType();
+
 			if (enumType != nullptr)
 			{
 				return enumType;
@@ -258,7 +263,10 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 
 			// Try to resolve it as variable or signal name
 			const SemanticTree::EnumerationType *enumType = m_context->findEnumerationValue(node->name());
-			const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignal(node->name());
+			const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignalWithMessage(node->name());
+			if (varType == nullptr && m_context->findStateOrSignalWithoutMessage(node->name()))
+				varType = m_context->boolType();
+
 			if (enumType != nullptr)
 			{
 				if (expectedType == enumType)
