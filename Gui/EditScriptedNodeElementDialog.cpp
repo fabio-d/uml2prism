@@ -74,16 +74,42 @@ void EditScriptedNodeElementDialog::slotParse()
 	Core::ModelBuilder builder(m_doc);
 	if (builder.success())
 	{
-		QMap<QString, QString> tmpMap;
-		tmpMap.insert("yes", "DestNodeYY");
-		tmpMap.insert("no", "DestNodeNN");
+		QMap<QString, QString> labelMap;
+		QStringList signalList;
+		foreach (const Core::UMLEdgeElement *edge, m_elem->outgoingEdges())
+		{
+			const Core::UMLControlFlowEdge *branchEdge =
+				dynamic_cast<const Core::UMLControlFlowEdge*>(edge);
+			const Core::UMLSignalEdge *signalEdge =
+				dynamic_cast<const Core::UMLSignalEdge*>(edge);
+			Q_ASSERT(!branchEdge != !signalEdge);
+
+			if (branchEdge != nullptr)
+			{
+				if (branchEdge->branchName().isEmpty())
+					continue;
+				labelMap.insert(branchEdge->branchName(), branchEdge->to()->nodeName());
+			}
+			else // signalEdge != nullptr
+			{
+				signalList.append(signalEdge->signalName());
+			}
+		}
+		qDebug() << labelMap << signalList;
 		Core::Compiler::SemanticTreeGenerator stgen(
 			m_ui->scriptTextEdit->toPlainText(),
 			builder.semanticContext(),
-			QStringList() << "HelloServer",
-			tmpMap);
-		//if (stgen.success())
-		//	qDebug() << stgen.takeResultStmt()->toString();
+			signalList,
+			labelMap);
+		if (stgen.success())
+		{
+			const Core::Compiler::SemanticTree::Stmt *semTree = stgen.takeResultStmt();
+			qDebug() << "C++ semantic tree:";
+			qDebug() << semTree->toString();
+			qDebug() << "Haskell semantic tree:";
+			hsStmt_dump(semTree->haskellHandle());
+			delete semTree;
+		}
 	}
 }
 

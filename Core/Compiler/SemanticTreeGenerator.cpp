@@ -585,7 +585,7 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 
 const SemanticTree::Stmt *SemanticTreeGenerator::convertStatement(const SyntaxTree::Statement *statement)
 {
-	qDebug() << "Converting statement" << statement->toString();
+	//qDebug() << "Converting statement" << statement->toString();
 
 	switch (statement->nodeType())
 	{

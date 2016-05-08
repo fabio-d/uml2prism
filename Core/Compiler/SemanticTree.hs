@@ -42,4 +42,4 @@ data Stmt =
 	| StmtIfElse Expr Stmt Stmt
 	| StmtChoiceOr Stmt Stmt
 	| StmtBranch String		-- arg is next node's name
-	deriving (Data, Typeable)
+	deriving (Show, Data, Typeable)

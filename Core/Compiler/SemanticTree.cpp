@@ -231,7 +231,6 @@ Expr::Expr()
 
 Expr::~Expr()
 {
-	hsExpr_dump(m_haskellHandle);
 	hsExpr_free(m_haskellHandle);
 }
 
@@ -418,13 +417,32 @@ QString ExprSetContains::toString() const
 		.arg(m_elementToTest->toString());
 }
 
+Stmt::Stmt()
+: m_haskellHandle(nullptr)
+{
+}
+
 Stmt::~Stmt()
 {
+	hsStmt_free(m_haskellHandle);
+}
+
+HsStablePtr Stmt::haskellHandle() const
+{
+	return m_haskellHandle;
 }
 
 StmtCompound::StmtCompound(const QList<const Stmt*> &statements)
 : m_statements(statements)
 {
+	m_haskellHandle = hsStmtCompound_create();
+	int i = statements.count();
+	while (i-- != 0)
+	{
+		HsStablePtr updated = hsStmtCompound_prependStatement(m_haskellHandle, statements[i]->haskellHandle());
+		hsExpr_free(m_haskellHandle);
+		m_haskellHandle = updated;
+	}
 }
 
 StmtCompound::~StmtCompound()
@@ -447,6 +465,8 @@ QString StmtCompound::toString() const
 StmtSetInsert::StmtSetInsert(const Idnt *setIdentifier, const Expr *elementToInsert)
 : m_setIdentifier(setIdentifier), m_elementToInsert(elementToInsert)
 {
+	m_haskellHandle = hsStmtSetInsert_create(setIdentifier->haskellHandle(),
+		elementToInsert->haskellHandle());
 }
 
 StmtSetInsert::~StmtSetInsert()
@@ -465,6 +485,8 @@ QString StmtSetInsert::toString() const
 StmtAssignment::StmtAssignment(const Idnt *dest, const Expr *value)
 : m_dest(dest), m_value(value)
 {
+	m_haskellHandle = hsStmtAssignment_create(dest->haskellHandle(),
+		value->haskellHandle());
 }
 
 StmtAssignment::~StmtAssignment()
@@ -483,6 +505,8 @@ QString StmtAssignment::toString() const
 StmtIfElse::StmtIfElse(const Expr *cond, const Stmt *ifTrue, const Stmt *ifFalse)
 : m_cond(cond), m_ifTrue(ifTrue), m_ifFalse(ifFalse)
 {
+	m_haskellHandle = hsStmtIfElse_create(cond->haskellHandle(),
+		ifTrue->haskellHandle(), ifFalse->haskellHandle());
 }
 
 StmtIfElse::~StmtIfElse()
@@ -503,6 +527,8 @@ QString StmtIfElse::toString() const
 StmtChoiceOr::StmtChoiceOr(const Stmt *alt1, const Stmt *alt2)
 : m_alt1(alt1), m_alt2(alt2)
 {
+	m_haskellHandle = hsStmtChoiceOr_create(alt1->haskellHandle(),
+		alt2->haskellHandle());
 }
 
 StmtChoiceOr::~StmtChoiceOr()
@@ -521,6 +547,8 @@ QString StmtChoiceOr::toString() const
 StmtBranch::StmtBranch(const QString &targetNode)
 : m_targetNode(targetNode)
 {
+	const QByteArray t = targetNode.toLatin1();
+	m_haskellHandle = hsStmtBranch_create((void*)t.constData());
 }
 
 QString StmtBranch::toString() const

@@ -165,3 +165,61 @@ hsExpr_dump x = do
 
 hsExpr_free :: StablePtr Expr -> IO ()
 hsExpr_free x = freeStablePtr x
+
+-- SemanticTree.Stmt
+foreign export ccall hsStmtCompound_create :: IO (StablePtr Stmt)
+foreign export ccall hsStmtCompound_prependStatement :: StablePtr Stmt -> StablePtr Stmt -> IO (StablePtr Stmt)
+foreign export ccall hsStmtSetInsert_create :: StablePtr Idnt -> StablePtr Expr -> IO (StablePtr Stmt)
+foreign export ccall hsStmtAssignment_create :: StablePtr Idnt -> StablePtr Expr -> IO (StablePtr Stmt)
+foreign export ccall hsStmtIfElse_create :: StablePtr Expr -> StablePtr Stmt -> StablePtr Stmt -> IO (StablePtr Stmt)
+foreign export ccall hsStmtChoiceOr_create :: StablePtr Stmt -> StablePtr Stmt -> IO (StablePtr Stmt)
+foreign export ccall hsStmtBranch_create :: CString -> IO (StablePtr Stmt)
+foreign export ccall hsStmt_dump :: StablePtr Stmt -> IO ()
+foreign export ccall hsStmt_free :: StablePtr Stmt -> IO ()
+
+hsStmtCompound_create :: IO (StablePtr Stmt)
+hsStmtCompound_create = newStablePtr (StmtCompound [])
+
+hsStmtCompound_prependStatement :: StablePtr Stmt -> StablePtr Stmt -> IO (StablePtr Stmt)
+hsStmtCompound_prependStatement base_ptr newstmt_ptr = do
+	StmtCompound ss <- deRefStablePtr base_ptr
+	s <- deRefStablePtr newstmt_ptr
+	newStablePtr (StmtCompound (s:ss))
+
+hsStmtSetInsert_create :: StablePtr Idnt -> StablePtr Expr -> IO (StablePtr Stmt)
+hsStmtSetInsert_create i_ptr e_ptr = do
+	i <- deRefStablePtr i_ptr
+	e <- deRefStablePtr e_ptr
+	newStablePtr (StmtSetInsert i e)
+
+hsStmtAssignment_create :: StablePtr Idnt -> StablePtr Expr -> IO (StablePtr Stmt)
+hsStmtAssignment_create i_ptr e_ptr = do
+	i <- deRefStablePtr i_ptr
+	e <- deRefStablePtr e_ptr
+	newStablePtr (StmtAssignment i e)
+
+hsStmtIfElse_create :: StablePtr Expr -> StablePtr Stmt -> StablePtr Stmt -> IO (StablePtr Stmt)
+hsStmtIfElse_create c_ptr t_ptr f_ptr = do
+	c <- deRefStablePtr c_ptr
+	t <- deRefStablePtr t_ptr
+	f <- deRefStablePtr f_ptr
+	newStablePtr (StmtIfElse c t f)
+
+hsStmtChoiceOr_create :: StablePtr Stmt -> StablePtr Stmt -> IO (StablePtr Stmt)
+hsStmtChoiceOr_create a1_ptr a2_ptr = do
+	a1 <- deRefStablePtr a1_ptr
+	a2 <- deRefStablePtr a2_ptr
+	newStablePtr (StmtChoiceOr a1 a2)
+
+hsStmtBranch_create :: CString -> IO (StablePtr Stmt)
+hsStmtBranch_create str_ptr = do
+	targetnode <- peekCString str_ptr
+	newStablePtr (StmtBranch targetnode)
+
+hsStmt_dump :: StablePtr Stmt -> IO ()
+hsStmt_dump x = do
+	v <- deRefStablePtr x
+	putStrLn (show v)
+
+hsStmt_free :: StablePtr Stmt -> IO ()
+hsStmt_free x = freeStablePtr x

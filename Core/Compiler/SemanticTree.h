@@ -261,9 +261,15 @@ class ExprSetContains : public Expr
 class Stmt
 {
 	public:
+		Stmt();
 		virtual ~Stmt();
 
+		HsStablePtr haskellHandle() const;
+
 		virtual QString toString() const = 0;
+
+	protected:
+		HsStablePtr m_haskellHandle;
 };
 
 class StmtCompound : public Stmt
