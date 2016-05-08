@@ -84,6 +84,8 @@ class SetType : public Type
 	public:
 		explicit SetType(const Type *innerType);
 
+		const Type *innerType() const;
+
 		const QString datatypeName() const override;
 		void fillReferencedTypes(QSet<const Type*> &target) const override;
 
@@ -204,6 +206,44 @@ class ExprBinOp : public Expr
 	private:
 		Operator m_op;
 		const Expr *m_arg1, *m_arg2;
+};
+
+class ExprNotOp : public Expr
+{
+	public:
+		explicit ExprNotOp(const Expr *arg);
+		~ExprNotOp() override;
+
+		QString toString() const override;
+
+	private:
+		const Expr *m_arg;
+};
+
+class ExprTuple : public Expr
+{
+	public:
+		ExprTuple(const Type *type, const QList<const Expr*> &args);
+		~ExprTuple() override;
+
+		QString toString() const override;
+
+	private:
+		const Type *m_type;
+		QList<const Expr*> m_args;
+};
+
+class ExprSetContains : public Expr
+{
+	public:
+		explicit ExprSetContains(const Identifier *setIdentifier, const Expr *elementToTest);
+		~ExprSetContains() override;
+
+		QString toString() const override;
+
+	private:
+		const Identifier *m_setIdentifier;
+		const Expr *m_elementToTest;
 };
 
 }

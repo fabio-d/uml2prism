@@ -281,22 +281,20 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 		{
 			const SyntaxTree::NotOperator *node =
 				static_cast<const SyntaxTree::NotOperator*>(expression);
-			const SemanticTree::Expr *inner = convertExpression(node->arg(), m_context->boolType());
-			if (inner == nullptr)
+			QScopedPointer<const SemanticTree::Expr> inner(convertExpression(node->arg(), m_context->boolType()));
+			if (inner.isNull())
 			{
 				return nullptr;
 			}
 			else if (expectedType == m_context->boolType())
 			{
-				// TODO
+				return new SemanticTree::ExprNotOp(inner.take());
 			}
 			else
 			{
 				setUnexpectedTypeError(expression->location(), expectedType, m_context->boolType());
 				return nullptr;
 			}
-			
-			break;
 		}
 		case SyntaxTree::NodeType::BinaryOperator:
 		{
@@ -370,7 +368,74 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 		{
 			const SyntaxTree::Tuple *node =
 				static_cast<const SyntaxTree::Tuple*>(expression);
-			break;
+			const SemanticTree::ClassType *classType =
+				dynamic_cast<const SemanticTree::ClassType*>(expectedType);
+			const SemanticTree::SetType *setType =
+				dynamic_cast<const SemanticTree::SetType*>(expectedType);
+			const QList<SyntaxTree::Expression*> &elements = node->elements();
+			if (classType != nullptr)
+			{
+				QStringList memberNames = classType->memberVariables();
+				if (elements.count() < memberNames.count())
+				{
+					setError(expression->location(),
+						QString("Too few elements for a %1")
+							.arg(classType->datatypeName()));
+					return nullptr;
+				}
+				else if (elements.count() > memberNames.count())
+				{
+					setError(expression->location(),
+						QString("Too many elements for a %1")
+							.arg(classType->datatypeName()));
+					return nullptr;
+				}
+				else
+				{
+					QList<const SemanticTree::Expr*> values;
+					for (int i = 0; i < memberNames.count(); i++)
+					{
+						const SemanticTree::Type *membType = classType->findMemberVariable(memberNames[i]);
+						const SyntaxTree::Expression *e = elements[i];
+						const SemanticTree::Expr *val = convertExpression(e, membType);
+						if (val != nullptr)
+						{
+							values.append(val);
+						}
+						else
+						{
+							qDeleteAll(values);
+							return nullptr;
+						}
+					}
+					return new SemanticTree::ExprTuple(classType, values);
+				}
+			}
+			else if (setType != nullptr)
+			{
+				QList<const SemanticTree::Expr*> values;
+				foreach (const SyntaxTree::Expression *e, elements)
+				{
+					const SemanticTree::Expr *val = convertExpression(e, setType->innerType());
+					if (val != nullptr)
+					{
+						values.append(val);
+					}
+					else
+					{
+						qDeleteAll(values);
+						return nullptr;
+					}
+				}
+				return new SemanticTree::ExprTuple(setType, values);
+			}
+			else
+			{
+				setError(expression->location(),
+					QString("Expected %1 but found tuple")
+						.arg(expectedType->datatypeName()));
+				return nullptr;
+			}
 		}
 		case SyntaxTree::NodeType::MethodCall:
 		{

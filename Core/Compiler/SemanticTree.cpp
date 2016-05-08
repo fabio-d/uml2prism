@@ -151,6 +151,11 @@ SetType::SetType(const Type *innerType)
 {
 }
 
+const Type *SetType::innerType() const
+{
+	return m_innerType;
+}
+
 const QString SetType::datatypeName() const
 {
 	return QString("set of %1").arg(m_innerType->datatypeName());
@@ -293,6 +298,44 @@ QString ExprBinOp::toString() const
 		.arg(opStr)
 		.arg(m_arg1->toString())
 		.arg(m_arg2->toString());
+}
+
+ExprNotOp::ExprNotOp(const Expr *arg)
+: m_arg(arg)
+{
+}
+
+ExprNotOp::~ExprNotOp()
+{
+	delete m_arg;
+}
+
+QString ExprNotOp::toString() const
+{
+	return QString("ExprNotOp(%1)")
+		.arg(m_arg->toString());
+}
+
+ExprTuple::ExprTuple(const Type *type, const QList<const Expr*> &args)
+: m_type(type), m_args(args)
+{
+}
+
+ExprTuple::~ExprTuple()
+{
+	qDeleteAll(m_args);
+}
+
+QString ExprTuple::toString() const
+{
+	QStringList l;
+
+	l.append(m_type->datatypeName());
+
+	foreach (const Expr *e, m_args)
+		l.append(e->toString());
+
+	return QString("ExprTuple(%1)").arg(l.join(", "));
 }
 
 }

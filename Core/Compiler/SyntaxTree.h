@@ -165,6 +165,8 @@ class Tuple : public Expression
 	public:
 		Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Expression*> &elements = QList<Expression*>());
 
+		const QList<Expression*> &elements() const;
+
 		QString toString() const override;
 
 	private:

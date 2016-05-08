@@ -189,6 +189,11 @@ Tuple::Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location, const Q
 {
 }
 
+const QList<Expression*> &Tuple::elements() const
+{
+	return m_elements;
+}
+
 QString Tuple::toString() const
 {
 	QStringList elementsStr;

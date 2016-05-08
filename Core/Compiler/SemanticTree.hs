@@ -32,4 +32,5 @@ data Expr =
 	| ExprOrOp Expr Expr		-- boolean or operator
 	| ExprNotOp Expr		-- boolean not operator
 	| ExprTuple Type [Expr]		-- either a non-nil TypeClass value or a TypeSet (set of values)
+	| ExprSetContains Identifier Expr -- test whether a set (first arg) contains a given element (second arg)
 	deriving (Data, Typeable)
