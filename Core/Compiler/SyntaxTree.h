@@ -91,14 +91,14 @@ class GlobalIdentifier : public Identifier
 class MemberIdentifier : public Identifier
 {
 	public:
-		MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *container, const QString &name);
+		MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, const Identifier *container, const QString &name);
 
 		const Identifier *container() const;
 
 		QString toString() const override;
 
 	private:
-		Identifier *m_container;
+		const Identifier *m_container;
 };
 
 class NilLiteral : public Expression
@@ -125,14 +125,14 @@ class BoolLiteral : public Expression
 class NotOperator : public Expression
 {
 	public:
-		NotOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *arg);
+		NotOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, const Expression *arg);
 
 		const Expression *arg() const;
 
 		QString toString() const override;
 
 	private:
-		Expression *m_arg;
+		const Expression *m_arg;
 };
 
 class BinaryOperator : public Expression
@@ -146,7 +146,7 @@ class BinaryOperator : public Expression
 			Or
 		};
 
-		BinaryOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Operator op, Expression *arg1, Expression *arg2);
+		BinaryOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Operator op, const Expression *arg1, const Expression *arg2);
 
 		Operator op() const;
 		const Expression *arg1() const;
@@ -156,43 +156,43 @@ class BinaryOperator : public Expression
 
 	private:
 		Operator m_op;
-		Expression *m_arg1, *m_arg2;
+		const Expression *m_arg1, *m_arg2;
 };
 
 class Tuple : public Expression
 {
 	public:
-		Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Expression*> &elements = QList<Expression*>());
+		Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<const Expression*> &elements = QList<const Expression*>());
 
-		const QList<Expression*> &elements() const;
+		const QList<const Expression*> &elements() const;
 
 		QString toString() const override;
 
 	private:
-		QList<Expression*> m_elements;
+		QList<const Expression*> m_elements;
 };
 
 class CompoundStatement : public Statement
 {
 	public:
-		CompoundStatement(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Statement*> &statements = QList<Statement*>());
+		CompoundStatement(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<const Statement*> &statements = QList<const Statement*>());
 
-		const QList<Statement*> &statements() const;
+		const QList<const Statement*> &statements() const;
 
 		QString toString() const override;
 
 	private:
-		QList<Statement*> m_statements;
+		QList<const Statement*> m_statements;
 };
 
 class MethodCall : public Expression, public Statement
 {
 	public:
-		MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *method, const QList<Expression*> &arguments = QList<Expression*>());
+		MethodCall(SyntaxTreeGenerator *owner, const SourceLocation &location, const Identifier *method, const QList<const Expression*> &arguments = QList<const Expression*>());
 
 		const Identifier *object() const; // nullptr if "global method" (i.e. a function)
 		const QString &methodName() const;
-		const QList<Expression*> &arguments() const;
+		const QList<const Expression*> &arguments() const;
 
 		// Convenience method to resolve ambiguity between
 		// Expression::location() and Statement::location()
@@ -201,14 +201,14 @@ class MethodCall : public Expression, public Statement
 		QString toString() const override;
 
 	private:
-		Identifier *m_method;
-		QList<Expression*> m_arguments;
+		const Identifier *m_method;
+		QList<const Expression*> m_arguments;
 };
 
 class Assignment : public Statement
 {
 	public:
-		Assignment(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *dest, Expression *value);
+		Assignment(SyntaxTreeGenerator *owner, const SourceLocation &location, const Identifier *dest, const Expression *value);
 
 		const Identifier *dest() const;
 		const Expression *value() const;
@@ -216,14 +216,14 @@ class Assignment : public Statement
 		QString toString() const override;
 
 	private:
-		Identifier *m_dest;
-		Expression *m_value;
+		const Identifier *m_dest;
+		const Expression *m_value;
 };
 
 class SignalEmission : public Statement
 {
 	public:
-		SignalEmission(SyntaxTreeGenerator *owner, const SourceLocation &location, GlobalIdentifier *signal, Expression *value = nullptr);
+		SignalEmission(SyntaxTreeGenerator *owner, const SourceLocation &location, const GlobalIdentifier *signal, const Expression *value = nullptr);
 
 		const GlobalIdentifier *signal() const;
 		const Expression *value() const;
@@ -231,14 +231,14 @@ class SignalEmission : public Statement
 		QString toString() const override;
 
 	private:
-		GlobalIdentifier *m_signal;
-		Expression *m_value;
+		const GlobalIdentifier *m_signal;
+		const Expression *m_value;
 };
 
 class IfElse : public Statement
 {
 	public:
-		IfElse(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *condition, Statement *trueBranch, Statement *falseBranch);
+		IfElse(SyntaxTreeGenerator *owner, const SourceLocation &location, const Expression *condition, const Statement *trueBranch, const Statement *falseBranch);
 
 		const Expression *condition() const;
 		const Statement *trueBranch() const;
@@ -247,14 +247,14 @@ class IfElse : public Statement
 		QString toString() const override;
 
 	private:
-		Expression *m_condition;
-		Statement *m_trueBranch, *m_falseBranch;
+		const Expression *m_condition;
+		const Statement *m_trueBranch, *m_falseBranch;
 };
 
 class ChoiceOr : public Statement
 {
 	public:
-		ChoiceOr(SyntaxTreeGenerator *owner, const SourceLocation &location, Statement *alt1, Statement *alt2);
+		ChoiceOr(SyntaxTreeGenerator *owner, const SourceLocation &location, const Statement *alt1, const Statement *alt2);
 
 		const Statement *alt1() const;
 		const Statement *alt2() const;
@@ -262,7 +262,7 @@ class ChoiceOr : public Statement
 		QString toString() const override;
 
 	private:
-		Statement *m_alt1, *m_alt2;
+		const Statement *m_alt1, *m_alt2;
 };
 
 class Branch : public Statement

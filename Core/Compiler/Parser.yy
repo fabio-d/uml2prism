@@ -84,9 +84,9 @@
 %type		<SyntaxTree::GlobalIdentifier*> signal
 %type		<SyntaxTree::MethodCall*> method-call
 %type		<SyntaxTree::Tuple*> tuple
-%type		<QList<SyntaxTree::Expression*>> expr-list
+%type		<QList<const SyntaxTree::Expression*>> expr-list
 %type		<SyntaxTree::Expression*> expr
-%type		<QList<SyntaxTree::Statement*>> stmt-list
+%type		<QList<const SyntaxTree::Statement*>> stmt-list
 %type		<SyntaxTree::Statement*> stmt
 %type		<SyntaxTree::IfElse*> if-else
 %type		<SyntaxTree::ChoiceOr*> choice-or
@@ -124,7 +124,7 @@ tuple:
 ;
 
 expr-list:
-  expr				{ $$ = QList<SyntaxTree::Expression*>() << $1; }
+  expr				{ $$ = QList<const SyntaxTree::Expression*>() << $1; }
 | expr-list ',' expr 		{ $$ = $1; $$ << $3; }
 ;
 
@@ -142,7 +142,7 @@ expr:
 ;
 
 stmt-list:
-  stmt				{ $$ = QList<SyntaxTree::Statement*>() << $1; }
+  stmt				{ $$ = QList<const SyntaxTree::Statement*>() << $1; }
 | stmt-list stmt 		{ $$ = $1; $$ << $2; }
 ;
 

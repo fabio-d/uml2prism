@@ -494,7 +494,7 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 				dynamic_cast<const SemanticTree::ClassType*>(expectedType);
 			const SemanticTree::SetType *setType =
 				dynamic_cast<const SemanticTree::SetType*>(expectedType);
-			const QList<SyntaxTree::Expression*> &elements = node->elements();
+			const QList<const SyntaxTree::Expression*> &elements = node->elements();
 			if (classType != nullptr)
 			{
 				QStringList memberNames = classType->memberVariables();
