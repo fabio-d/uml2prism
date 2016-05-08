@@ -96,11 +96,11 @@ class SetType : public Type
 		const Type *m_innerType;
 };
 
-class Identifier
+class Idnt
 {
 	public:
-		explicit Identifier(const Type *type);
-		virtual ~Identifier();
+		explicit Idnt(const Type *type);
+		virtual ~Idnt();
 
 		const Type *type() const;
 
@@ -110,10 +110,10 @@ class Identifier
 		const Type *m_type;
 };
 
-class GlobalIdentifier : public Identifier
+class IdntGlobal : public Idnt
 {
 	public:
-		GlobalIdentifier(const QString &name, const Type *type);
+		IdntGlobal(const QString &name, const Type *type);
 
 		QString toString() const override;
 
@@ -121,16 +121,16 @@ class GlobalIdentifier : public Identifier
 		QString m_name;
 };
 
-class MemberIdentifier : public Identifier
+class IdntMember : public Idnt
 {
 	public:
-		MemberIdentifier(const Identifier *container, const QString &name, const Type *type);
-		~MemberIdentifier() override;
+		IdntMember(const Idnt *container, const QString &name, const Type *type);
+		~IdntMember() override;
 
 		QString toString() const override;
 
 	private:
-		const Identifier *m_container;
+		const Idnt *m_container;
 		QString m_name;
 };
 
@@ -180,13 +180,13 @@ class ExprClassNilLiteral : public Expr
 class ExprVariable : public Expr
 {
 	public:
-		explicit ExprVariable(const Identifier *identifier);
+		explicit ExprVariable(const Idnt *identifier);
 		~ExprVariable() override;
 
 		QString toString() const override;
 
 	private:
-		const Identifier *m_identifier;
+		const Idnt *m_identifier;
 };
 
 class ExprBinOp : public Expr
@@ -238,13 +238,13 @@ class ExprTuple : public Expr
 class ExprSetContains : public Expr
 {
 	public:
-		ExprSetContains(const Identifier *setIdentifier, const Expr *elementToTest);
+		ExprSetContains(const Idnt *setIdentifier, const Expr *elementToTest);
 		~ExprSetContains() override;
 
 		QString toString() const override;
 
 	private:
-		const Identifier *m_setIdentifier;
+		const Idnt *m_setIdentifier;
 		const Expr *m_elementToTest;
 };
 
@@ -271,26 +271,26 @@ class StmtCompound : public Stmt
 class StmtSetInsert : public Stmt
 {
 	public:
-		StmtSetInsert(const Identifier *setIdentifier, const Expr *elementToInsert);
+		StmtSetInsert(const Idnt *setIdentifier, const Expr *elementToInsert);
 		~StmtSetInsert() override;
 
 		QString toString() const override;
 
 	private:
-		const Identifier *m_setIdentifier;
+		const Idnt *m_setIdentifier;
 		const Expr *m_elementToInsert;
 };
 
 class StmtAssignment : public Stmt
 {
 	public:
-		StmtAssignment(const Identifier *dest, const Expr *value);
+		StmtAssignment(const Idnt *dest, const Expr *value);
 		~StmtAssignment() override;
 
 		QString toString() const override;
 
 	private:
-		const Identifier *m_dest;
+		const Idnt *m_dest;
 		const Expr *m_value;
 };
 

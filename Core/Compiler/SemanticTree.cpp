@@ -172,41 +172,41 @@ HsStablePtr SetType::createHaskellHandle() const
 	return hsTypeSet_create(m_innerType->haskellHandle());
 }
 
-Identifier::Identifier(const Type *type)
+Idnt::Idnt(const Type *type)
 : m_type(type)
 {
 }
 
-Identifier::~Identifier()
+Idnt::~Idnt()
 {
 }
 
-const Type *Identifier::type() const
+const Type *Idnt::type() const
 {
 	return m_type;
 }
 
-GlobalIdentifier::GlobalIdentifier(const QString &name, const Type *type)
-: Identifier(type), m_name(name)
+IdntGlobal::IdntGlobal(const QString &name, const Type *type)
+: Idnt(type), m_name(name)
 {
 }
 
-QString GlobalIdentifier::toString() const
+QString IdntGlobal::toString() const
 {
 	return m_name;
 }
 
-MemberIdentifier::MemberIdentifier(const Identifier *container, const QString &name, const Type *type)
-: Identifier(type), m_container(container), m_name(name)
+IdntMember::IdntMember(const Idnt *container, const QString &name, const Type *type)
+: Idnt(type), m_container(container), m_name(name)
 {
 }
 
-MemberIdentifier::~MemberIdentifier()
+IdntMember::~IdntMember()
 {
 	delete m_container;
 }
 
-QString MemberIdentifier::toString() const
+QString IdntMember::toString() const
 {
 	return QString("%1.%2").arg(m_container->toString()).arg(m_name);
 }
@@ -253,7 +253,7 @@ QString ExprClassNilLiteral::toString() const
 	return QString("ExprClassNilLiteral(%1)").arg(m_type->datatypeName());
 }
 
-ExprVariable::ExprVariable(const Identifier *identifier)
+ExprVariable::ExprVariable(const Idnt *identifier)
 : m_identifier(identifier)
 {
 }
@@ -343,7 +343,7 @@ QString ExprTuple::toString() const
 	return QString("ExprTuple(%1)").arg(l.join(", "));
 }
 
-ExprSetContains::ExprSetContains(const Identifier *setIdentifier, const Expr *elementToTest)
+ExprSetContains::ExprSetContains(const Idnt *setIdentifier, const Expr *elementToTest)
 : m_setIdentifier(setIdentifier), m_elementToTest(elementToTest)
 {
 }
@@ -387,7 +387,7 @@ QString StmtCompound::toString() const
 	return QString("StmtCompound(%1)").arg(statementsStr.join(", "));
 }
 
-StmtSetInsert::StmtSetInsert(const Identifier *setIdentifier, const Expr *elementToInsert)
+StmtSetInsert::StmtSetInsert(const Idnt *setIdentifier, const Expr *elementToInsert)
 : m_setIdentifier(setIdentifier), m_elementToInsert(elementToInsert)
 {
 }
@@ -405,7 +405,7 @@ QString StmtSetInsert::toString() const
 		.arg(m_elementToInsert->toString());
 }
 
-StmtAssignment::StmtAssignment(const Identifier *dest, const Expr *value)
+StmtAssignment::StmtAssignment(const Idnt *dest, const Expr *value)
 : m_dest(dest), m_value(value)
 {
 }

@@ -12,33 +12,33 @@ data Type =
 	| TypeSet Type			-- arg is inner type
 	deriving (Show, Data, Typeable)
 
-data Identifier =
-	  GlobalIdentifier String Type
-	| MemberIdentifier Identifier String Type
+data Idnt =
+	  IdntGlobal String Type
+	| IdntMember Idnt String Type
 	deriving (Data, Typeable)
 
---instance Show Identifier where
---	show (GlobalIdentifier name _) = name
---	show (MemberIdentifier parent name _) = (show parent) ++ "." ++ name
+--instance Show Idnt where
+--	show (GlobalIdnt name _) = name
+--	show (MemberIdnt parent name _) = (show parent) ++ "." ++ name
 
 data Expr =
 	  ExprBoolLiteral Bool		-- bool literal
 	| ExprEnumLiteral Type Int	-- literal for a given TypeEnumeration (arg is 1-based index, 0 means nil)
 	| ExprClassNilLiteral Type	-- nil literal for a given TypeClass
-	| ExprVariable Identifier	-- variable being read (any type)
+	| ExprVariable Idnt	-- variable being read (any type)
 	| ExprEqOp Expr Expr		-- equal operator (any type)
 	| ExprNeqOp Expr Expr		-- not equal operator (any type)
 	| ExprAndOp Expr Expr		-- boolean and operator
 	| ExprOrOp Expr Expr		-- boolean or operator
 	| ExprNotOp Expr		-- boolean not operator
 	| ExprTuple Type [Expr]		-- either a non-nil TypeClass value or a TypeSet (set of values)
-	| ExprSetContains Identifier Expr -- test whether a set (first arg) contains a given element (second arg)
+	| ExprSetContains Idnt Expr -- test whether a set (first arg) contains a given element (second arg)
 	deriving (Data, Typeable)
 
 data Stmt =
 	  StmtCompound [Stmt]
-	| StmtSetInsert Identifier Expr
-	| StmtAssignment Identifier Expr
+	| StmtSetInsert Idnt Expr
+	| StmtAssignment Idnt Expr
 	| StmtIfElse Expr Stmt Stmt
 	| StmtChoiceOr Stmt Stmt
 	| StmtBranch String		-- arg is next node's name

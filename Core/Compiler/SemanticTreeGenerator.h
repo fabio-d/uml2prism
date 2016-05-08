@@ -48,7 +48,7 @@ class SemanticTreeGenerator
 			WriteVariable
 		};
 
-		const SemanticTree::Identifier *resolveIdentifier(const SyntaxTree::Identifier *ident, IdentifierPurpose purpose);
+		const SemanticTree::Idnt *resolveIdentifier(const SyntaxTree::Identifier *ident, IdentifierPurpose purpose);
 		const SemanticTree::Type *deduceType(const SyntaxTree::Expression *expression);
 
 		enum SetMethod
@@ -57,7 +57,7 @@ class SemanticTreeGenerator
 			Insert
 		};
 
-		const SemanticTree::Identifier *expectSetMethod(const SyntaxTree::MethodCall *mCall, SetMethod method);
+		const SemanticTree::Idnt *expectSetMethod(const SyntaxTree::MethodCall *mCall, SetMethod method);
 
 		const SemanticTree::Expr *convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType);
 		const SemanticTree::Stmt *convertStatement(const SyntaxTree::Statement *statement);
