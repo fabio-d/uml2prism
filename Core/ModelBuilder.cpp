@@ -1,5 +1,6 @@
 #include "Core/ModelBuilder.h"
 
+#include "Core/Compiler/SemanticTreeGenerator.h"
 #include "Core/Document.h"
 #include "Core/UMLDiagram.h"
 #include "Core/UMLElement.h"
@@ -44,9 +45,9 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	if (m_error)
 		return;
 
-	qDebug() << "Registering signals and global variables...";
+	qDebug() << "Registering global variables and signals...";
+	registerGlobalVariables(); // this must be done before registering signals, see comment inside
 	registerSignals();
-	registerGlobalVariables();
 	if (m_error)
 		return;
 
@@ -511,20 +512,43 @@ void ModelBuilder::registerGlobalVariables()
 		}
 	}
 
-	// Register global variables
+	// Resolve global variables' type and initial value.
+	// This must be done before registering any global variable or signal,
+	// so we can be sure that no variables are read in the initial value
+	QMap<QString, const Compiler::SemanticTree::Type*> gvTypes;
+	QMap<QString, const Compiler::SemanticTree::Expr*> gvInitValues;
 	foreach (const UMLGlobalVariables *gv, umlGlobalVars)
 	{
 		foreach (const UMLGlobalVariables::GlobalVariable &var, gv->globalVariables())
 		{
 			const Compiler::SemanticTree::Type *type = resolveType(&var.datatypeName);
-			if (type != nullptr)
-				m_semanticContext.registerGlobalVariable(var.name, type);
-			else
+			if (type == nullptr)
+			{
 				emitError(
 					QString("(global):%1").arg(var.name),
 					QString("Cannot resolve type \"%1\"").arg(var.datatypeName.toString()));
+			}
+			else
+			{
+				Compiler::SemanticTreeGenerator stgen(var.initialValue, type, &m_semanticContext);
+				if (stgen.success())
+				{
+					const Compiler::SemanticTree::Expr *initVal = stgen.takeResultExpr();
+					gvTypes.insert(var.name, type);
+					gvInitValues.insert(var.name, initVal);
+				}
+				else
+				{
+					emitError(
+						QString("(init):%1:%2").arg(var.name).arg(stgen.errorLocation().toString()),
+						stgen.errorMessage());
+				}
+			}
 		}
 	}
+
+	foreach (const QString &gvName, gvTypes.keys())
+		m_semanticContext.registerGlobalVariable(gvName, gvTypes[gvName], gvInitValues[gvName]);
 }
 
 void ModelBuilder::registerSignals()

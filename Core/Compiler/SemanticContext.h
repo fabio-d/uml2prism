@@ -21,7 +21,7 @@ class SemanticContext
 
 		SemanticTree::EnumerationType *registerEnumeration(const QString &enumName);
 		SemanticTree::ClassType *registerClass(const QString &className);
-		void registerGlobalVariable(const QString &name, const SemanticTree::Type *type);
+		void registerGlobalVariable(const QString &name, const SemanticTree::Type *type, const SemanticTree::Expr *initVal);
 		void registerSignal(const QString &name, const SemanticTree::Type *type); // type==nullptr means no attached message
 
 		const SemanticTree::EnumerationType *findEnumerationValue(const QString &value) const;

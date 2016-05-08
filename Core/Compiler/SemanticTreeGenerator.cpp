@@ -11,7 +11,7 @@ namespace Compiler
 {
 
 SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const SemanticTree::Type *valueType, const SemanticContext *context)
-: m_success(true), m_context(context)
+: m_success(true), m_context(context), m_resultExpr(nullptr)
 {
 	SyntaxTreeGenerator sygen(sourceCode, SyntaxTreeGenerator::Value);
 	if (!sygen.success())
@@ -20,20 +20,39 @@ SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const Se
 		return;
 	}
 
-	const SemanticTree::Expr *res = convertExpression(sygen.resultValue(), valueType);
-	if (m_success)
-		qDebug() << "Get result:" << res->toString();
-	else
-		qDebug() << "FAILED";
+	m_resultExpr = convertExpression(sygen.resultValue(), valueType);
 }
 
 SemanticTreeGenerator::~SemanticTreeGenerator()
 {
+	delete m_resultExpr;
 }
 
 bool SemanticTreeGenerator::success() const
 {
 	return m_success;
+}
+
+const SourceLocation &SemanticTreeGenerator::errorLocation() const
+{
+	Q_ASSERT(m_success == false);
+	return m_errorLocation;
+}
+
+const QString &SemanticTreeGenerator::errorMessage() const
+{
+	Q_ASSERT(m_success == false);
+	return m_errorMessage;
+}
+
+const SemanticTree::Expr *SemanticTreeGenerator::takeResultExpr()
+{
+	Q_ASSERT(m_success == true);
+	Q_ASSERT(m_resultExpr != nullptr);
+
+	const SemanticTree::Expr *res = m_resultExpr;
+	m_resultExpr = nullptr;
+	return res;
 }
 
 void SemanticTreeGenerator::setError(const SourceLocation &location, const QString &message)
@@ -104,7 +123,7 @@ const SemanticTree::Identifier *SemanticTreeGenerator::resolveIdentifier(const S
 
 const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Expression *expression)
 {
-	qDebug() << "Deducing type of expression" << expression->toString();
+	//qDebug() << "Deducing type of expression" << expression->toString();
 
 	switch (expression->nodeType())
 	{
@@ -228,7 +247,7 @@ const SemanticTree::Identifier *SemanticTreeGenerator::expectSetMethod(const Syn
 
 const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType)
 {
-	qDebug() << "Converting expression" << expression->toString() << "to type" << expectedType->datatypeName();
+	//qDebug() << "Converting expression" << expression->toString() << "to type" << expectedType->datatypeName();
 
 	switch (expression->nodeType())
 	{

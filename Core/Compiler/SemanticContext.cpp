@@ -50,9 +50,10 @@ SemanticTree::ClassType *SemanticContext::registerClass(const QString &className
 	return res;
 }
 
-void SemanticContext::registerGlobalVariable(const QString &name, const SemanticTree::Type *type)
+void SemanticContext::registerGlobalVariable(const QString &name, const SemanticTree::Type *type, const SemanticTree::Expr *initVal)
 {
 	m_globalVariables.insert(name, type);
+	qDebug() << "REG-GV" << name << initVal->toString();
 }
 
 void SemanticContext::registerSignal(const QString &name, const SemanticTree::Type *type)

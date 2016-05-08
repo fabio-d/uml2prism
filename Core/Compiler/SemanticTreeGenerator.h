@@ -22,6 +22,10 @@ class SemanticTreeGenerator
 		~SemanticTreeGenerator();
 
 		bool success() const;
+		const SourceLocation &errorLocation() const;
+		const QString &errorMessage() const;
+
+		const SemanticTree::Expr *takeResultExpr();
 
 	private:
 		void setError(const SourceLocation &location, const QString &message);
@@ -39,6 +43,8 @@ class SemanticTreeGenerator
 		QString m_errorMessage;
 
 		const SemanticContext *m_context;
+
+		const SemanticTree::Expr *m_resultExpr;
 };
 
 }

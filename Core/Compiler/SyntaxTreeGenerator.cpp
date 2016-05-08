@@ -84,7 +84,7 @@ void SyntaxTreeGenerator::setError(const SourceLocation &location, const QString
 	m_errorMessage = message;
 	m_success = false;
 
-	qDebug() << "SyntaxTreeGenerator failed at" << location.toString() << ":" << message;
+	//qDebug() << "SyntaxTreeGenerator failed at" << location.toString() << ":" << message;
 }
 
 void SyntaxTreeGenerator::setResultScript(SyntaxTree::Statement *expr)
@@ -98,7 +98,7 @@ void SyntaxTreeGenerator::setResultScript(SyntaxTree::Statement *expr)
 
 void SyntaxTreeGenerator::setResultValue(SyntaxTree::Expression *expr)
 {
-	qDebug() << "Got resultValue:" << expr->toString().toLatin1().constData();
+	//qDebug() << "Got resultValue:" << expr->toString().toLatin1().constData();
 	m_resultValue = expr;
 }
 
