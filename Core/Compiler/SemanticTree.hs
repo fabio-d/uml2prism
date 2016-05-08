@@ -34,3 +34,12 @@ data Expr =
 	| ExprTuple Type [Expr]		-- either a non-nil TypeClass value or a TypeSet (set of values)
 	| ExprSetContains Identifier Expr -- test whether a set (first arg) contains a given element (second arg)
 	deriving (Data, Typeable)
+
+data Stmt =
+	  StmtCompound [Stmt]
+	| StmtSetInsert Identifier Expr
+	| StmtAssignment Identifier Expr
+	| StmtIfElse Expr Stmt Stmt
+	| StmtChoiceOr Stmt Stmt
+	| StmtBranch String		-- arg is next node's name
+	deriving (Data, Typeable)

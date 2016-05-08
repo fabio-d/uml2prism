@@ -4,6 +4,7 @@
 #include "Core/Compiler/SemanticTree.h"
 #include "Core/Compiler/SyntaxTreeGenerator.h"
 
+#include <QMap>
 #include <QSet>
 #include <QStringList>
 
@@ -19,6 +20,10 @@ class SemanticTreeGenerator
 		// Parse a value
 		SemanticTreeGenerator(const QString &sourceCode, const SemanticTree::Type *valueType, const SemanticContext *context);
 
+		// Parse a statement
+		SemanticTreeGenerator(const QString &sourceCode, const SemanticContext *context,
+			const QStringList &writableSignals, const QMap<QString, QString> &labelMap);
+
 		~SemanticTreeGenerator();
 
 		bool success() const;
@@ -26,6 +31,7 @@ class SemanticTreeGenerator
 		const QString &errorMessage() const;
 
 		const SemanticTree::Expr *takeResultExpr();
+		const SemanticTree::Stmt *takeResultStmt();
 
 	private:
 		void setError(const SourceLocation &location, const QString &message);
@@ -36,7 +42,7 @@ class SemanticTreeGenerator
 		const SemanticTree::Identifier *expectSetMethod(const SyntaxTree::MethodCall *mCall, const QString &methodName);
 
 		const SemanticTree::Expr *convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType);
-		//const SemanticTree::TODO *convertStatement(const SyntaxTree::Statement *statement);
+		const SemanticTree::Stmt *convertStatement(const SyntaxTree::Statement *statement);
 
 		bool m_success;
 		SourceLocation m_errorLocation;
@@ -45,6 +51,12 @@ class SemanticTreeGenerator
 		const SemanticContext *m_context;
 
 		const SemanticTree::Expr *m_resultExpr;
+		const SemanticTree::Stmt *m_resultStmt;
+
+		// The following variables are used only when a statement is
+		// being converted
+		QStringList m_writableSignals;
+		QMap<QString, QString> m_labelMap;
 };
 
 }

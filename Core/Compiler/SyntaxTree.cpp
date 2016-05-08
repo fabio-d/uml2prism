@@ -206,6 +206,11 @@ CompoundStatement::CompoundStatement(SyntaxTreeGenerator *owner, const SourceLoc
 {
 }
 
+const QList<Statement*> &CompoundStatement::statements() const
+{
+	return m_statements;
+}
+
 QString CompoundStatement::toString() const
 {
 	QStringList statementsStr;
@@ -265,6 +270,16 @@ Assignment::Assignment(SyntaxTreeGenerator *owner, const SourceLocation &locatio
 {
 }
 
+const Identifier *Assignment::dest() const
+{
+	return m_dest;
+}
+
+const Expression *Assignment::value() const
+{
+	return m_value;
+}
+
 QString Assignment::toString() const
 {
 	return QString("Assignment(%1, %2)").arg(m_dest->toString()).arg(m_value->toString());
@@ -273,6 +288,16 @@ QString Assignment::toString() const
 SignalEmission::SignalEmission(SyntaxTreeGenerator *owner, const SourceLocation &location, GlobalIdentifier *signal, Expression *value)
 : Statement(owner, location, NodeType::SignalEmission), m_signal(signal), m_value(value)
 {
+}
+
+const GlobalIdentifier *SignalEmission::signal() const
+{
+	return m_signal;
+}
+
+const Expression *SignalEmission::value() const
+{
+	return m_value;
 }
 
 QString SignalEmission::toString() const

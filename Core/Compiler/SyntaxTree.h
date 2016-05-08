@@ -177,6 +177,8 @@ class CompoundStatement : public Statement
 	public:
 		CompoundStatement(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<Statement*> &statements = QList<Statement*>());
 
+		const QList<Statement*> &statements() const;
+
 		QString toString() const override;
 
 	private:
@@ -208,6 +210,9 @@ class Assignment : public Statement
 	public:
 		Assignment(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *dest, Expression *value);
 
+		const Identifier *dest() const;
+		const Expression *value() const;
+
 		QString toString() const override;
 
 	private:
@@ -219,6 +224,9 @@ class SignalEmission : public Statement
 {
 	public:
 		SignalEmission(SyntaxTreeGenerator *owner, const SourceLocation &location, GlobalIdentifier *signal, Expression *value = nullptr);
+
+		const GlobalIdentifier *signal() const;
+		const Expression *value() const;
 
 		QString toString() const override;
 

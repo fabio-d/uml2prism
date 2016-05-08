@@ -76,10 +76,11 @@ void EditScriptedNodeElementDialog::slotParse()
 	{
 		Core::Compiler::SemanticTreeGenerator stgen(
 			m_ui->scriptTextEdit->toPlainText(),
-			builder.semanticContext()->boolType(),
-			builder.semanticContext());
+			builder.semanticContext(),
+			QStringList() << "HelloServer",
+			QMap<QString, QString>());
 		if (stgen.success())
-			qDebug() << stgen.takeResultExpr()->toString();
+			qDebug() << stgen.takeResultStmt()->toString();
 	}
 }
 

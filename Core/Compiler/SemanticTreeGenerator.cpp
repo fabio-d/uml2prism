@@ -11,7 +11,7 @@ namespace Compiler
 {
 
 SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const SemanticTree::Type *valueType, const SemanticContext *context)
-: m_success(true), m_context(context), m_resultExpr(nullptr)
+: m_success(true), m_context(context), m_resultExpr(nullptr), m_resultStmt(nullptr)
 {
 	SyntaxTreeGenerator sygen(sourceCode, SyntaxTreeGenerator::Value);
 	if (!sygen.success())
@@ -23,9 +23,24 @@ SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const Se
 	m_resultExpr = convertExpression(sygen.resultValue(), valueType);
 }
 
+SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const SemanticContext *context,
+	const QStringList &writableSignals, const QMap<QString, QString> &labelMap)
+: m_success(true), m_context(context), m_resultExpr(nullptr), m_resultStmt(nullptr)
+{
+	SyntaxTreeGenerator sygen(sourceCode, SyntaxTreeGenerator::Script);
+	if (!sygen.success())
+	{
+		setError(sygen.errorLocation(), sygen.errorMessage());
+		return;
+	}
+
+	m_resultStmt = convertStatement(sygen.resultScript());
+}
+
 SemanticTreeGenerator::~SemanticTreeGenerator()
 {
 	delete m_resultExpr;
+	delete m_resultStmt;
 }
 
 bool SemanticTreeGenerator::success() const
@@ -52,6 +67,16 @@ const SemanticTree::Expr *SemanticTreeGenerator::takeResultExpr()
 
 	const SemanticTree::Expr *res = m_resultExpr;
 	m_resultExpr = nullptr;
+	return res;
+}
+
+const SemanticTree::Stmt *SemanticTreeGenerator::takeResultStmt()
+{
+	Q_ASSERT(m_success == true);
+	Q_ASSERT(m_resultStmt != nullptr);
+
+	const SemanticTree::Stmt *res = m_resultStmt;
+	m_resultStmt = nullptr;
 	return res;
 }
 
@@ -524,7 +549,7 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 			const SemanticTree::SetType *setType =
 				static_cast<const SemanticTree::SetType*>(setObject->type());
 			const SyntaxTree::Expression *arg = node->arguments().first();
-			const SemanticTree::Expr *argval(convertExpression(arg, setType->innerType()));
+			const SemanticTree::Expr *argval = convertExpression(arg, setType->innerType());
 			if (argval == nullptr)
 				return nullptr;
 
@@ -536,8 +561,7 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 	}
 }
 
-#if 0
-const SemanticTree::TODO *convertStatement(const SyntaxTree::Statement *statement)
+const SemanticTree::Stmt *SemanticTreeGenerator::convertStatement(const SyntaxTree::Statement *statement)
 {
 	qDebug() << "Converting statement" << statement->toString();
 
@@ -547,25 +571,62 @@ const SemanticTree::TODO *convertStatement(const SyntaxTree::Statement *statemen
 		{
 			const SyntaxTree::CompoundStatement *node =
 				static_cast<const SyntaxTree::CompoundStatement*>(statement);
-			break;
+			QList<const SemanticTree::Stmt*> statements;
+			foreach (const SyntaxTree::Statement *st, node->statements())
+			{
+				const SemanticTree::Stmt *currSt = convertStatement(st);
+				if (currSt == nullptr)
+				{
+					qDeleteAll(statements);
+					return nullptr;
+				}
+
+				statements.append(currSt);
+			}
+
+			return new SemanticTree::StmtCompound(statements);
 		}
 		case SyntaxTree::NodeType::MethodCall:
 		{
 			const SyntaxTree::MethodCall *node =
 				static_cast<const SyntaxTree::MethodCall*>(statement);
-			break;
+
+			QScopedPointer<const SemanticTree::Identifier> setObject(expectSetMethod(node, "insert"));
+			if (setObject.isNull())
+				return nullptr;
+
+			const SemanticTree::SetType *setType =
+				static_cast<const SemanticTree::SetType*>(setObject->type());
+			const SyntaxTree::Expression *arg = node->arguments().first();
+			const SemanticTree::Expr *argval = convertExpression(arg, setType->innerType());
+			if (argval == nullptr)
+				return nullptr;
+
+			return new SemanticTree::StmtSetInsert(setObject.take(), argval);
 		}
 		case SyntaxTree::NodeType::Assignment:
 		{
 			const SyntaxTree::Assignment *node =
 				static_cast<const SyntaxTree::Assignment*>(statement);
-			break;
+			QScopedPointer<const SemanticTree::Identifier> dest(resolveIdentifier(node->dest()));
+			if (dest.isNull())
+				return nullptr;
+			const SemanticTree::Expr *val = convertExpression(node->value(), dest->type());
+			if (val == nullptr)
+				return nullptr;
+			return new SemanticTree::StmtAssignment(dest.take(), val);
 		}
 		case SyntaxTree::NodeType::SignalEmission:
 		{
 			const SyntaxTree::SignalEmission *node =
 				static_cast<const SyntaxTree::SignalEmission*>(statement);
-			break;
+			QScopedPointer<const SemanticTree::Identifier> dest(resolveIdentifier(node->signal()));
+			if (dest.isNull())
+				return nullptr;
+			const SemanticTree::Expr *val = convertExpression(node->value(), dest->type());
+			if (val == nullptr)
+				return nullptr;
+			return new SemanticTree::StmtAssignment(dest.take(), val);
 		}
 		case SyntaxTree::NodeType::IfElse:
 		{
@@ -589,10 +650,9 @@ const SemanticTree::TODO *convertStatement(const SyntaxTree::Statement *statemen
 			qFatal("This should never happen");
 			break;
 	}
-	setError(expression->location(), "Not implemented yet");
+	setError(statement->location(), "Not implemented yet");
 	return nullptr;
 }
-#endif
 
 }
 }

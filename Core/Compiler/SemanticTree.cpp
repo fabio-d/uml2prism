@@ -361,6 +361,68 @@ QString ExprSetContains::toString() const
 		.arg(m_elementToTest->toString());
 }
 
+Stmt::~Stmt()
+{
+}
+
+StmtCompound::StmtCompound(const QList<const Stmt*> &statements)
+: m_statements(statements)
+{
+}
+
+StmtCompound::~StmtCompound()
+{
+	qDeleteAll(m_statements);
+}
+
+QString StmtCompound::toString() const
+{
+	QStringList statementsStr;
+
+	statementsStr.append(QString::number(m_statements.count()));
+
+	foreach (const Stmt *s, m_statements)
+		statementsStr.append(s->toString());
+
+	return QString("StmtCompound(%1)").arg(statementsStr.join(", "));
+}
+
+StmtSetInsert::StmtSetInsert(const Identifier *setIdentifier, const Expr *elementToInsert)
+: m_setIdentifier(setIdentifier), m_elementToInsert(elementToInsert)
+{
+}
+
+StmtSetInsert::~StmtSetInsert()
+{
+	delete m_setIdentifier;
+	delete m_elementToInsert;
+}
+
+QString StmtSetInsert::toString() const
+{
+	return QString("StmtSetInsert(%1, %2)")
+		.arg(m_setIdentifier->toString())
+		.arg(m_elementToInsert->toString());
+}
+
+StmtAssignment::StmtAssignment(const Identifier *dest, const Expr *value)
+: m_dest(dest), m_value(value)
+{
+}
+
+StmtAssignment::~StmtAssignment()
+{
+	delete m_dest;
+	delete m_value;
+}
+
+QString StmtAssignment::toString() const
+{
+	return QString("StmtAssignment(%1, %2)")
+		.arg(m_dest->toString())
+		.arg(m_value->toString());
+}
+
 }
 }
 }

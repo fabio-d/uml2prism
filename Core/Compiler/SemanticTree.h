@@ -248,6 +248,52 @@ class ExprSetContains : public Expr
 		const Expr *m_elementToTest;
 };
 
+class Stmt
+{
+	public:
+		virtual ~Stmt();
+
+		virtual QString toString() const = 0;
+};
+
+class StmtCompound : public Stmt
+{
+	public:
+		explicit StmtCompound(const QList<const Stmt*> &statements);
+		virtual ~StmtCompound();
+
+		virtual QString toString() const;
+
+	private:
+		QList<const Stmt*> m_statements;
+};
+
+class StmtSetInsert : public Stmt
+{
+	public:
+		explicit StmtSetInsert(const Identifier *setIdentifier, const Expr *elementToInsert);
+		~StmtSetInsert() override;
+
+		QString toString() const override;
+
+	private:
+		const Identifier *m_setIdentifier;
+		const Expr *m_elementToInsert;
+};
+
+class StmtAssignment : public Stmt
+{
+	public:
+		explicit StmtAssignment(const Identifier *dest, const Expr *value);
+		~StmtAssignment() override;
+
+		QString toString() const override;
+
+	private:
+		const Identifier *m_dest;
+		const Expr *m_value;
+};
+
 }
 }
 }
