@@ -79,6 +79,8 @@ class GlobalIdentifier : public Identifier
 	public:
 		GlobalIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &name);
 
+		const QString &name() const;
+
 		QString toString() const override;
 
 	private:
@@ -89,6 +91,9 @@ class MemberIdentifier : public Identifier
 {
 	public:
 		MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *container, const QString &name);
+
+		const Identifier *container() const;
+		const QString &name() const;
 
 		QString toString() const override;
 
@@ -110,6 +115,8 @@ class BoolLiteral : public Expression
 	public:
 		BoolLiteral(SyntaxTreeGenerator *owner, const SourceLocation &location, bool value);
 
+		bool value() const;
+
 		QString toString() const override;
 
 	private:
@@ -120,6 +127,8 @@ class NotOperator : public Expression
 {
 	public:
 		NotOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *arg);
+
+		const Expression *arg() const;
 
 		QString toString() const override;
 
@@ -139,6 +148,10 @@ class BinaryOperator : public Expression
 		};
 
 		BinaryOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Operator op, Expression *arg1, Expression *arg2);
+
+		Operator op() const;
+		const Expression *arg1() const;
+		const Expression *arg2() const;
 
 		QString toString() const override;
 

@@ -60,5 +60,23 @@ void SemanticContext::registerSignal(const QString &name, const SemanticTree::Ty
 	m_signals.insert(name, type);
 }
 
+const SemanticTree::EnumerationType *SemanticContext::findEnumerationValue(const QString &value) const
+{
+	foreach (const SemanticTree::Type *t, m_classAndEnumTypes)
+	{
+		const SemanticTree::EnumerationType *e =
+			dynamic_cast<const SemanticTree::EnumerationType*>(t);
+		if (e != nullptr && e->values().contains(value))
+			return e;
+	}
+	return nullptr;
+}
+
+const SemanticTree::Type *SemanticContext::findGlobalVariableOrSignal(const QString &name) const
+{
+	return m_globalVariables.value(name, nullptr) ?:
+		m_signals.value(name, nullptr) ?: nullptr;
+}
+
 }
 }

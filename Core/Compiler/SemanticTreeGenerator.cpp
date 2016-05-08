@@ -1,5 +1,6 @@
 #include "Core/Compiler/SemanticTreeGenerator.h"
 
+#include "Core/Compiler/SemanticContext.h"
 #include "Core/Compiler/SyntaxTreeGenerator.h"
 
 #include <QDebug>
@@ -19,7 +20,11 @@ SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const Se
 		return;
 	}
 
-	convertExpression(sygen.resultValue(), valueType);
+	const SemanticTree::Expr *res = convertExpression(sygen.resultValue(), valueType);
+	if (m_success)
+		qDebug() << "Get result:" << res->toString();
+	else
+		qDebug() << "FAILED";
 }
 
 SemanticTreeGenerator::~SemanticTreeGenerator()
@@ -43,12 +48,401 @@ void SemanticTreeGenerator::setError(const SourceLocation &location, const QStri
 	qDebug() << "SemanticTreeGenerator failed at" << location.toString() << ":" << message;
 }
 
-const SemanticTree::Expression *SemanticTreeGenerator::convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType)
+void SemanticTreeGenerator::setUnexpectedTypeError(const SourceLocation &location, const SemanticTree::Type *expectedType, const SemanticTree::Type *actualType)
+{
+	setError(location,
+		 QString("Expected %1 but found %2")
+			.arg(expectedType->datatypeName())
+			.arg(actualType->datatypeName()));
+}
+
+const SemanticTree::MemberIdentifier *SemanticTreeGenerator::resolveMemberIdentifier(const SyntaxTree::MemberIdentifier *membIdent)
+{
+	QList<const SyntaxTree::MemberIdentifier*> memberSegments;
+
+	const SyntaxTree::MemberIdentifier *currSegm = membIdent;
+	const SyntaxTree::Identifier *nextSegm;
+	do
+	{
+		memberSegments.insert(0, currSegm);
+		nextSegm = currSegm->container();
+		currSegm = dynamic_cast<const SyntaxTree::MemberIdentifier*>(nextSegm);
+	}
+	while (currSegm != nullptr);
+
+	const SyntaxTree::GlobalIdentifier *baseVar = static_cast<const SyntaxTree::GlobalIdentifier*>(nextSegm);
+	const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignal(baseVar->name());
+
+	if (varType == nullptr)
+	{
+		setError(baseVar->location(), QString("Unresolved identifier: %1").arg(baseVar->name()));
+		return nullptr;
+	}
+
+	QScopedPointer<const SemanticTree::Identifier> res(new SemanticTree::GlobalIdentifier(baseVar->name(), varType));
+	foreach (const SyntaxTree::MemberIdentifier *m, memberSegments)
+	{
+		const SemanticTree::ClassType *classType = dynamic_cast<const SemanticTree::ClassType*>(varType);
+		if (classType == nullptr)
+		{
+			setError(baseVar->location(), QString("Not a class type: %1").arg(varType->datatypeName()));
+			return nullptr;
+		}
+
+		varType = classType->findMemberVariable(m->name());
+		if (varType == nullptr)
+		{
+			setError(baseVar->location(), QString("%1 has no member variable called %2").arg(classType->datatypeName(), m->name()));
+			return nullptr;
+		}
+
+		res.reset(new SemanticTree::MemberIdentifier(res.take(), m->name(), varType));
+	}
+
+	// We can always upcast because the previous loop was executed at least once
+	return static_cast<const SemanticTree::MemberIdentifier*>(res.take());
+}
+
+const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Expression *expression)
+{
+	qDebug() << "Deducing type of expression" << expression->toString();
+
+	switch (expression->nodeType())
+	{
+		case SyntaxTree::NodeType::GlobalIdentifier:
+		{
+			const SyntaxTree::GlobalIdentifier *node =
+				static_cast<const SyntaxTree::GlobalIdentifier*>(expression);
+
+			// Try to resolve it as variable or signal name
+			const SemanticTree::EnumerationType *enumType = m_context->findEnumerationValue(node->name());
+			const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignal(node->name());
+			if (enumType != nullptr)
+			{
+				return enumType;
+			}
+			else if (varType != nullptr)
+			{
+				return varType;
+			}
+			else
+			{
+				setError(expression->location(), QString("Unresolved identifier: %1").arg(node->name()));
+				return nullptr;
+			}
+		}
+		case SyntaxTree::NodeType::MemberIdentifier:
+		{
+			const SyntaxTree::MemberIdentifier *node =
+				static_cast<const SyntaxTree::MemberIdentifier*>(expression);
+			QScopedPointer<const SemanticTree::MemberIdentifier> res(resolveMemberIdentifier(node));
+			if (res.isNull())
+			{
+				return nullptr;
+			}
+			else
+			{
+				return res->type();
+			}
+		}
+		case SyntaxTree::NodeType::NilLiteral:
+		{
+			// The type of nil cannot be deduced
+			return nullptr;
+		}
+		case SyntaxTree::NodeType::BoolLiteral:
+		{
+			return m_context->boolType();
+		}
+		case SyntaxTree::NodeType::NotOperator:
+		{
+			return m_context->boolType();
+		}
+		case SyntaxTree::NodeType::BinaryOperator:
+		{
+			return m_context->boolType();
+		}
+		case SyntaxTree::NodeType::Tuple:
+		{
+			// The type of a tuple cannot be deduced
+			return nullptr;
+		}
+		case SyntaxTree::NodeType::MethodCall:
+		{
+			// TODO
+			return nullptr;
+		}
+		default:
+			qFatal("This should never happen");
+			return nullptr;
+	}
+}
+
+const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType)
 {
 	qDebug() << "Converting expression" << expression->toString() << "to type" << expectedType->datatypeName();
+
+	switch (expression->nodeType())
+	{
+		case SyntaxTree::NodeType::GlobalIdentifier:
+		{
+			const SyntaxTree::GlobalIdentifier *node =
+				static_cast<const SyntaxTree::GlobalIdentifier*>(expression);
+
+			// Try to resolve it as variable or signal name
+			const SemanticTree::EnumerationType *enumType = m_context->findEnumerationValue(node->name());
+			const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignal(node->name());
+			if (enumType != nullptr)
+			{
+				if (expectedType == enumType)
+				{
+					return new SemanticTree::ExprEnumLiteral(enumType, node->name());
+				}
+				else
+				{
+					setUnexpectedTypeError(expression->location(), expectedType, enumType);
+					return nullptr;
+				}
+			}
+			else if (varType != nullptr)
+			{
+				if (expectedType == varType)
+				{
+					return new SemanticTree::ExprVariable(new SemanticTree::GlobalIdentifier(node->name(), varType));
+				}
+				else
+				{
+					setUnexpectedTypeError(expression->location(), expectedType, varType);
+					return nullptr;
+				}
+			}
+			else
+			{
+				setError(expression->location(), QString("Unresolved identifier: %1").arg(node->name()));
+				return nullptr;
+			}
+		}
+		case SyntaxTree::NodeType::MemberIdentifier:
+		{
+			const SyntaxTree::MemberIdentifier *node =
+				static_cast<const SyntaxTree::MemberIdentifier*>(expression);
+			const SemanticTree::MemberIdentifier *res = resolveMemberIdentifier(node);
+			if (res == nullptr)
+			{
+				return nullptr;
+			}
+			else if (expectedType == res->type())
+			{
+				return new SemanticTree::ExprVariable(res);
+			}
+			else
+			{
+				setUnexpectedTypeError(expression->location(), expectedType, res->type());
+				return nullptr;
+			}
+		}
+		case SyntaxTree::NodeType::NilLiteral:
+		{
+			const SemanticTree::EnumerationType *enumType =
+				dynamic_cast<const SemanticTree::EnumerationType*>(expectedType);
+			const SemanticTree::ClassType *classType =
+				dynamic_cast<const SemanticTree::ClassType*>(expectedType);
+
+			if (enumType != nullptr)
+			{
+				return new SemanticTree::ExprEnumLiteral(enumType);
+			}
+			else if (classType != nullptr)
+			{
+				return new SemanticTree::ExprClassNilLiteral(classType);
+			}
+			else
+			{
+				setError(expression->location(), QString("Cannot convert nil to %1").arg(expectedType->datatypeName()));
+				return nullptr;
+			}
+		}
+		case SyntaxTree::NodeType::BoolLiteral:
+		{
+			const SyntaxTree::BoolLiteral *node =
+				static_cast<const SyntaxTree::BoolLiteral*>(expression);
+
+			if (expectedType == m_context->boolType())
+			{
+				return new SemanticTree::ExprBoolLiteral(node->value());
+			}
+			else
+			{
+				setUnexpectedTypeError(expression->location(), expectedType, m_context->boolType());
+				return nullptr;
+			}
+		}
+		case SyntaxTree::NodeType::NotOperator:
+		{
+			const SyntaxTree::NotOperator *node =
+				static_cast<const SyntaxTree::NotOperator*>(expression);
+			const SemanticTree::Expr *inner = convertExpression(node->arg(), m_context->boolType());
+			if (inner == nullptr)
+			{
+				return nullptr;
+			}
+			else if (expectedType == m_context->boolType())
+			{
+				// TODO
+			}
+			else
+			{
+				setUnexpectedTypeError(expression->location(), expectedType, m_context->boolType());
+				return nullptr;
+			}
+			
+			break;
+		}
+		case SyntaxTree::NodeType::BinaryOperator:
+		{
+			const SyntaxTree::BinaryOperator *node =
+				static_cast<const SyntaxTree::BinaryOperator*>(expression);
+			const SemanticTree::Type *operandType;
+
+			if (node->op() == SyntaxTree::BinaryOperator::NotEqual ||
+				node->op() == SyntaxTree::BinaryOperator::Equal)
+			{
+				// Attempt to deduce operand types. Note that
+				// type deduction can emit errors, and we have
+				// to stop immediatly should that happen.
+				operandType = deduceType(node->arg1());
+				if (!m_success)
+					return nullptr;
+
+				if (operandType == nullptr)
+				{
+					operandType = deduceType(node->arg2());
+					if (!m_success)
+						return nullptr;
+				}
+
+				if (operandType == nullptr)
+				{
+					setError(expression->location(), "Failed to deduce compared operands' type");
+					return nullptr;
+				}
+			}
+			else // Binary AND or OR
+			{
+				operandType = m_context->boolType();
+			}
+
+			QScopedPointer<const SemanticTree::Expr> op1(
+				convertExpression(node->arg1(), operandType));
+			if (op1.isNull())
+					return nullptr;
+			QScopedPointer<const SemanticTree::Expr> op2(
+				convertExpression(node->arg2(), operandType));
+			if (op2.isNull())
+					return nullptr;
+
+			if (expectedType != m_context->boolType())
+			{
+				setUnexpectedTypeError(expression->location(), expectedType, m_context->boolType());
+				return nullptr;
+			}
+
+			SemanticTree::ExprBinOp::Operator op;
+			switch (node->op())
+			{
+				case SyntaxTree::BinaryOperator::Equal:
+					op = SemanticTree::ExprBinOp::Equal;
+					break;
+				case SyntaxTree::BinaryOperator::NotEqual:
+					op = SemanticTree::ExprBinOp::NotEqual;
+					break;
+				case SyntaxTree::BinaryOperator::And:
+					op = SemanticTree::ExprBinOp::And;
+					break;
+				case SyntaxTree::BinaryOperator::Or:
+					op = SemanticTree::ExprBinOp::Or;
+					break;
+			}
+
+			return new SemanticTree::ExprBinOp(op, op1.take(), op2.take());
+		}
+		case SyntaxTree::NodeType::Tuple:
+		{
+			const SyntaxTree::Tuple *node =
+				static_cast<const SyntaxTree::Tuple*>(expression);
+			break;
+		}
+		case SyntaxTree::NodeType::MethodCall:
+		{
+			const SyntaxTree::MethodCall *node =
+				static_cast<const SyntaxTree::MethodCall*>(expression);
+			break;
+		}
+		default:
+			qFatal("This should never happen");
+			break;
+	}
 	setError(expression->location(), "Not implemented yet");
 	return nullptr;
 }
+
+#if 0
+const SemanticTree::TODO *convertStatement(const SyntaxTree::Statement *statement)
+{
+	qDebug() << "Converting statement" << statement->toString();
+
+	switch (statement->nodeType())
+	{
+		case SyntaxTree::NodeType::CompoundStatement:
+		{
+			const SyntaxTree::CompoundStatement *node =
+				static_cast<const SyntaxTree::CompoundStatement*>(statement);
+			break;
+		}
+		case SyntaxTree::NodeType::MethodCall:
+		{
+			const SyntaxTree::MethodCall *node =
+				static_cast<const SyntaxTree::MethodCall*>(statement);
+			break;
+		}
+		case SyntaxTree::NodeType::Assignment:
+		{
+			const SyntaxTree::Assignment *node =
+				static_cast<const SyntaxTree::Assignment*>(statement);
+			break;
+		}
+		case SyntaxTree::NodeType::SignalEmission:
+		{
+			const SyntaxTree::SignalEmission *node =
+				static_cast<const SyntaxTree::SignalEmission*>(statement);
+			break;
+		}
+		case SyntaxTree::NodeType::IfElse:
+		{
+			const SyntaxTree::IfElse *node =
+				static_cast<const SyntaxTree::IfElse*>(statement);
+			break;
+		}
+		case SyntaxTree::NodeType::ChoiceOr:
+		{
+			const SyntaxTree::ChoiceOr *node =
+				static_cast<const SyntaxTree::ChoiceOr*>(statement);
+			break;
+		}
+		case SyntaxTree::NodeType::Branch:
+		{
+			const SyntaxTree::Branch *node =
+				static_cast<const SyntaxTree::Branch*>(statement);
+			break;
+		}
+		default:
+			qFatal("This should never happen");
+			break;
+	}
+	setError(expression->location(), "Not implemented yet");
+	return nullptr;
+}
+#endif
 
 }
 }

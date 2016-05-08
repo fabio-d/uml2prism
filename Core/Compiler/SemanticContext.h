@@ -24,6 +24,9 @@ class SemanticContext
 		void registerGlobalVariable(const QString &name, const SemanticTree::Type *type);
 		void registerSignal(const QString &name, const SemanticTree::Type *type); // type==nullptr means no attached message
 
+		const SemanticTree::EnumerationType *findEnumerationValue(const QString &value) const;
+		const SemanticTree::Type *findGlobalVariableOrSignal(const QString &name) const;
+
 	private:
 		SemanticTree::BoolType m_boolType;
 		QMap<QString, const SemanticTree::Type*> m_classAndEnumTypes; // EnumerationType and ClassType instances by name

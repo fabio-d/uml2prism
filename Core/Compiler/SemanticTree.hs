@@ -23,7 +23,7 @@ data Identifier =
 
 data Expr =
 	  ExprBoolLiteral Bool		-- bool literal
-	| ExprEnumLiteral Type Int	-- literal for a given TypeEnumeration (0 means nil)
+	| ExprEnumLiteral Type Int	-- literal for a given TypeEnumeration (arg is 1-based index, 0 means nil)
 	| ExprClassNilLiteral Type	-- nil literal for a given TypeClass
 	| ExprVariable Identifier	-- variable being read (any type)
 	| ExprEqOp Expr Expr		-- equal operator (any type)

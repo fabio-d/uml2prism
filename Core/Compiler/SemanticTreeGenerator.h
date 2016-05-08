@@ -25,8 +25,13 @@ class SemanticTreeGenerator
 
 	private:
 		void setError(const SourceLocation &location, const QString &message);
+		void setUnexpectedTypeError(const SourceLocation &location, const SemanticTree::Type *expectedType, const SemanticTree::Type *actualType);
 
-		const SemanticTree::Expression *convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType);
+		const SemanticTree::MemberIdentifier *resolveMemberIdentifier(const SyntaxTree::MemberIdentifier *membIdent);
+		const SemanticTree::Type *deduceType(const SyntaxTree::Expression *expression);
+
+		const SemanticTree::Expr *convertExpression(const SyntaxTree::Expression *expression, const SemanticTree::Type *expectedType);
+		//const SemanticTree::TODO *convertStatement(const SyntaxTree::Statement *statement);
 
 		bool m_success;
 		SourceLocation m_errorLocation;

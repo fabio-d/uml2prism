@@ -67,6 +67,11 @@ GlobalIdentifier::GlobalIdentifier(SyntaxTreeGenerator *owner, const SourceLocat
 {
 }
 
+const QString &GlobalIdentifier::name() const
+{
+	return m_name;
+}
+
 QString GlobalIdentifier::toString() const
 {
 	return QString("GlobalIdentifier(\"%1\")").arg(m_name);
@@ -75,6 +80,16 @@ QString GlobalIdentifier::toString() const
 MemberIdentifier::MemberIdentifier(SyntaxTreeGenerator *owner, const SourceLocation &location, Identifier *container, const QString &name)
 : Identifier(owner, location, NodeType::MemberIdentifier), m_container(container), m_name(name)
 {
+}
+
+const Identifier *MemberIdentifier::container() const
+{
+	return m_container;
+}
+
+const QString &MemberIdentifier::name() const
+{
+	return m_name;
 }
 
 QString MemberIdentifier::toString() const
@@ -97,6 +112,11 @@ BoolLiteral::BoolLiteral(SyntaxTreeGenerator *owner, const SourceLocation &locat
 {
 }
 
+bool BoolLiteral::value() const
+{
+	return m_value;
+}
+
 QString BoolLiteral::toString() const
 {
 	return QString("BoolLiteral(%1)").arg(m_value ? "true" : "false");
@@ -105,6 +125,11 @@ QString BoolLiteral::toString() const
 NotOperator::NotOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *arg)
 : Expression(owner, location, NodeType::NotOperator), m_arg(arg)
 {
+}
+
+const Expression *NotOperator::arg() const
+{
+	return m_arg;
 }
 
 QString NotOperator::toString() const
@@ -116,6 +141,21 @@ QString NotOperator::toString() const
 BinaryOperator::BinaryOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Operator op, Expression *arg1, Expression *arg2)
 : Expression(owner, location, NodeType::BinaryOperator), m_op(op), m_arg1(arg1), m_arg2(arg2)
 {
+}
+
+BinaryOperator::Operator BinaryOperator::op() const
+{
+	return m_op;
+}
+
+const Expression *BinaryOperator::arg1() const
+{
+	return m_arg1;
+}
+
+const Expression *BinaryOperator::arg2() const
+{
+	return m_arg2;
 }
 
 QString BinaryOperator::toString() const

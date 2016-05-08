@@ -55,6 +55,11 @@ void EnumerationType::registerValue(const QString &valueName)
 	m_values.append(valueName);
 }
 
+const QStringList &EnumerationType::values() const
+{
+	return m_values;
+}
+
 const QString EnumerationType::datatypeName() const
 {
 	return m_datatypeName;
@@ -82,6 +87,28 @@ void ClassType::registerMemberVariable(const QString &variableName, const Type *
 {
 	Q_ASSERT(hasHaskellHandleBeenCreated() == false);
 	m_memberVariables.append(QPair<QString, const Type*>(variableName, type));
+}
+
+QStringList ClassType::memberVariables() const
+{
+	QStringList res;
+	for (QList<QPair<QString, const Type*>>::const_iterator it = m_memberVariables.begin();
+		it != m_memberVariables.end(); ++it)
+	{
+		res.append(it->first);
+	}
+	return res;
+}
+
+const Type *ClassType::findMemberVariable(const QString &name) const
+{
+	for (QList<QPair<QString, const Type*>>::const_iterator it = m_memberVariables.begin();
+		it != m_memberVariables.end(); ++it)
+	{
+		if (it->first == name)
+			return it->second;
+	}
+	return nullptr;
 }
 
 const QString ClassType::datatypeName() const
@@ -138,6 +165,134 @@ void SetType::fillReferencedTypes(QSet<const Type*> &target) const
 HsStablePtr SetType::createHaskellHandle() const
 {
 	return hsTypeSet_create(m_innerType->haskellHandle());
+}
+
+Identifier::~Identifier()
+{
+}
+
+GlobalIdentifier::GlobalIdentifier(const QString &name, const Type *type)
+: m_name(name), m_type(type)
+{
+}
+
+QString GlobalIdentifier::toString() const
+{
+	return m_name;
+}
+
+MemberIdentifier::MemberIdentifier(const Identifier *container, const QString &name, const Type *type)
+: m_container(container), m_name(name), m_type(type)
+{
+}
+
+MemberIdentifier::~MemberIdentifier()
+{
+	delete m_container;
+}
+
+const Type *MemberIdentifier::type() const
+{
+	return m_type;
+}
+
+QString MemberIdentifier::toString() const
+{
+	return QString("%1.%2").arg(m_container->toString()).arg(m_name);
+}
+
+Expr::~Expr()
+{
+}
+
+ExprBoolLiteral::ExprBoolLiteral(bool value)
+: m_value(value)
+{
+}
+
+QString ExprBoolLiteral::toString() const
+{
+	return QString("ExprBoolLiteral(%1)").arg(m_value ? "true" : "false");
+}
+
+ExprEnumLiteral::ExprEnumLiteral(const EnumerationType *type)
+: m_type(type)
+{
+}
+
+ExprEnumLiteral::ExprEnumLiteral(const EnumerationType *type, const QString &value)
+: m_type(type), m_value(value)
+{
+}
+
+QString ExprEnumLiteral::toString() const
+{
+	if (m_value.isEmpty())
+		return QString("ExprEnumLiteral(%1, nil)").arg(m_type->datatypeName());
+	else
+		return QString("ExprEnumLiteral(%1, %2)").arg(m_type->datatypeName()).arg(m_value);
+}
+
+ExprClassNilLiteral::ExprClassNilLiteral(const ClassType *type)
+: m_type(type)
+{
+}
+
+QString ExprClassNilLiteral::toString() const
+{
+	return QString("ExprClassNilLiteral(%1)").arg(m_type->datatypeName());
+}
+
+ExprVariable::ExprVariable(const Identifier *identifier)
+: m_identifier(identifier)
+{
+}
+
+ExprVariable::~ExprVariable()
+{
+	delete m_identifier;
+}
+
+QString ExprVariable::toString() const
+{
+	return QString("ExprVariable(%1)").arg(m_identifier->toString());
+}
+
+ExprBinOp::ExprBinOp(Operator op, const Expr *arg1, const Expr *arg2)
+: m_op(op), m_arg1(arg1), m_arg2(arg2)
+{
+}
+
+ExprBinOp::~ExprBinOp()
+{
+	delete m_arg1;
+	delete m_arg2;
+}
+
+QString ExprBinOp::toString() const
+{
+	QString opStr;
+
+	switch (m_op)
+	{
+		case Equal:
+			opStr = "Equal";
+			break;
+		case NotEqual:
+			opStr = "NotEqual";
+			break;
+		case And:
+			opStr = "And";
+			break;
+		case Or:
+			opStr = "Or";
+			break;
+	}
+
+	return QString("ExprBinOp(%1, %2, %3)")
+		.arg(opStr)
+		.arg(m_arg1->toString())
+		.arg(m_arg2->toString());
 }
 
 }
