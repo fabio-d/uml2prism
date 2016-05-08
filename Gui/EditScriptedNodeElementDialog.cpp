@@ -82,8 +82,8 @@ void EditScriptedNodeElementDialog::slotParse()
 			builder.semanticContext(),
 			QStringList() << "HelloServer",
 			tmpMap);
-		if (stgen.success())
-			qDebug() << stgen.takeResultStmt()->toString();
+		//if (stgen.success())
+		//	qDebug() << stgen.takeResultStmt()->toString();
 	}
 }
 

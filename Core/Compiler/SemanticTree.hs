@@ -17,15 +17,15 @@ data Idnt =
 	| IdntMember Idnt String Type
 	deriving (Data, Typeable)
 
---instance Show Idnt where
---	show (GlobalIdnt name _) = name
---	show (MemberIdnt parent name _) = (show parent) ++ "." ++ name
+instance Show Idnt where
+	show (IdntGlobal name _) = name
+	show (IdntMember parent name _) = (show parent) ++ "." ++ name
 
 data Expr =
 	  ExprBoolLiteral Bool		-- bool literal
 	| ExprEnumLiteral Type Int	-- literal for a given TypeEnumeration (arg is 1-based index, 0 means nil)
 	| ExprClassNilLiteral Type	-- nil literal for a given TypeClass
-	| ExprVariable Idnt	-- variable being read (any type)
+	| ExprVariable Idnt		-- variable being read (any type)
 	| ExprEqOp Expr Expr		-- equal operator (any type)
 	| ExprNeqOp Expr Expr		-- not equal operator (any type)
 	| ExprAndOp Expr Expr		-- boolean and operator
@@ -33,7 +33,7 @@ data Expr =
 	| ExprNotOp Expr		-- boolean not operator
 	| ExprTuple Type [Expr]		-- either a non-nil TypeClass value or a TypeSet (set of values)
 	| ExprSetContains Idnt Expr -- test whether a set (first arg) contains a given element (second arg)
-	deriving (Data, Typeable)
+	deriving (Show, Data, Typeable)
 
 data Stmt =
 	  StmtCompound [Stmt]

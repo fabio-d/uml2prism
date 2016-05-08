@@ -173,12 +173,18 @@ HsStablePtr SetType::createHaskellHandle() const
 }
 
 Idnt::Idnt(const Type *type)
-: m_type(type)
+: m_haskellHandle(nullptr), m_type(type)
 {
 }
 
 Idnt::~Idnt()
 {
+	hsIdnt_free(m_haskellHandle);
+}
+
+HsStablePtr Idnt::haskellHandle() const
+{
+	return m_haskellHandle;
 }
 
 const Type *Idnt::type() const
@@ -189,6 +195,8 @@ const Type *Idnt::type() const
 IdntGlobal::IdntGlobal(const QString &name, const Type *type)
 : Idnt(type), m_name(name)
 {
+	const QByteArray n = name.toLatin1();
+	m_haskellHandle = hsIdntGlobal_create((void*)n.constData(), type->haskellHandle());
 }
 
 QString IdntGlobal::toString() const
@@ -199,6 +207,9 @@ QString IdntGlobal::toString() const
 IdntMember::IdntMember(const Idnt *container, const QString &name, const Type *type)
 : Idnt(type), m_container(container), m_name(name)
 {
+	const QByteArray n = name.toLatin1();
+	m_haskellHandle = hsIdntMember_create(container->haskellHandle(),
+		(void*)n.constData(), type->haskellHandle());
 }
 
 IdntMember::~IdntMember()
@@ -211,13 +222,26 @@ QString IdntMember::toString() const
 	return QString("%1.%2").arg(m_container->toString()).arg(m_name);
 }
 
+Expr::Expr()
+: m_haskellHandle(nullptr)
+{
+}
+
 Expr::~Expr()
 {
+	hsExpr_dump(m_haskellHandle);
+	hsExpr_free(m_haskellHandle);
+}
+
+HsStablePtr Expr::haskellHandle() const
+{
+	return m_haskellHandle;
 }
 
 ExprBoolLiteral::ExprBoolLiteral(bool value)
 : m_value(value)
 {
+	m_haskellHandle = hsExprBoolLiteral_create(value);
 }
 
 QString ExprBoolLiteral::toString() const
@@ -228,11 +252,14 @@ QString ExprBoolLiteral::toString() const
 ExprEnumLiteral::ExprEnumLiteral(const EnumerationType *type)
 : m_type(type)
 {
+	m_haskellHandle = hsExprEnumLiteral_create(type->haskellHandle(), 0);
 }
 
 ExprEnumLiteral::ExprEnumLiteral(const EnumerationType *type, const QString &value)
 : m_type(type), m_value(value)
 {
+	m_haskellHandle = hsExprEnumLiteral_create(type->haskellHandle(),
+		1 + type->values().indexOf(value));
 }
 
 QString ExprEnumLiteral::toString() const
@@ -246,6 +273,7 @@ QString ExprEnumLiteral::toString() const
 ExprClassNilLiteral::ExprClassNilLiteral(const ClassType *type)
 : m_type(type)
 {
+	m_haskellHandle = hsExprClassNilLiteral_create(type->haskellHandle());
 }
 
 QString ExprClassNilLiteral::toString() const
@@ -256,6 +284,7 @@ QString ExprClassNilLiteral::toString() const
 ExprVariable::ExprVariable(const Idnt *identifier)
 : m_identifier(identifier)
 {
+	m_haskellHandle = hsExprVariable_create(identifier->haskellHandle());
 }
 
 ExprVariable::~ExprVariable()
@@ -271,6 +300,21 @@ QString ExprVariable::toString() const
 ExprBinOp::ExprBinOp(Operator op, const Expr *arg1, const Expr *arg2)
 : m_op(op), m_arg1(arg1), m_arg2(arg2)
 {
+	switch (m_op)
+	{
+		case Equal:
+			m_haskellHandle = hsExprEqOp_create(arg1->haskellHandle(), arg2->haskellHandle());
+			break;
+		case NotEqual:
+			m_haskellHandle = hsExprNeqOp_create(arg1->haskellHandle(), arg2->haskellHandle());
+			break;
+		case And:
+			m_haskellHandle = hsExprAndOp_create(arg1->haskellHandle(), arg2->haskellHandle());
+			break;
+		case Or:
+			m_haskellHandle = hsExprOrOp_create(arg1->haskellHandle(), arg2->haskellHandle());
+			break;
+	}
 }
 
 ExprBinOp::~ExprBinOp()
@@ -308,6 +352,7 @@ QString ExprBinOp::toString() const
 ExprNotOp::ExprNotOp(const Expr *arg)
 : m_arg(arg)
 {
+	m_haskellHandle = hsExprNotOp_create(arg->haskellHandle());
 }
 
 ExprNotOp::~ExprNotOp()
@@ -324,6 +369,14 @@ QString ExprNotOp::toString() const
 ExprTuple::ExprTuple(const Type *type, const QList<const Expr*> &args)
 : m_type(type), m_args(args)
 {
+	m_haskellHandle = hsExprTuple_create(type->haskellHandle());
+	int i = args.count();
+	while (i-- != 0)
+	{
+		HsStablePtr updated = hsExprTuple_prependTerm(m_haskellHandle, args[i]->haskellHandle());
+		hsExpr_free(m_haskellHandle);
+		m_haskellHandle = updated;
+	}
 }
 
 ExprTuple::~ExprTuple()
@@ -346,6 +399,8 @@ QString ExprTuple::toString() const
 ExprSetContains::ExprSetContains(const Idnt *setIdentifier, const Expr *elementToTest)
 : m_setIdentifier(setIdentifier), m_elementToTest(elementToTest)
 {
+	m_haskellHandle = hsExprSetContains_create(setIdentifier->haskellHandle(),
+		elementToTest->haskellHandle());
 }
 
 ExprSetContains::~ExprSetContains()

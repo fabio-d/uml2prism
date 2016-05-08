@@ -102,9 +102,13 @@ class Idnt
 		explicit Idnt(const Type *type);
 		virtual ~Idnt();
 
+		HsStablePtr haskellHandle() const;
 		const Type *type() const;
 
 		virtual QString toString() const = 0;
+
+	protected:
+		HsStablePtr m_haskellHandle;
 
 	private:
 		const Type *m_type;
@@ -137,9 +141,15 @@ class IdntMember : public Idnt
 class Expr
 {
 	public:
+		Expr();
 		virtual ~Expr();
 
+		HsStablePtr haskellHandle() const;
+
 		virtual QString toString() const = 0;
+
+	protected:
+		HsStablePtr m_haskellHandle;
 };
 
 class ExprBoolLiteral : public Expr
