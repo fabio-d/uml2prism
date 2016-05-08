@@ -313,6 +313,21 @@ IfElse::IfElse(SyntaxTreeGenerator *owner, const SourceLocation &location, Expre
 {
 }
 
+const Expression *IfElse::condition() const
+{
+	return m_condition;
+}
+
+const Statement *IfElse::trueBranch() const
+{
+	return m_trueBranch;
+}
+
+const Statement *IfElse::falseBranch() const
+{
+	return m_falseBranch;
+}
+
 QString IfElse::toString() const
 {
 	return QString("IfElse(%1, %2, %3)").arg(m_condition->toString()).arg(m_trueBranch->toString()).arg(m_falseBranch->toString());
@@ -323,6 +338,16 @@ ChoiceOr::ChoiceOr(SyntaxTreeGenerator *owner, const SourceLocation &location, S
 {
 }
 
+const Statement *ChoiceOr::alt1() const
+{
+	return m_alt1;
+}
+
+const Statement *ChoiceOr::alt2() const
+{
+	return m_alt2;
+}
+
 QString ChoiceOr::toString() const
 {
 	return QString("ChoiceOr(%1, %2)").arg(m_alt1->toString()).arg(m_alt2->toString());
@@ -331,6 +356,11 @@ QString ChoiceOr::toString() const
 Branch::Branch(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &label)
 : Statement(owner, location, NodeType::Branch), m_label(label)
 {
+}
+
+const QString &Branch::label() const
+{
+	return m_label;
 }
 
 QString Branch::toString() const

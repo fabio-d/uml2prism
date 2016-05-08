@@ -658,19 +658,44 @@ const SemanticTree::Stmt *SemanticTreeGenerator::convertStatement(const SyntaxTr
 		{
 			const SyntaxTree::IfElse *node =
 				static_cast<const SyntaxTree::IfElse*>(statement);
-			break;
+			QScopedPointer<const SemanticTree::Expr> cond(convertExpression(node->condition(), m_context->boolType()));
+			if (cond.isNull())
+				return nullptr;
+			QScopedPointer<const SemanticTree::Stmt> ifTrue(convertStatement(node->trueBranch()));
+			if (ifTrue.isNull())
+				return nullptr;
+			const SemanticTree::Stmt *ifFalse = convertStatement(node->falseBranch());
+			if (ifFalse == nullptr)
+				return nullptr;
+			return new SemanticTree::StmtIfElse(cond.take(), ifTrue.take(), ifFalse);
 		}
 		case SyntaxTree::NodeType::ChoiceOr:
 		{
 			const SyntaxTree::ChoiceOr *node =
 				static_cast<const SyntaxTree::ChoiceOr*>(statement);
-			break;
+			QScopedPointer<const SemanticTree::Stmt> alt1(convertStatement(node->alt1()));
+			if (alt1.isNull())
+				return nullptr;
+			const SemanticTree::Stmt *alt2 = convertStatement(node->alt2());
+			if (alt2 == nullptr)
+				return nullptr;
+			return new SemanticTree::StmtChoiceOr(alt1.take(), alt2);
 		}
 		case SyntaxTree::NodeType::Branch:
 		{
 			const SyntaxTree::Branch *node =
 				static_cast<const SyntaxTree::Branch*>(statement);
-			break;
+			if (m_labelMap.contains(node->label()))
+			{
+				return new SemanticTree::StmtBranch(m_labelMap[node->label()]);
+			}
+			else
+			{
+				setError(statement->location(),
+					QString("Undefined label: %1")
+						.arg(node->label()));
+				return nullptr;
+			}
 		}
 		default:
 			qFatal("This should never happen");

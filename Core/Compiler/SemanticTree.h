@@ -238,7 +238,7 @@ class ExprTuple : public Expr
 class ExprSetContains : public Expr
 {
 	public:
-		explicit ExprSetContains(const Identifier *setIdentifier, const Expr *elementToTest);
+		ExprSetContains(const Identifier *setIdentifier, const Expr *elementToTest);
 		~ExprSetContains() override;
 
 		QString toString() const override;
@@ -271,7 +271,7 @@ class StmtCompound : public Stmt
 class StmtSetInsert : public Stmt
 {
 	public:
-		explicit StmtSetInsert(const Identifier *setIdentifier, const Expr *elementToInsert);
+		StmtSetInsert(const Identifier *setIdentifier, const Expr *elementToInsert);
 		~StmtSetInsert() override;
 
 		QString toString() const override;
@@ -284,7 +284,7 @@ class StmtSetInsert : public Stmt
 class StmtAssignment : public Stmt
 {
 	public:
-		explicit StmtAssignment(const Identifier *dest, const Expr *value);
+		StmtAssignment(const Identifier *dest, const Expr *value);
 		~StmtAssignment() override;
 
 		QString toString() const override;
@@ -292,6 +292,42 @@ class StmtAssignment : public Stmt
 	private:
 		const Identifier *m_dest;
 		const Expr *m_value;
+};
+
+class StmtIfElse : public Stmt
+{
+	public:
+		StmtIfElse(const Expr *cond, const Stmt *ifTrue, const Stmt *ifFalse);
+		virtual ~StmtIfElse();
+
+		virtual QString toString() const;
+
+	private:
+		const Expr *m_cond;
+		const Stmt *m_ifTrue, *m_ifFalse;
+};
+
+class StmtChoiceOr : public Stmt
+{
+	public:
+		StmtChoiceOr(const Stmt *alt1, const Stmt *alt2);
+		virtual ~StmtChoiceOr();
+
+		virtual QString toString() const;
+
+	private:
+		const Stmt *m_alt1, *m_alt2;
+};
+
+class StmtBranch : public Stmt
+{
+	public:
+		explicit StmtBranch(const QString &targetNode);
+
+		virtual QString toString() const;
+
+	private:
+		QString m_targetNode;
 };
 
 }

@@ -240,6 +240,10 @@ class IfElse : public Statement
 	public:
 		IfElse(SyntaxTreeGenerator *owner, const SourceLocation &location, Expression *condition, Statement *trueBranch, Statement *falseBranch);
 
+		const Expression *condition() const;
+		const Statement *trueBranch() const;
+		const Statement *falseBranch() const;
+
 		QString toString() const override;
 
 	private:
@@ -252,6 +256,9 @@ class ChoiceOr : public Statement
 	public:
 		ChoiceOr(SyntaxTreeGenerator *owner, const SourceLocation &location, Statement *alt1, Statement *alt2);
 
+		const Statement *alt1() const;
+		const Statement *alt2() const;
+
 		QString toString() const override;
 
 	private:
@@ -262,6 +269,8 @@ class Branch : public Statement
 {
 	public:
 		Branch(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &label);
+
+		const QString &label() const;
 
 		QString toString() const override;
 

@@ -423,6 +423,54 @@ QString StmtAssignment::toString() const
 		.arg(m_value->toString());
 }
 
+StmtIfElse::StmtIfElse(const Expr *cond, const Stmt *ifTrue, const Stmt *ifFalse)
+: m_cond(cond), m_ifTrue(ifTrue), m_ifFalse(ifFalse)
+{
+}
+
+StmtIfElse::~StmtIfElse()
+{
+	delete m_cond;
+	delete m_ifTrue;
+	delete m_ifFalse;
+}
+
+QString StmtIfElse::toString() const
+{
+	return QString("StmtIfElse(%1, %2, %3)")
+		.arg(m_cond->toString())
+		.arg(m_ifTrue->toString())
+		.arg(m_ifFalse->toString());
+}
+
+StmtChoiceOr::StmtChoiceOr(const Stmt *alt1, const Stmt *alt2)
+: m_alt1(alt1), m_alt2(alt2)
+{
+}
+
+StmtChoiceOr::~StmtChoiceOr()
+{
+	delete m_alt1;
+	delete m_alt2;
+}
+
+QString StmtChoiceOr::toString() const
+{
+	return QString("StmtChoiceOr(%1, %2)")
+		.arg(m_alt1->toString())
+		.arg(m_alt2->toString());
+}
+
+StmtBranch::StmtBranch(const QString &targetNode)
+: m_targetNode(targetNode)
+{
+}
+
+QString StmtBranch::toString() const
+{
+	return QString("StmtBranch(%1)").arg(m_targetNode);
+}
+
 }
 }
 }

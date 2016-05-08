@@ -74,11 +74,14 @@ void EditScriptedNodeElementDialog::slotParse()
 	Core::ModelBuilder builder(m_doc);
 	if (builder.success())
 	{
+		QMap<QString, QString> tmpMap;
+		tmpMap.insert("yes", "DestNodeYY");
+		tmpMap.insert("no", "DestNodeNN");
 		Core::Compiler::SemanticTreeGenerator stgen(
 			m_ui->scriptTextEdit->toPlainText(),
 			builder.semanticContext(),
 			QStringList() << "HelloServer",
-			QMap<QString, QString>());
+			tmpMap);
 		if (stgen.success())
 			qDebug() << stgen.takeResultStmt()->toString();
 	}
