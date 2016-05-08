@@ -30,6 +30,7 @@ class ModelBuilder
 		void registerTypes();
 		void registerGlobalVariables();
 		void registerSignals();
+		void registerStates();
 
 		const Document *m_doc;
 		bool m_error;

@@ -45,9 +45,10 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	if (m_error)
 		return;
 
-	qDebug() << "Registering global variables and signals...";
+	qDebug() << "Registering global variables, signals and states...";
 	registerGlobalVariables(); // this must be done before registering signals, see comment inside
 	registerSignals();
+	registerStates();
 	if (m_error)
 		return;
 
@@ -580,6 +581,18 @@ void ModelBuilder::registerSignals()
 		}
 
 		m_semanticContext.registerSignal(signalName, resolvedType);
+	}
+}
+
+void ModelBuilder::registerStates()
+{
+	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
+	{
+		const UMLNodeElement *signalElem = dynamic_cast<const UMLNodeElement*>(elem);
+		if (signalElem == nullptr)
+			continue;
+
+		m_semanticContext.registerState(signalElem->nodeName());
 	}
 }
 

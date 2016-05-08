@@ -53,13 +53,19 @@ SemanticTree::ClassType *SemanticContext::registerClass(const QString &className
 void SemanticContext::registerGlobalVariable(const QString &name, const SemanticTree::Type *type, const SemanticTree::Expr *initVal)
 {
 	m_globalVariables.insert(name, type);
-	qDebug() << "REG-GV" << name << initVal->toString();
+	//qDebug() << "REG-GV" << name << initVal->toString();
 }
 
 void SemanticContext::registerSignal(const QString &name, const SemanticTree::Type *type)
 {
 	m_signals.insert(name, type);
-	qDebug() << "REG-SN" << name << (type ? type->datatypeName() : "default-bool");
+	//qDebug() << "REG-SN" << name << (type ? type->datatypeName() : "default-bool");
+}
+
+void SemanticContext::registerState(const QString &name)
+{
+	m_states.append(name);
+	//qDebug() << "REG-ST" << name;
 }
 
 const SemanticTree::EnumerationType *SemanticContext::findEnumerationValue(const QString &value) const
@@ -82,6 +88,8 @@ const SemanticTree::Type *SemanticContext::findGlobalVariableOrSignalWithMessage
 
 bool SemanticContext::findStateOrSignalWithoutMessage(const QString &name) const
 {
+	if (m_states.contains(name))
+		return true;
 	if (m_signals.contains(name) && m_signals.value(name) == nullptr)
 		return true;
 	else
