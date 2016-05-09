@@ -12,6 +12,8 @@ namespace Compiler
 
 class SemanticContext
 {
+	friend class Compiler;
+
 	public:
 		~SemanticContext();
 
@@ -21,7 +23,7 @@ class SemanticContext
 
 		SemanticTree::EnumerationType *registerEnumeration(const QString &enumName);
 		SemanticTree::ClassType *registerClass(const QString &className);
-		void registerGlobalVariable(const QString &name, const SemanticTree::Type *type, const SemanticTree::Expr *initVal);
+		void registerGlobalVariable(const QString &name, const SemanticTree::Type *type);
 		void registerSignal(const QString &name, const SemanticTree::Type *type); // type==nullptr means no attached message
 		void registerState(const QString &name);
 

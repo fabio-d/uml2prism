@@ -1,0 +1,129 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+module Compiler where
+import Data.Generics.Uniplate.Data
+import SemanticTree
+
+-- Given a type, list all its possible values
+allValues :: Type -> [Expr]
+allValues TypeBool = [ExprBoolLiteral v | v <- [False, True]]
+allValues (TypeEnumeration vs) = [(ExprEnumLiteral (TypeEnumeration vs) n) | n <- [0..length vs]]
+allValues (TypeClass []) = [ExprTuple (TypeClass []) []]
+allValues (TypeClass ((n,t):other_fields)) = [
+	ExprTuple (TypeClass ((n,t):other_fields)) (v:vs) |
+	v <- allValues t, ExprTuple _ vs <- allValues (TypeClass other_fields)]
+allValues (TypeSet t) = [ExprTuple (TypeSet t) elems | elems <- subsets (allValues t)] where
+	subsets []  = [[]]
+	subsets (x:xs) = [ mx ++ mxs | mx <- [[], [x]], mxs <- subsets xs ]
+
+-- Given a type, list all its possible values along with a value ID
+allValuesWithKey :: Type -> [(String, Expr)]
+allValuesWithKey t = zip ['k':(show n) | n <- [1..]] (allValues t)
+
+-- Given a type, list all its possible value IDs
+allKeys :: Type -> [String]
+allKeys t = [ k | (k,_) <- allValuesWithKey t ]
+
+-- Given an identifier, return its type
+typeOfIdnt :: Idnt -> Type
+typeOfIdnt (IdntGlobal _ t) = t
+typeOfIdnt (IdntMember _ _ t) = t
+
+-- Given an expression, return its type
+typeOfExpr :: Expr -> Type
+typeOfExpr (ExprBoolLiteral _) = TypeBool
+typeOfExpr (ExprEnumLiteral t _) = t
+typeOfExpr (ExprClassNilLiteral t) = t
+typeOfExpr (ExprVariable idnt) = typeOfIdnt idnt
+typeOfExpr (ExprEqOp _ _) = TypeBool
+typeOfExpr (ExprNeqOp _ _) = TypeBool
+typeOfExpr (ExprAndOp _ _) = TypeBool
+typeOfExpr (ExprOrOp _ _) = TypeBool
+typeOfExpr (ExprNotOp _) = TypeBool
+typeOfExpr (ExprTuple t _) = t
+typeOfExpr (ExprSetContains _ _) = TypeBool
+
+-- Replace StmtSetInsert statements with equivalent statement sequences
+expandSetInsertStatements :: Stmt -> Stmt
+expandSetInsertStatements =
+	let
+		guardedInsert setIdnt testExpr [(key, _)] =
+			StmtAssignment (IdntMember setIdnt key TypeBool) (ExprBoolLiteral True)
+		guardedInsert setIdnt testExpr ((key,refVal):others) = StmtIfElse
+			(ExprEqOp testExpr refVal)
+			(StmtAssignment (IdntMember setIdnt key TypeBool) (ExprBoolLiteral True))
+			(guardedInsert setIdnt testExpr others)
+	in let
+		f (StmtSetInsert idnt expr) =
+			guardedInsert idnt expr (allValuesWithKey elemtype)
+			where TypeSet elemtype = typeOfIdnt idnt
+		f x = x
+	in
+		transform f
+
+-- Expand assignments to classes and sets
+expandAssignmentStatements :: Stmt -> Stmt
+expandAssignmentStatements =
+	let
+		nilValue TypeBool = ExprBoolLiteral False
+		nilValue (TypeEnumeration values) = ExprEnumLiteral (TypeEnumeration values) 0
+		nilValue (TypeClass members) = ExprClassNilLiteral (TypeClass members)
+		nilValue (TypeSet innerType) = ExprTuple (TypeSet innerType) []
+		assignVariableToVariable dest src fields = StmtCompound [
+			StmtAssignment (IdntMember dest n t) (ExprVariable ((IdntMember src n t))) | (n,t) <- fields ]
+		anyMatch _ [] = ExprBoolLiteral False
+		anyMatch valueExpr candidateExprs = foldr1 ExprOrOp [ ExprEqOp valueExpr c | c <- candidateExprs ]
+		expandClassAssignment dest (ExprClassNilLiteral (TypeClass fields)) = StmtCompound [
+			StmtAssignment (IdntMember dest n t) (nilValue t) | (n,t) <- fields ]
+		expandClassAssignment dest (ExprVariable src) = assignVariableToVariable dest src fields
+			where TypeClass fields = typeOfIdnt dest
+		expandClassAssignment dest (ExprTuple (TypeClass fields) values) = StmtCompound [
+			StmtAssignment (IdntMember dest n t) v | ((n,t),v) <- zip fields values ]
+		expandSetAssignment dest (ExprVariable src) = assignVariableToVariable dest src [
+			(n,TypeBool) | n <- allKeys innerType ] where TypeSet innerType = typeOfIdnt dest
+		expandSetAssignment dest (ExprTuple (TypeSet innerType) items) = StmtCompound [
+			StmtAssignment (IdntMember dest k TypeBool) (anyMatch v items) | (k,v) <- allValuesWithKey innerType]
+	in let
+		f (StmtAssignment idnt expr) | TypeClass _ <- typeOfIdnt idnt = Just (expandClassAssignment idnt expr)
+		f (StmtAssignment idnt expr) | TypeSet _ <- typeOfIdnt idnt = Just (expandSetAssignment idnt expr)
+		f _ = Nothing
+	in
+		rewrite f
+
+-- Given a user identifier name, double all underscores, because the compiler
+-- uses single underscores as a separator and we want avoid conflicts
+escape :: String -> String
+escape ('_':cs) = '_':'_':(escape cs)
+escape (c:cs) = c:(escape cs)
+escape "" = ""
+
+data UnrollElem =
+	  UnrollAssgn Idnt Expr
+	| UnrollGuard Expr
+	| UnrollBranch String
+	deriving (Show)
+
+unrollSeq :: [UnrollElem] -> Stmt -> [[UnrollElem]]
+unrollSeq prevseq (StmtCompound []) = [prevseq]
+unrollSeq prevseq (StmtCompound (stmt:stmts)) = concat [
+	unrollSeq stmtseq (StmtCompound stmts) |
+	stmtseq <- unrollSeq prevseq stmt]
+unrollSeq prevseq (StmtAssignment ident expr) = [prevseq ++ [(UnrollAssgn ident expr)]]
+unrollSeq prevseq (StmtIfElse cond tstmt fstmt) =
+	(unrollSeq (prevseq ++ [UnrollGuard cond]) tstmt) ++
+	(unrollSeq (prevseq ++ [UnrollGuard (ExprNotOp cond)]) fstmt)
+unrollSeq prevseq (StmtChoiceOr alt1 alt2) = (unrollSeq prevseq alt1) ++ (unrollSeq prevseq alt2)
+unrollSeq prevseq (StmtBranch str) = [prevseq ++ [UnrollBranch str]]
+
+variableDeclaration :: String -> Expr -> String
+variableDeclaration varName initVal =
+	let
+		varType = typeOfExpr initVal
+	in let
+		setValList (TypeSet innerType) = concat [
+			"//  " ++ show k ++ " -> " ++ show v ++ "\n" | (k,v) <- allValuesWithKey innerType ]
+		setValList _ = ""
+		convToVarDecls [[]] = ""
+		convToVarDecls [((UnrollAssgn idnt expr):vs)] = "global " ++ show idnt ++ " : " ++ show (typeOfIdnt idnt) ++ " init " ++ show expr ++ ";\n" ++ convToVarDecls [vs]
+		initValAssignment = StmtAssignment (IdntGlobal varName varType) initVal
+	in
+		setValList varType ++ (convToVarDecls (unrollSeq [] (expandAssignmentStatements initValAssignment)))

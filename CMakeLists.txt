@@ -37,6 +37,7 @@ add_definitions(-Wall)
 include_directories(${CMAKE_Haskell_HsFFI_DIR})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_Haskell_FLAGS "${CMAKE_Haskell_FLAGS} -stubdir \"${CMAKE_CURRENT_BINARY_DIR}/Core/Compiler\"")
+set(CMAKE_EXE_LINKER_FLAGS "-package uniplate -no-hs-main")
 
 bison_target(CompilerParser Core/Compiler/Parser.yy
 	${CMAKE_CURRENT_BINARY_DIR}/Core/Compiler/Parser.cpp)
@@ -46,6 +47,7 @@ add_flex_bison_dependency(CompilerLexer CompilerParser)
 
 add_library(Haskell_CoreCompiler STATIC
 	Core/Compiler/SemanticTree.hs
+	Core/Compiler/Compiler.hs
 	Core/Compiler/Bindings.hs
 )
 set_property(TARGET Haskell_CoreCompiler PROPERTY LINKER_LANGUAGE Haskell)
@@ -57,6 +59,7 @@ add_executable(UMLEditor
 	Core/UMLDiagram.cpp
 	Core/UMLElement.cpp
 
+	Core/Compiler/Compiler.cpp
 	Core/Compiler/SemanticContext.cpp
 	Core/Compiler/SemanticTree.cpp
 	Core/Compiler/SemanticTreeGenerator.cpp
@@ -87,6 +90,6 @@ add_executable(UMLEditor
 )
 
 set_property(TARGET UMLEditor PROPERTY LINKER_LANGUAGE Haskell)
-target_link_libraries(UMLEditor Qt4::QtGui Qt4::QtXml Qt4::QtSvg Haskell_CoreCompiler -no-hs-main)
+target_link_libraries(UMLEditor Qt4::QtGui Qt4::QtXml Qt4::QtSvg Haskell_CoreCompiler)
 
 install(TARGETS UMLEditor DESTINATION bin)

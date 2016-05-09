@@ -10,7 +10,13 @@ data Type =
 	| TypeEnumeration [String]	-- arg is list of allowed values ("nil" is implicitly allowed too)
 	| TypeClass [(String, Type)]	-- list contains (var_name, var_type) pairs for each member variable
 	| TypeSet Type			-- arg is inner type
-	deriving (Show, Data, Typeable)
+	deriving (Data, Typeable)
+
+instance Show Type where
+	show TypeBool = "bool"
+	show (TypeEnumeration values) = "enum(" ++ (intercalate "," values) ++ ")"
+	show (TypeClass members) = "class(" ++ (intercalate "," [ n ++ ":" ++ show t | (n, t) <- members]) ++ ")"
+	show (TypeSet t) = "set of " ++ (show t)
 
 data Idnt =
 	  IdntGlobal String Type	-- global variable with given name and type
@@ -33,7 +39,22 @@ data Expr =
 	| ExprNotOp Expr		-- boolean not operator
 	| ExprTuple Type [Expr]		-- either a non-nil TypeClass value or a TypeSet (set of values)
 	| ExprSetContains Idnt Expr	-- test whether a set (first arg) contains a given element (second arg)
-	deriving (Show, Data, Typeable)
+	deriving (Data, Typeable)
+
+instance Show Expr where
+	show (ExprBoolLiteral True) = "true"
+	show (ExprBoolLiteral False) = "false"
+	show (ExprEnumLiteral _ 0) = "nil"
+	show (ExprEnumLiteral (TypeEnumeration values) idx) = values!!(idx - 1)
+	show (ExprClassNilLiteral _) = "nil"
+	show (ExprVariable idnt) = show idnt
+	show (ExprEqOp a b) = "(" ++ (show a) ++ " == " ++ (show b) ++ ")"
+	show (ExprNeqOp a b) = "(" ++ (show a) ++ " != " ++ (show b) ++ ")"
+	show (ExprAndOp a b) = "(" ++ (show a) ++ " && " ++ (show b) ++ ")"
+	show (ExprOrOp a b) = "(" ++ (show a) ++ " || " ++ (show b) ++ ")"
+	show (ExprNotOp a) = "!" ++ (show a)
+	show (ExprTuple _ vs) = "{" ++ (intercalate "," [show x | x <- vs]) ++ "}"
+	show (ExprSetContains idnt v) = show idnt ++ ".contains(" ++ show v ++ ")"
 
 data Stmt =
 	  StmtCompound [Stmt]

@@ -1,8 +1,7 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 module Bindings where
-
 import SemanticTree
-
+import Compiler
 import Foreign.C.String
 import Foreign.StablePtr
 
@@ -223,3 +222,12 @@ hsStmt_dump x = do
 
 hsStmt_free :: StablePtr Stmt -> IO ()
 hsStmt_free x = freeStablePtr x
+
+-- Compiler
+foreign export ccall hsCompileVariableDeclaration :: CString -> StablePtr Expr -> IO (CString)
+
+hsCompileVariableDeclaration :: CString -> StablePtr Expr -> IO (CString)
+hsCompileVariableDeclaration varName_ptr initVal_ptr = do
+	varName <- peekCString varName_ptr
+	initVal <- deRefStablePtr initVal_ptr
+	newCString (variableDeclaration varName initVal)

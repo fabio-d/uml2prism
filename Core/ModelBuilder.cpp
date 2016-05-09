@@ -1,5 +1,6 @@
 #include "Core/ModelBuilder.h"
 
+#include "Core/Compiler/Compiler.h"
 #include "Core/Compiler/SemanticTreeGenerator.h"
 #include "Core/Document.h"
 #include "Core/UMLDiagram.h"
@@ -52,11 +53,15 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	if (m_error)
 		return;
 
+	qDebug() << "Compiling global variables' declarations...";
+	compileVariableDecls();
+
 	qDebug() << "Success";
 }
 
 ModelBuilder::~ModelBuilder()
 {
+	qDeleteAll(m_globalVarsInitValue);
 }
 
 bool ModelBuilder::success() const
@@ -517,7 +522,6 @@ void ModelBuilder::registerGlobalVariables()
 	// This must be done before registering any global variable or signal,
 	// so we can be sure that no variables are read in the initial value
 	QMap<QString, const Compiler::SemanticTree::Type*> gvTypes;
-	QMap<QString, const Compiler::SemanticTree::Expr*> gvInitValues;
 	foreach (const UMLGlobalVariables *gv, umlGlobalVars)
 	{
 		foreach (const UMLGlobalVariables::GlobalVariable &var, gv->globalVariables())
@@ -536,7 +540,10 @@ void ModelBuilder::registerGlobalVariables()
 				{
 					const Compiler::SemanticTree::Expr *initVal = stgen.takeResultExpr();
 					gvTypes.insert(var.name, type);
-					gvInitValues.insert(var.name, initVal);
+					m_globalVarsInitValue.insert(var.name, initVal);
+
+					if (var.isPersistent)
+						m_persistentVariables.append(var.name);
 				}
 				else
 				{
@@ -549,7 +556,7 @@ void ModelBuilder::registerGlobalVariables()
 	}
 
 	foreach (const QString &gvName, gvTypes.keys())
-		m_semanticContext.registerGlobalVariable(gvName, gvTypes[gvName], gvInitValues[gvName]);
+		m_semanticContext.registerGlobalVariable(gvName, gvTypes[gvName]);
 }
 
 void ModelBuilder::registerSignals()
@@ -593,6 +600,20 @@ void ModelBuilder::registerStates()
 			continue;
 
 		m_semanticContext.registerState(signalElem->nodeName());
+	}
+}
+
+void ModelBuilder::compileVariableDecls()
+{
+	Compiler::Compiler comp(&m_semanticContext);
+	foreach (const QString &varName, m_globalVarsInitValue.keys())
+	{
+		const Compiler::SemanticTree::Type *type =
+			m_semanticContext.findGlobalVariableOrSignalWithMessage(varName);
+		const Compiler::SemanticTree::Expr *initVal =
+			m_globalVarsInitValue[varName];
+		const bool isPersistent = m_persistentVariables.contains(varName);
+		comp.compileVariableDeclaration(varName, type, initVal, isPersistent);
 	}
 }
 

@@ -31,11 +31,14 @@ class ModelBuilder
 		void registerGlobalVariables();
 		void registerSignals();
 		void registerStates();
+		void compileVariableDecls();
 
 		const Document *m_doc;
 		bool m_error;
 
 		Compiler::SemanticContext m_semanticContext;
+		QMap<QString, const Compiler::SemanticTree::Expr*> m_globalVarsInitValue;
+		QList<QString> m_persistentVariables;
 };
 
 }
