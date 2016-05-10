@@ -42,6 +42,19 @@ typeOfExpr (ExprNotOp _) = TypeBool
 typeOfExpr (ExprTuple t _) = t
 typeOfExpr (ExprSetContains _ _) = TypeBool
 
+-- Given a type, return its default value
+nilValue :: Type -> Expr
+nilValue TypeBool = ExprBoolLiteral False
+nilValue (TypeEnumeration values) = ExprEnumLiteral (TypeEnumeration values) 0
+nilValue (TypeClass members) = ExprClassNilLiteral (TypeClass members)
+nilValue (TypeSet innerType) = ExprTuple (TypeSet innerType) []
+
+-- Given an expression and a set of expression, return an expression that is
+-- true if the former is contained in the latter
+anyMatch :: Expr -> [Expr] -> Expr
+anyMatch _ [] = ExprBoolLiteral False
+anyMatch valueExpr candidateExprs = foldr1 ExprOrOp [ ExprEqOp valueExpr c | c <- candidateExprs ]
+
 -- Replace StmtSetInsert statements with equivalent statement sequences
 expandSetInsertStatements :: Stmt -> Stmt
 expandSetInsertStatements =
@@ -64,14 +77,9 @@ expandSetInsertStatements =
 expandAssignmentStatements :: Stmt -> Stmt
 expandAssignmentStatements =
 	let
-		nilValue TypeBool = ExprBoolLiteral False
-		nilValue (TypeEnumeration values) = ExprEnumLiteral (TypeEnumeration values) 0
-		nilValue (TypeClass members) = ExprClassNilLiteral (TypeClass members)
-		nilValue (TypeSet innerType) = ExprTuple (TypeSet innerType) []
+
 		assignVariableToVariable dest src fields = StmtCompound [
 			StmtAssignment (IdntMember dest n t) (ExprVariable ((IdntMember src n t))) | (n,t) <- fields ]
-		anyMatch _ [] = ExprBoolLiteral False
-		anyMatch valueExpr candidateExprs = foldr1 ExprOrOp [ ExprEqOp valueExpr c | c <- candidateExprs ]
 		expandClassAssignment dest (ExprClassNilLiteral (TypeClass fields)) = StmtCompound [
 			StmtAssignment (IdntMember dest n t) (nilValue t) | (n,t) <- fields ]
 		expandClassAssignment dest (ExprVariable src) = assignVariableToVariable dest src fields
@@ -88,6 +96,74 @@ expandAssignmentStatements =
 		f _ = Nothing
 	in
 		rewrite f
+
+-- Replace ExprSetContains expressions with equivalent expressions
+expandSetContainsExpressions :: Expr -> Expr
+expandSetContainsExpressions =
+	let
+		expandSetContains setIdnt candidateExpr [(k,v)] = ExprAndOp
+			(ExprEqOp candidateExpr v)
+			(ExprVariable (IdntMember setIdnt k TypeBool))
+		expandSetContains setIdnt candidateExpr ((k,v):others) = ExprOrOp
+			(expandSetContains setIdnt candidateExpr [(k,v)])
+			(expandSetContains setIdnt candidateExpr others)
+	in let
+		f (ExprSetContains idnt expr) = expandSetContains idnt expr (allValuesWithKey innerType)
+			where TypeSet innerType = typeOfIdnt idnt
+		f x = x
+	in
+		transform f
+
+-- Replace ExprEqOp and ExprNeqOp expressions operating on classes and sets with
+-- equivalent expressions
+expandCompareExpressions :: Expr -> Expr
+expandCompareExpressions =
+	let
+		expandVariableToVariable idnt1 idnt2 fields cmpOp combOp = foldr1 combOp [
+			cmpOp (ExprVariable ((IdntMember idnt1 n t))) (ExprVariable ((IdntMember idnt2 n t))) | (n,t) <- fields ]
+
+		expandSetEqVariableToTuple idnt [] innerType = foldr1 ExprAndOp [
+			ExprEqOp (ExprVariable (IdntMember idnt k TypeBool)) (ExprBoolLiteral False) | k <- allKeys innerType ]
+		expandSetEqVariableToTuple idnt values innerType = foldr1 ExprAndOp (
+			[ExprEqOp (ExprVariable (IdntMember idnt k TypeBool)) (anyMatch v values) | (k,v) <- allValuesWithKey innerType ]
+			++
+			[expandSetContainsExpressions (ExprSetContains idnt expr) | expr <- values])
+
+		expandSetEqTupleToTuple values1 values2 innerType = foldr1 ExprAndOp (
+			[anyMatch expr1 values2 | expr1 <- values1]
+			++
+			[anyMatch expr2 values1 | expr2 <- values2])
+
+		expandClassOp cmpOp combOp notOp trueExpr fields = g where
+			g (ExprClassNilLiteral _) (ExprClassNilLiteral _) = trueExpr
+			g (ExprClassNilLiteral _) (ExprVariable idnt) = foldr1 combOp [ cmpOp (ExprVariable (IdntMember idnt n t)) (nilValue t) | (n,t) <- fields ]
+			g (ExprClassNilLiteral _) (ExprTuple _ values) = foldr1 combOp [ cmpOp v (nilValue t) | ((_,t),v) <- zip fields values ]
+			g (ExprVariable idnt1) (ExprVariable idnt2) = expandVariableToVariable idnt1 idnt2 fields cmpOp combOp
+			g (ExprVariable idnt) (ExprTuple _ values) = foldr1 combOp [ cmpOp (ExprVariable (IdntMember idnt n t)) v | ((n,t),v) <- zip fields values ]
+			g (ExprTuple _ v1s) (ExprTuple _ v2s) = foldr1 combOp [ cmpOp v1 v2 | (v1,v2) <- zip v1s v2s ]
+			g a b = g b a
+
+		expandSetOp cmpOp combOp notOp trueExpr innerType = h where
+			h (ExprVariable idnt1) (ExprVariable idnt2) = expandVariableToVariable idnt1 idnt2 [(n,TypeBool) | n <- allKeys innerType] cmpOp combOp
+			h (ExprVariable idnt) (ExprTuple _ values) = notOp (expandSetEqVariableToTuple idnt values innerType)
+			h (ExprTuple _ values1) (ExprTuple _ values2) = notOp (expandSetEqTupleToTuple values1 values2 innerType)
+			h a b = h b a
+	in let
+		f (ExprEqOp e1 e2)
+			| TypeClass fields <- typeOfExpr e1 = Just (expandClassOp ExprEqOp ExprAndOp id (ExprBoolLiteral True) fields e1 e2)
+			| TypeSet innerType <- typeOfExpr e1 = Just (expandSetOp ExprEqOp ExprAndOp id (ExprBoolLiteral True) innerType e1 e2)
+		f (ExprNeqOp e1 e2)
+			| TypeClass fields <- typeOfExpr e1 = Just (expandClassOp ExprNeqOp ExprOrOp ExprNotOp (ExprBoolLiteral False) fields e1 e2)
+			| TypeSet innerType <- typeOfExpr e1 = Just (expandSetOp ExprNeqOp ExprOrOp ExprNotOp (ExprBoolLiteral False) innerType e1 e2)
+		f _ = Nothing
+	in
+		rewrite f
+
+expandStatement :: Stmt -> Stmt
+expandStatement = expandAssignmentStatements . expandSetInsertStatements
+
+expandExpression :: Expr -> Expr
+expandExpression = expandCompareExpressions . expandSetContainsExpressions
 
 -- Given a user identifier name, double all underscores, because the compiler
 -- uses single underscores as a separator and we want avoid conflicts
@@ -107,10 +183,17 @@ unrollSeq prevseq (StmtCompound []) = [prevseq]
 unrollSeq prevseq (StmtCompound (stmt:stmts)) = concat [
 	unrollSeq stmtseq (StmtCompound stmts) |
 	stmtseq <- unrollSeq prevseq stmt]
-unrollSeq prevseq (StmtAssignment ident expr) = [prevseq ++ [(UnrollAssgn ident expr)]]
+unrollSeq prevseq (StmtAssignment ident expr) =
+	let
+		expandedExpr = expandExpression expr
+	in
+		[prevseq ++ [(UnrollAssgn ident expandedExpr)]]
 unrollSeq prevseq (StmtIfElse cond tstmt fstmt) =
-	(unrollSeq (prevseq ++ [UnrollGuard cond]) tstmt) ++
-	(unrollSeq (prevseq ++ [UnrollGuard (ExprNotOp cond)]) fstmt)
+	let
+		expandedCond = expandExpression cond
+	in
+		(unrollSeq (prevseq ++ [UnrollGuard expandedCond]) tstmt) ++
+		(unrollSeq (prevseq ++ [UnrollGuard (ExprNotOp expandedCond)]) fstmt)
 unrollSeq prevseq (StmtChoiceOr alt1 alt2) = (unrollSeq prevseq alt1) ++ (unrollSeq prevseq alt2)
 unrollSeq prevseq (StmtBranch str) = [prevseq ++ [UnrollBranch str]]
 
@@ -126,4 +209,4 @@ variableDeclaration varName initVal =
 		convToVarDecls [((UnrollAssgn idnt expr):vs)] = "global " ++ show idnt ++ " : " ++ show (typeOfIdnt idnt) ++ " init " ++ show expr ++ ";\n" ++ convToVarDecls [vs]
 		initValAssignment = StmtAssignment (IdntGlobal varName varType) initVal
 	in
-		setValList varType ++ (convToVarDecls (unrollSeq [] (expandAssignmentStatements initValAssignment)))
+		setValList varType ++ (convToVarDecls (unrollSeq [] (expandStatement initValAssignment)))
