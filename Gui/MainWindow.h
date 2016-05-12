@@ -49,6 +49,8 @@ class MainWindow : public QMainWindow
 		void slotZoomOriginal();
 		void slotZoomFit();
 		void slotBuild();
+		void slotWarning(const QString &location, const QString &description);
+		void slotError(const QString &location, const QString &description);
 
 	private:
 		bool queryClose();

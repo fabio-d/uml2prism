@@ -72,7 +72,7 @@ void EditScriptedNodeElementDialog::accept()
 void EditScriptedNodeElementDialog::slotParse()
 {
 	Core::ModelBuilder builder(m_doc);
-	if (builder.success())
+	if (builder.run())
 	{
 		QMap<QString, QString> labelMap;
 		QStringList signalList;

@@ -385,7 +385,38 @@ void MainWindow::slotFillContextMenu(QMenu *menu)
 
 void MainWindow::slotBuild()
 {
+	m_ui->errorListWidget->clear();
+
 	Core::ModelBuilder builder(m_doc);
+	connect(&builder, SIGNAL(error(QString,QString)), this, SLOT(slotError(QString,QString)));
+	connect(&builder, SIGNAL(warning(QString,QString)), this, SLOT(slotWarning(QString,QString)));
+
+	const bool success = builder.run();
+
+	m_ui->errorListWidget->resizeColumnToContents(0);
+
+	if (success)
+	{
+		QMessageBox::information(this, "Build model", "Model built successfully");
+	}
+	else
+	{
+		QMessageBox::critical(this, "Build model", "Model compilation failed");
+	}
+}
+
+void MainWindow::slotWarning(const QString &location, const QString &description)
+{
+	QTreeWidgetItem *item = new QTreeWidgetItem(QStringList() << location << description);
+	item->setIcon(0, QIcon::fromTheme("dialog-warning", QIcon(":/kde_icons/dialog-warning.png")));
+	m_ui->errorListWidget->addTopLevelItem(item);
+}
+
+void MainWindow::slotError(const QString &location, const QString &description)
+{
+	QTreeWidgetItem *item = new QTreeWidgetItem(QStringList() << location << description);
+	item->setIcon(0, QIcon::fromTheme("dialog-error", QIcon(":/kde_icons/dialog-error.png")));
+	m_ui->errorListWidget->addTopLevelItem(item);
 }
 
 }

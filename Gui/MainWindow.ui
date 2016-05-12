@@ -139,7 +139,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget_3">
    <property name="windowTitle">
-    <string>&amp;Errors</string>
+    <string>&amp;Errors and warnings</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -170,14 +170,6 @@
       <string>Error description</string>
      </property>
     </column>
-    <item>
-     <property name="text">
-      <string>ExampleElement</string>
-     </property>
-     <property name="text">
-      <string>It's wrong</string>
-     </property>
-    </item>
    </widget>
   </widget>
   <widget class="QDockWidget" name="dockWidget_4">

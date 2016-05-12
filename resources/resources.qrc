@@ -15,6 +15,8 @@
     <file alias="OpaqueAction_24.gif">topcased_icons/OpaqueAction_24.gif</file>
   </qresource>
   <qresource prefix="kde_icons">
+    <file alias="dialog-warning.png">kde_icons/dialog-warning.png</file>
+    <file alias="dialog-error.png">kde_icons/dialog-error.png</file>
     <file alias="edit-delete.png">kde_icons/edit-delete.png</file>
     <file alias="roll.png">kde_icons/roll.png</file>
     <file alias="edit-redo.png">kde_icons/edit-redo.png</file>

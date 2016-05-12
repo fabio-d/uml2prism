@@ -28,14 +28,26 @@ namespace Core
 {
 
 ModelBuilder::ModelBuilder(const Document *doc)
-: m_doc(doc), m_error(false)
+: m_doc(doc), m_started(false), m_error(false)
 {
+}
+
+ModelBuilder::~ModelBuilder()
+{
+	qDeleteAll(m_globalVarsInitValue);
+}
+
+bool ModelBuilder::run()
+{
+	Q_ASSERT(m_started == false);
+
 	qDebug() << "ModelBuilder started";
+	m_started =  true;
 
 	qDebug() << "Checking that no duplicate global names are present...";
 	checkDuplicateGlobalNames();
 	if (m_error)
-		return;
+		return false;
 
 	qDebug() << "Checking that control-flow and signal edges are used properly...";
 	checkControlFlowEdges();
@@ -44,45 +56,45 @@ ModelBuilder::ModelBuilder(const Document *doc)
 	qDebug() << "Checking that types are sound...";
 	registerTypes();
 	if (m_error)
-		return;
+		return false;
 
 	qDebug() << "Registering global variables, signals and states...";
 	registerGlobalVariables(); // this must be done before registering signals, see comment inside
 	registerSignals();
 	registerStates(); // <-- TODO: move it after actions' scripts have been parsed
 	if (m_error)
-		return;
+		return false;
 
 	qDebug() << "Compiling global variables' declarations...";
 	compileVariableDecls();
 
 	qDebug() << "Success";
-}
-
-ModelBuilder::~ModelBuilder()
-{
-	qDeleteAll(m_globalVarsInitValue);
+	return true;
 }
 
 bool ModelBuilder::success() const
 {
+	Q_ASSERT(m_started == true);
 	return !m_error;
 }
 
 const Compiler::SemanticContext *ModelBuilder::semanticContext() const
 {
+	Q_ASSERT(m_started == true && m_error == false);
 	return &m_semanticContext;
 }
 
 void ModelBuilder::emitWarning(const QString &location, const QString &description)
 {
 	qDebug() << "WARNING:" << location << ":" << description;
+	emit warning(location, description);
 }
 
 void ModelBuilder::emitError(const QString &location, const QString &description)
 {
 	qDebug() << "ERROR:" << location << ":" << description;
 	m_error = true;
+	emit error(location, description);
 }
 
 const Compiler::SemanticTree::Type *ModelBuilder::resolveType(const DatatypeName *dt) const

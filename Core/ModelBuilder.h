@@ -9,14 +9,21 @@ namespace Core
 class DatatypeName;
 class Document;
 
-class ModelBuilder
+class ModelBuilder : public QObject
 {
+	Q_OBJECT
+
 	public:
-		explicit ModelBuilder(const Document *doc);
+		explicit ModelBuilder(const Document *doc); // does NOT take ownership
 		~ModelBuilder();
 
+		bool run(); // to called only once, returns same value as success()
 		bool success() const;
 		const Compiler::SemanticContext *semanticContext() const;
+
+	signals:
+		void warning(const QString &location, const QString &description);
+		void error(const QString &location, const QString &description);
 
 	private:
 		void emitWarning(const QString &location, const QString &description);
@@ -34,7 +41,7 @@ class ModelBuilder
 		void compileVariableDecls();
 
 		const Document *m_doc;
-		bool m_error;
+		bool m_started, m_error;
 
 		Compiler::SemanticContext m_semanticContext;
 		QMap<QString, const Compiler::SemanticTree::Expr*> m_globalVarsInitValue;
