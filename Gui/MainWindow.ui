@@ -46,7 +46,7 @@
      <enum>Qt::ContainsItemShape</enum>
     </property>
     <attribute name="title">
-     <string>Activity Diagram</string>
+     <string>&amp;Activity Diagram</string>
     </attribute>
    </widget>
    <widget class="Gui::UMLDiagramView" name="umlGraphicsViewClass">
@@ -78,8 +78,39 @@
      <enum>Qt::ContainsItemShape</enum>
     </property>
     <attribute name="title">
-     <string>Custom datatypes (Class Diagram)</string>
+     <string>&amp;Class Diagram</string>
     </attribute>
+   </widget>
+   <widget class="QWidget" name="widget">
+    <attribute name="title">
+     <string>&amp;Properties</string>
+    </attribute>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Labels</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="Gui::PropertyListEditWidget" name="labelEditWidget" native="true"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Properties</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="Gui::PropertyListEditWidget" name="propertyEditWidget" native="true"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -139,7 +170,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget_3">
    <property name="windowTitle">
-    <string>&amp;Errors and warnings</string>
+    <string>Errors and warnings</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -174,7 +205,7 @@
   </widget>
   <widget class="QDockWidget" name="dockWidget_4">
    <property name="windowTitle">
-    <string>U&amp;ML Toolbox</string>
+    <string>UML Toolbox</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -218,6 +249,9 @@
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
       </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="listWidgetEmptyToolbox"/>
      </item>
     </layout>
    </widget>
@@ -488,6 +522,12 @@
    <class>Gui::UMLClassDiagramToolboxListWidget</class>
    <extends>QListWidget</extends>
    <header>Gui/UMLToolboxListWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Gui::PropertyListEditWidget</class>
+   <extends>QWidget</extends>
+   <header>Gui/PropertyListEditWidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

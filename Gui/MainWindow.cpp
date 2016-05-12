@@ -263,12 +263,14 @@ void MainWindow::slotTabSwitched()
 
 		m_ui->listWidgetActivityToolbox->setVisible(true);
 		m_ui->listWidgetClassToolbox->setVisible(false);
+		m_ui->listWidgetEmptyToolbox->setVisible(false);
+		m_ui->actionExportSvg->setEnabled(true);
 		m_ui->actionEditItem->setEnabled(m_activityEditEnabled);
 		m_ui->actionRenameItem->setEnabled(m_activityRenameEnabled);
 		m_ui->actionDeleteItem->setEnabled(m_activityDeleteEnabled);
 		m_ui->actionResetLabelPosition->setEnabled(m_activityResetLabelPositionEnabled);
 	}
-	else
+	else if (m_ui->centralTabWidget->currentIndex() == 1)
 	{
 		if (!m_classDiagramFirstShown)
 		{
@@ -278,9 +280,22 @@ void MainWindow::slotTabSwitched()
 
 		m_ui->listWidgetActivityToolbox->setVisible(false);
 		m_ui->listWidgetClassToolbox->setVisible(true);
+		m_ui->listWidgetEmptyToolbox->setVisible(false);
+		m_ui->actionExportSvg->setEnabled(true);
 		m_ui->actionEditItem->setEnabled(m_classEditEnabled);
 		m_ui->actionRenameItem->setEnabled(m_classRenameEnabled);
 		m_ui->actionDeleteItem->setEnabled(m_classDeleteEnabled);
+		m_ui->actionResetLabelPosition->setEnabled(false);
+	}
+	else
+	{
+		m_ui->listWidgetActivityToolbox->setVisible(false);
+		m_ui->listWidgetClassToolbox->setVisible(false);
+		m_ui->listWidgetEmptyToolbox->setVisible(true);
+		m_ui->actionExportSvg->setEnabled(false);
+		m_ui->actionEditItem->setEnabled(false);
+		m_ui->actionRenameItem->setEnabled(false);
+		m_ui->actionDeleteItem->setEnabled(false);
 		m_ui->actionResetLabelPosition->setEnabled(false);
 	}
 }
@@ -308,7 +323,7 @@ void MainWindow::slotRenameItem()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 		m_umlGraphicsSceneActivity->renameSelectedItem(this);
-	else
+	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_umlGraphicsSceneClass->renameSelectedItem(this);
 }
 
@@ -316,7 +331,7 @@ void MainWindow::slotEditItem()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 		m_umlGraphicsSceneActivity->editSelectedItem(this);
-	else
+	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_umlGraphicsSceneClass->editSelectedItem(this);
 }
 
@@ -324,7 +339,7 @@ void MainWindow::slotDeleteItem()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 		m_umlGraphicsSceneActivity->deleteSelectedItems(this);
-	else
+	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_umlGraphicsSceneClass->deleteSelectedItems(this);
 }
 
@@ -337,7 +352,7 @@ void MainWindow::slotZoomIn()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 		m_ui->umlGraphicsViewActivity->zoomIn();
-	else
+	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_ui->umlGraphicsViewClass->zoomIn();
 }
 
@@ -345,7 +360,7 @@ void MainWindow::slotZoomOut()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 		m_ui->umlGraphicsViewActivity->zoomOut();
-	else
+	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_ui->umlGraphicsViewClass->zoomOut();
 }
 
@@ -353,7 +368,7 @@ void MainWindow::slotZoomOriginal()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 		m_ui->umlGraphicsViewActivity->zoomOriginal();
-	else
+	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_ui->umlGraphicsViewClass->zoomOriginal();
 }
 
@@ -361,7 +376,7 @@ void MainWindow::slotZoomFit()
 {
 	if (m_ui->centralTabWidget->currentIndex() == 0)
 		m_ui->umlGraphicsViewActivity->zoomFit();
-	else
+	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_ui->umlGraphicsViewClass->zoomFit();
 }
 

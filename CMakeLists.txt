@@ -79,6 +79,7 @@ add_executable(UMLEditor
 	Gui/GraphicsAuxiliaryItems.cpp
 	Gui/IdentifierValidator.cpp
 	Gui/MainWindow.cpp
+	Gui/PropertyListEditWidget.cpp
 	Gui/RenameDialog.cpp
 	Gui/UMLDiagramView.cpp
 	Gui/UMLElement.cpp
