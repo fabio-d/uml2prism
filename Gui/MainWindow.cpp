@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
   m_activityDiagramFirstShown(false), m_classDiagramFirstShown(false)
 {
 	m_ui->setupUi(this);
+	m_ui->errorListWidget->header()->resizeSections(QHeaderView::ResizeToContents);
 
 	m_ui->actionNew->setShortcut(QKeySequence::New);
 	m_ui->actionOpen->setShortcut(QKeySequence::Open);
@@ -263,7 +264,7 @@ void MainWindow::slotTabSwitched()
 
 		m_ui->listWidgetActivityToolbox->setVisible(true);
 		m_ui->listWidgetClassToolbox->setVisible(false);
-		m_ui->listWidgetEmptyToolbox->setVisible(false);
+		m_ui->umlToolboxDockWidget->setVisible(true);
 		m_ui->actionExportSvg->setEnabled(true);
 		m_ui->actionEditItem->setEnabled(m_activityEditEnabled);
 		m_ui->actionRenameItem->setEnabled(m_activityRenameEnabled);
@@ -280,7 +281,7 @@ void MainWindow::slotTabSwitched()
 
 		m_ui->listWidgetActivityToolbox->setVisible(false);
 		m_ui->listWidgetClassToolbox->setVisible(true);
-		m_ui->listWidgetEmptyToolbox->setVisible(false);
+		m_ui->umlToolboxDockWidget->setVisible(true);
 		m_ui->actionExportSvg->setEnabled(true);
 		m_ui->actionEditItem->setEnabled(m_classEditEnabled);
 		m_ui->actionRenameItem->setEnabled(m_classRenameEnabled);
@@ -291,7 +292,7 @@ void MainWindow::slotTabSwitched()
 	{
 		m_ui->listWidgetActivityToolbox->setVisible(false);
 		m_ui->listWidgetClassToolbox->setVisible(false);
-		m_ui->listWidgetEmptyToolbox->setVisible(true);
+		m_ui->umlToolboxDockWidget->setVisible(false);
 		m_ui->actionExportSvg->setEnabled(false);
 		m_ui->actionEditItem->setEnabled(false);
 		m_ui->actionRenameItem->setEnabled(false);

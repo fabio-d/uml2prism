@@ -198,12 +198,12 @@
     </column>
     <column>
      <property name="text">
-      <string>Error description</string>
+      <string>Description</string>
      </property>
     </column>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_4">
+  <widget class="QDockWidget" name="umlToolboxDockWidget">
    <property name="windowTitle">
     <string>UML Toolbox</string>
    </property>
@@ -249,9 +249,6 @@
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
       </widget>
-     </item>
-     <item>
-      <widget class="QListWidget" name="listWidgetEmptyToolbox"/>
      </item>
     </layout>
    </widget>

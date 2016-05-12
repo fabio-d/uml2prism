@@ -11,6 +11,7 @@ PropertyListEditWidget::PropertyListEditWidget(QWidget *parent)
 : QWidget(parent), m_ui(new Ui_PropertyListEditWidget)
 {
 	m_ui->setupUi(this);
+	m_ui->treeWidget->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 PropertyListEditWidget::~PropertyListEditWidget()
