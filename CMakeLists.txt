@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake-haskell")
-project(UMLEditor CXX Haskell)
+project(ModelEditor CXX Haskell)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -52,7 +52,7 @@ add_library(Haskell_CoreCompiler STATIC
 )
 set_property(TARGET Haskell_CoreCompiler PROPERTY LINKER_LANGUAGE Haskell)
 
-add_executable(UMLEditor
+add_executable(ModelEditor
 	Core/DatatypeName.cpp
 	Core/Document.cpp
 	Core/ModelBuilder.cpp
@@ -90,7 +90,7 @@ add_executable(UMLEditor
 	main.cpp
 )
 
-set_property(TARGET UMLEditor PROPERTY LINKER_LANGUAGE Haskell)
-target_link_libraries(UMLEditor Qt4::QtGui Qt4::QtXml Qt4::QtSvg Haskell_CoreCompiler)
+set_property(TARGET ModelEditor PROPERTY LINKER_LANGUAGE Haskell)
+target_link_libraries(ModelEditor Qt4::QtGui Qt4::QtXml Qt4::QtSvg Haskell_CoreCompiler)
 
-install(TARGETS UMLEditor DESTINATION bin)
+install(TARGETS ModelEditor DESTINATION bin)
