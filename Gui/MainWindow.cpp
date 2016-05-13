@@ -161,12 +161,8 @@ QString MainWindow::docName() const
 
 void MainWindow::slotUndoCleanChanged(bool clean)
 {
-	QString title = docName();
-
-	if (!clean)
-		title += " [modified]";
-
-	setWindowTitle(title + " - Model Editor");
+	setWindowFilePath(docName());
+	setWindowModified(!clean);
 
 	m_ui->actionSave->setEnabled(!clean);
 }
