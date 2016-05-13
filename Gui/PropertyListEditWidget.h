@@ -16,8 +16,15 @@ class PropertyListEditWidget : public QWidget //, private EditListWidgetCallback
 		explicit PropertyListEditWidget(QWidget *parent = nullptr);
 		~PropertyListEditWidget();
 
+		bool eventFilter(QObject *obj, QEvent *event) override;
+
+	signals:
+		void actionsEnabledChanged(bool editEnabled, bool renameEnabled, bool deleteEnabled, bool resetLabelPosEnabled);
+		void focusReceived();
+
 	public slots:
 		void editSelectedItem();
+		void renameSelectedItem();
 		void removeSelectedItem();
 
 	private slots:
@@ -27,6 +34,8 @@ class PropertyListEditWidget : public QWidget //, private EditListWidgetCallback
 		void slotCurrentRowChanged();
 
 	private:
+		void updateActions();
+
 		Ui_PropertyListEditWidget *m_ui;
 };
 

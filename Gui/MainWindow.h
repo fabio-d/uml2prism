@@ -51,6 +51,8 @@ class MainWindow : public QMainWindow
 		void slotBuild();
 		void slotWarning(const QString &location, const QString &description);
 		void slotError(const QString &location, const QString &description);
+		void slotLabelListFocused();
+		void slotPropertyListFocused();
 
 	private:
 		bool queryClose();
@@ -69,7 +71,14 @@ class MainWindow : public QMainWindow
 		UMLGraphicsScene *m_umlGraphicsSceneClass;
 		bool m_classEditEnabled, m_classRenameEnabled, m_classDeleteEnabled;
 
+		bool m_labelEditEnabled, m_labelDeleteEnabled;
+		bool m_propertyEditEnabled, m_propertyDeleteEnabled;
+
+		// Have these tabs already been shown?
 		bool m_activityDiagramFirstShown, m_classDiagramFirstShown;
+
+		// Which list has been focused last in the properties tab?
+		enum { LabelList, PropertyList } m_lastFocusedList;
 };
 
 }

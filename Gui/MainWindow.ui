@@ -525,6 +525,9 @@
    <extends>QWidget</extends>
    <header>Gui/PropertyListEditWidget.h</header>
    <container>1</container>
+   <slots>
+    <signal>focusReceived()</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources>
@@ -787,6 +790,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>labelEditWidget</sender>
+   <signal>focusReceived()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slotLabelListFocused()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>621</x>
+     <y>391</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1468</x>
+     <y>532</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>propertyEditWidget</sender>
+   <signal>focusReceived()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slotPropertyListFocused()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>985</x>
+     <y>747</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1468</x>
+     <y>789</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>slotNew()</slot>
@@ -804,5 +839,7 @@
   <slot>slotResetLabelPosition()</slot>
   <slot>slotExportSvg()</slot>
   <slot>slotBuild()</slot>
+  <slot>slotLabelListFocused()</slot>
+  <slot>slotPropertyListFocused()</slot>
  </slots>
 </ui>

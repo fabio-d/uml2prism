@@ -22,7 +22,10 @@ MainWindow::MainWindow(QWidget *parent)
   m_activityEditEnabled(false), m_activityRenameEnabled(false),
   m_activityDeleteEnabled(false), m_activityResetLabelPositionEnabled(false),
   m_classEditEnabled(false), m_classRenameEnabled(false), m_classDeleteEnabled(false),
-  m_activityDiagramFirstShown(false), m_classDiagramFirstShown(false)
+  m_labelEditEnabled(false), m_labelDeleteEnabled(false),
+  m_propertyEditEnabled(false), m_propertyDeleteEnabled(false),
+  m_activityDiagramFirstShown(false), m_classDiagramFirstShown(false),
+  m_lastFocusedList(LabelList)
 {
 	m_ui->setupUi(this);
 	m_ui->errorListWidget->header()->resizeSections(QHeaderView::ResizeToContents);
@@ -55,6 +58,11 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(m_umlGraphicsSceneClass, SIGNAL(fillContextMenu(QMenu*)),
 		this, SLOT(slotFillContextMenu(QMenu*)));
 	m_ui->umlGraphicsViewClass->setScene(m_umlGraphicsSceneClass);
+
+	connect(m_ui->labelEditWidget, SIGNAL(actionsEnabledChanged(bool, bool, bool, bool)),
+		this, SLOT(slotActionsEnabledChanged(bool, bool, bool, bool)));
+	connect(m_ui->propertyEditWidget, SIGNAL(actionsEnabledChanged(bool, bool, bool, bool)),
+		this, SLOT(slotActionsEnabledChanged(bool, bool, bool, bool)));
 
 	m_undoManager = new UndoManager(m_doc, m_ui->actionUndo, m_ui->actionRedo);
 	connect(m_umlGraphicsSceneActivity, SIGNAL(undoCheckpointCreationRequest()),
@@ -294,9 +302,18 @@ void MainWindow::slotTabSwitched()
 		m_ui->listWidgetClassToolbox->setVisible(false);
 		m_ui->umlToolboxDockWidget->setVisible(false);
 		m_ui->actionExportSvg->setEnabled(false);
-		m_ui->actionEditItem->setEnabled(false);
-		m_ui->actionRenameItem->setEnabled(false);
-		m_ui->actionDeleteItem->setEnabled(false);
+		if (m_lastFocusedList == LabelList)
+		{
+			m_ui->actionEditItem->setEnabled(m_labelEditEnabled);
+			m_ui->actionRenameItem->setEnabled(m_labelEditEnabled);
+			m_ui->actionDeleteItem->setEnabled(m_labelDeleteEnabled);
+		}
+		else
+		{
+			m_ui->actionEditItem->setEnabled(m_propertyEditEnabled);
+			m_ui->actionRenameItem->setEnabled(m_propertyEditEnabled);
+			m_ui->actionDeleteItem->setEnabled(m_propertyDeleteEnabled);
+		}
 		m_ui->actionResetLabelPosition->setEnabled(false);
 	}
 }
@@ -310,11 +327,21 @@ void MainWindow::slotActionsEnabledChanged(bool editEnabled, bool renameEnabled,
 		m_activityDeleteEnabled = deleteEnabled;
 		m_activityResetLabelPositionEnabled = resetLabelPosEnabled;
 	}
-	else
+	else if (QObject::sender() == m_umlGraphicsSceneClass)
 	{
 		m_classEditEnabled = editEnabled;
 		m_classRenameEnabled = renameEnabled;
 		m_classDeleteEnabled = deleteEnabled;
+	}
+	else if (QObject::sender() == m_ui->labelEditWidget)
+	{
+		m_labelEditEnabled = editEnabled;
+		m_labelDeleteEnabled = deleteEnabled;
+	}
+	else if (QObject::sender() == m_ui->propertyEditWidget)
+	{
+		m_propertyEditEnabled = editEnabled;
+		m_propertyDeleteEnabled = deleteEnabled;
 	}
 
 	slotTabSwitched();
@@ -326,6 +353,13 @@ void MainWindow::slotRenameItem()
 		m_umlGraphicsSceneActivity->renameSelectedItem(this);
 	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_umlGraphicsSceneClass->renameSelectedItem(this);
+	else if (m_ui->centralTabWidget->currentIndex() == 2)
+	{
+		if (m_lastFocusedList == LabelList)
+			m_ui->labelEditWidget->renameSelectedItem();
+		else if (m_lastFocusedList == PropertyList)
+			m_ui->propertyEditWidget->renameSelectedItem();
+	}
 }
 
 void MainWindow::slotEditItem()
@@ -334,6 +368,13 @@ void MainWindow::slotEditItem()
 		m_umlGraphicsSceneActivity->editSelectedItem(this);
 	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_umlGraphicsSceneClass->editSelectedItem(this);
+	else if (m_ui->centralTabWidget->currentIndex() == 2)
+	{
+		if (m_lastFocusedList == LabelList)
+			m_ui->labelEditWidget->editSelectedItem();
+		else if (m_lastFocusedList == PropertyList)
+			m_ui->propertyEditWidget->editSelectedItem();
+	}
 }
 
 void MainWindow::slotDeleteItem()
@@ -342,6 +383,13 @@ void MainWindow::slotDeleteItem()
 		m_umlGraphicsSceneActivity->deleteSelectedItems(this);
 	else if (m_ui->centralTabWidget->currentIndex() == 1)
 		m_umlGraphicsSceneClass->deleteSelectedItems(this);
+	else if (m_ui->centralTabWidget->currentIndex() == 2)
+	{
+		if (m_lastFocusedList == LabelList)
+			m_ui->labelEditWidget->removeSelectedItem();
+		else if (m_lastFocusedList == PropertyList)
+			m_ui->propertyEditWidget->removeSelectedItem();
+	}
 }
 
 void MainWindow::slotResetLabelPosition()
@@ -433,6 +481,18 @@ void MainWindow::slotError(const QString &location, const QString &description)
 	QTreeWidgetItem *item = new QTreeWidgetItem(QStringList() << location << description);
 	item->setIcon(0, QIcon::fromTheme("dialog-error", QIcon(":/kde_icons/dialog-error.png")));
 	m_ui->errorListWidget->addTopLevelItem(item);
+}
+
+void MainWindow::slotLabelListFocused()
+{
+	m_lastFocusedList = LabelList;
+	slotTabSwitched();
+}
+
+void MainWindow::slotPropertyListFocused()
+{
+	m_lastFocusedList = PropertyList;
+	slotTabSwitched();
 }
 
 }
