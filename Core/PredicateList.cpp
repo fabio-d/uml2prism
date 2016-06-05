@@ -5,7 +5,22 @@
 namespace Core
 {
 
-PredicateList::PredicateList(Document *doc, Type contentType)
+Predicate::Predicate(const QString &name, const QString &expression)
+: m_name(name), m_expression(expression)
+{
+}
+
+const QString &Predicate::name() const
+{
+	return m_name;
+}
+
+const QString &Predicate::expression() const
+{
+	return m_expression;
+}
+
+PredicateList::PredicateList(Document *doc, PredicateType contentType)
 : m_doc(doc), m_contentType(contentType)
 {
 }
@@ -15,7 +30,7 @@ Document *PredicateList::document() const
 	return m_doc;
 }
 
-PredicateList::Type PredicateList::contentType() const
+PredicateType PredicateList::contentType() const
 {
 	return m_contentType;
 }
@@ -25,17 +40,17 @@ void PredicateList::clear()
 	m_predicates.clear();
 }
 
-void PredicateList::append(const QString &name, const QString &expression)
+void PredicateList::append(const Predicate &p)
 {
-	m_predicates.append(QPair<QString, QString>(name, expression));
+	m_predicates.append(p);
 }
 
 QStringList PredicateList::listNames() const
 {
 	QStringList res;
 
-	for (int i = 0; i < m_predicates.count(); i++)
-		res.append(m_predicates[i].first);
+	foreach (const Predicate &p, m_predicates)
+		res.append(p.name());
 
 	return res;
 }

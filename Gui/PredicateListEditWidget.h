@@ -47,18 +47,11 @@ class PredicateListEditWidget : public QWidget
 		void slotCurrentRowChanged();
 
 	private:
-		enum ListType
-		{
-			LabelList,
-			PredicateList
-		};
-
 		bool eventFilter(QObject *obj, QEvent *event) override;
 
 		void flushChanges();
 
 		Ui_PredicateListEditWidget *m_ui;
-		ListType m_listType;
 		Core::PredicateList *m_docList;
 		UndoManager *m_undoManager;
 };

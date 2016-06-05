@@ -9,31 +9,45 @@ namespace Core
 
 class Document;
 
+enum class PredicateType
+{
+	Property,
+	Label
+};
+
+class Predicate
+{
+	public:
+		Predicate(const QString &name, const QString &expression);
+
+		const QString &name() const;
+		const QString &expression() const;
+
+	private:
+		QString m_name, m_expression;
+};
+
 class PredicateList : public QObject
 {
 	Q_OBJECT
 
 	public:
-		enum Type
-		{
-			Properties,
-			Labels
-		};
 
-		PredicateList(Document *doc, Type contentType);
-		Type contentType() const;
+
+		PredicateList(Document *doc, PredicateType contentType);
+		PredicateType contentType() const;
 
 		Document *document() const;
 
 		void clear();
-		void append(const QString &name, const QString &expression);
+		void append(const Predicate &p);
 
 		QStringList listNames() const;
 
 	private:
 		Document *m_doc;
-		Type m_contentType;
-		QList<QPair<QString, QString>> m_predicates;
+		PredicateType m_contentType;
+		QList<Predicate> m_predicates;
 };
 
 }

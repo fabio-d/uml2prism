@@ -179,7 +179,7 @@ class PredicateListMoveDownUndoCommand : public QUndoCommand
 
 PredicateListEditWidget::PredicateListEditWidget(QWidget *parent)
 : QWidget(parent), m_ui(new Ui_PredicateListEditWidget),
-  m_listType(PredicateList), m_docList(nullptr), m_undoManager(nullptr)
+  m_docList(nullptr), m_undoManager(nullptr)
 {
 	m_ui->setupUi(this);
 	m_ui->treeWidget->header()->resizeSections(QHeaderView::ResizeToContents);
@@ -196,11 +196,6 @@ PredicateListEditWidget::~PredicateListEditWidget()
 
 void PredicateListEditWidget::setList(Core::PredicateList *list)
 {
-	if (list->contentType() == Core::PredicateList::Properties)
-		m_listType = PredicateList;
-	else
-		m_listType = LabelList;
-
 	m_docList = list;
 }
 
@@ -232,7 +227,8 @@ void PredicateListEditWidget::slotAdd()
 
 	Q_ASSERT(m_undoManager != nullptr);
 
-	QString prefix = (m_listType == LabelList) ? "NewLabel" : "NewProperty";
+	const QString prefix = (m_docList->contentType() == Core::PredicateType::Label) ?
+		"NewLabel" : "NewProperty";
 
 	m_undoManager->push(new PredicateListAddUndoCommand(this,
 		m_docList->document()->generateFreshName(prefix),
@@ -347,7 +343,7 @@ void PredicateListEditWidget::flushChanges()
 	for (int i = 0; i < m_ui->treeWidget->topLevelItemCount(); i++)
 	{
 		QTreeWidgetItem *item = m_ui->treeWidget->topLevelItem(i);
-		m_docList->append(item->text(0), item->text(1));
+		m_docList->append(Core::Predicate(item->text(0), item->text(1)));
 	}
 }
 

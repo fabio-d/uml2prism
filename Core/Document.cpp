@@ -14,8 +14,8 @@ Document::Document(QObject *parent)
 {
 	m_activityDiagram = new UMLDiagram(this, UMLDiagram::Activity);
 	m_classDiagram = new UMLDiagram(this, UMLDiagram::Class);
-	m_labels = new PredicateList(this, PredicateList::Labels);
-	m_properties = new PredicateList(this, PredicateList::Properties);
+	m_labels = new PredicateList(this, PredicateType::Label);
+	m_properties = new PredicateList(this, PredicateType::Property);
 }
 
 Document::~Document()
