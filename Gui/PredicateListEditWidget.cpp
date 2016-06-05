@@ -1,5 +1,6 @@
 #include "Gui/PredicateListEditWidget.h"
 
+#include "Gui/RenameDialog.h"
 #include "Gui/UndoManager.h"
 
 #include "Core/Document.h"
@@ -257,7 +258,25 @@ void PredicateListEditWidget::editSelectedItem()
 void PredicateListEditWidget::renameSelectedItem()
 {
 	emit focusReceived();
-	qDebug() << "Rename";
+
+	QTreeWidgetItem *item = m_ui->treeWidget->currentItem();
+	if (item == nullptr)
+		return;
+
+	Core::Predicate p(item->text(0), item->text(1));
+	RenameDialog r(&p, m_docList->contentType(), this);
+	r.exec();
+
+	Q_ASSERT(m_undoManager != nullptr);
+	if (p.name() != item->text(0))
+	{
+		m_undoManager->push(new PredicateListEditUndoCommand(this,
+			m_ui->treeWidget->indexOfTopLevelItem(item),
+			item->text(0),
+			item->text(1),
+			p.name(),
+			item->text(1)));
+	}
 }
 
 void PredicateListEditWidget::removeSelectedItem()

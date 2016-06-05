@@ -7,6 +7,8 @@ class Ui_RenameDialog;
 
 namespace Core
 {
+class Predicate;
+enum class PredicateType;
 class UMLControlFlowEdge;
 class UMLDatatypeElement;
 class UMLElement;
@@ -22,6 +24,7 @@ class RenameDialog : public QDialog
 	Q_OBJECT
 
 	public:
+		RenameDialog(Core::Predicate *pred, Core::PredicateType type, QWidget *parent = nullptr);
 		explicit RenameDialog(Core::UMLElement *elem, QWidget *parent = nullptr);
 		~RenameDialog();
 
@@ -36,6 +39,8 @@ class RenameDialog : public QDialog
 		Core::UMLControlFlowEdge *m_controlFlowElem;
 		Core::UMLSignalEdge *m_signalFlowElem;
 		Core::UMLDatatypeElement *m_datatypeElem;
+		Core::Predicate *m_pred;
+		Core::PredicateType m_predType;
 };
 
 }

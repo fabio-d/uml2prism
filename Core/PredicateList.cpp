@@ -15,9 +15,19 @@ const QString &Predicate::name() const
 	return m_name;
 }
 
+void Predicate::setName(const QString &name)
+{
+	m_name = name;
+}
+
 const QString &Predicate::expression() const
 {
 	return m_expression;
+}
+
+void Predicate::setExpression(const QString &expression)
+{
+	m_expression = expression;
 }
 
 PredicateList::PredicateList(Document *doc, PredicateType contentType)

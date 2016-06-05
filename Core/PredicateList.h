@@ -18,10 +18,14 @@ enum class PredicateType
 class Predicate
 {
 	public:
+		Predicate() = default;
 		Predicate(const QString &name, const QString &expression);
 
 		const QString &name() const;
+		void setName(const QString &name);
+
 		const QString &expression() const;
+		void setExpression(const QString &name);
 
 	private:
 		QString m_name, m_expression;

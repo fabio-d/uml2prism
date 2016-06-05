@@ -2,6 +2,7 @@
 
 #include "Gui/IdentifierValidator.h"
 
+#include "Core/PredicateList.h"
 #include "Core/UMLElement.h"
 
 #include <QPushButton>
@@ -18,6 +19,7 @@ RenameDialog::RenameDialog(Core::UMLElement *elem, QWidget *parent)
 	m_controlFlowElem = dynamic_cast<Core::UMLControlFlowEdge*>(elem);
 	m_signalFlowElem = dynamic_cast<Core::UMLSignalEdge*>(elem);
 	m_datatypeElem = dynamic_cast<Core::UMLDatatypeElement*>(elem);
+	m_pred = nullptr;
 
 	m_ui->setupUi(this);
 	m_ui->lineEdit->setValidator(new IdentifierValidator(this));
@@ -95,6 +97,35 @@ RenameDialog::RenameDialog(Core::UMLElement *elem, QWidget *parent)
 	m_ui->lineEdit->selectAll();
 }
 
+RenameDialog::RenameDialog(Core::Predicate *pred, Core::PredicateType type, QWidget *parent)
+: QDialog(parent), m_ui(new Ui_RenameDialog)
+{
+	m_nodeElem = nullptr;
+	m_controlFlowElem = nullptr;
+	m_signalFlowElem = nullptr;
+	m_datatypeElem = nullptr;
+	m_pred = pred;
+	m_predType = type;
+
+	m_ui->setupUi(this);
+	m_ui->lineEdit->setValidator(new IdentifierValidator(this));
+
+	setWindowTitle(QString("Rename %1").arg(m_pred->name()));
+	m_ui->lineEdit->setText(m_pred->name());
+
+	switch (type)
+	{
+		case Core::PredicateType::Property:
+			m_ui->label->setText("New property name");
+			break;
+		case Core::PredicateType::Label:
+			m_ui->label->setText("New label name");
+			break;
+	}
+
+	m_ui->lineEdit->selectAll();
+}
+
 RenameDialog::~RenameDialog()
 {
 	delete m_ui;
@@ -110,6 +141,8 @@ void RenameDialog::accept()
 		m_signalFlowElem->setSignalName(m_ui->lineEdit->text());
 	else if (m_datatypeElem)
 		m_datatypeElem->setDatatypeName(m_ui->lineEdit->text());
+	else if (m_pred)
+		m_pred->setName(m_ui->lineEdit->text());
 
 	QDialog::accept();
 }
