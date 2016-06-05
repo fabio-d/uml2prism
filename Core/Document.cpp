@@ -1,5 +1,6 @@
 #include "Core/Document.h"
 
+#include "Core/PropertyList.h"
 #include "Core/UMLDiagram.h"
 
 #include <QDomDocument>
@@ -13,10 +14,14 @@ Document::Document(QObject *parent)
 {
 	m_activityDiagram = new UMLDiagram(this, UMLDiagram::Activity);
 	m_classDiagram = new UMLDiagram(this, UMLDiagram::Class);
+	m_labels = new PropertyList(this, PropertyList::Labels);
+	m_properties = new PropertyList(this, PropertyList::Properties);
 }
 
 Document::~Document()
 {
+	delete m_properties;
+	delete m_labels;
 	delete m_activityDiagram;
 	delete m_classDiagram;
 }
@@ -29,7 +34,8 @@ void Document::clear()
 
 QStringList Document::listAllNames() const
 {
-	return m_activityDiagram->listNames() + m_classDiagram->listNames();
+	return m_activityDiagram->listNames() + m_classDiagram->listNames()
+		+ m_labels->listNames() + m_properties->listNames();
 }
 
 QStringList Document::listDatatypeNames() const

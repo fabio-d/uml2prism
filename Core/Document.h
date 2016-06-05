@@ -6,6 +6,7 @@
 namespace Core
 {
 
+class PropertyList;
 class UMLDiagram;
 
 class Document : public QObject
@@ -20,11 +21,16 @@ class Document : public QObject
 		const UMLDiagram *activityDiagram() const { return m_activityDiagram; }
 		UMLDiagram *classDiagram() { return m_classDiagram; }
 		const UMLDiagram *classDiagram() const { return m_classDiagram; }
+		PropertyList *labels() { return m_labels; }
+		const PropertyList *labels() const { return m_labels; }
+		PropertyList *properties() { return m_properties; }
+		const PropertyList *properties() const { return m_properties; }
 
 		// Remove all elements from activity and class diagrams
 		void clear();
 
-		// List all node, signal, variable and datatype names in use
+		// List all node, signal, variable, datatype, label and property
+		// names in use
 		QStringList listAllNames() const;
 
 		// List all defined datatype names
@@ -44,6 +50,8 @@ class Document : public QObject
 	private:
 		UMLDiagram *m_activityDiagram;
 		UMLDiagram *m_classDiagram;
+		PropertyList *m_labels;
+		PropertyList *m_properties;
 		bool m_deserializeInProgress;
 };
 

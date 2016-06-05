@@ -20,6 +20,8 @@ class UndoManager : public QObject
 	public:
 		UndoManager(Core::Document *document, QAction *undoAction, QAction *redoAction, QObject *parent = nullptr);
 
+		void push(QUndoCommand *command);
+
 		void clearStack();
 		void setCleanStack();
 		bool isStackEmpty() const;

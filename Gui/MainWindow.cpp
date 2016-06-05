@@ -71,6 +71,11 @@ MainWindow::MainWindow(QWidget *parent)
 		m_undoManager, SLOT(createCheckpoint()));
 	connect(m_undoManager, SIGNAL(undoCleanChanged(bool)),
 		this, SLOT(slotUndoCleanChanged(bool)));
+
+	m_ui->labelEditWidget->setList(m_doc->labels());
+	m_ui->labelEditWidget->setUndoManager(m_undoManager);
+	m_ui->propertyEditWidget->setList(m_doc->properties());
+	m_ui->propertyEditWidget->setUndoManager(m_undoManager);
 	slotUndoCleanChanged(true);
 }
 

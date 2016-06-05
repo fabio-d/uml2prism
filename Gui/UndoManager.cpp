@@ -58,6 +58,11 @@ UndoManager::UndoManager(Core::Document *document, QAction *undoAction, QAction 
 	m_prevDocXml = m_doc->serialize();
 }
 
+void UndoManager::push(QUndoCommand *command)
+{
+	m_undoStack.push(command);
+}
+
 void UndoManager::clearStack()
 {
 	m_undoStack.clear();
