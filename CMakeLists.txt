@@ -56,7 +56,7 @@ add_executable(ModelEditor
 	Core/DatatypeName.cpp
 	Core/Document.cpp
 	Core/ModelBuilder.cpp
-	Core/PropertyList.cpp
+	Core/PredicateList.cpp
 	Core/UMLDiagram.cpp
 	Core/UMLElement.cpp
 
@@ -80,7 +80,7 @@ add_executable(ModelEditor
 	Gui/GraphicsAuxiliaryItems.cpp
 	Gui/IdentifierValidator.cpp
 	Gui/MainWindow.cpp
-	Gui/PropertyListEditWidget.cpp
+	Gui/PredicateListEditWidget.cpp
 	Gui/RenameDialog.cpp
 	Gui/UMLDiagramView.cpp
 	Gui/UMLElement.cpp

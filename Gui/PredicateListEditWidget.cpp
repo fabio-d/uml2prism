@@ -1,22 +1,22 @@
-#include "Gui/PropertyListEditWidget.h"
+#include "Gui/PredicateListEditWidget.h"
 
 #include "Gui/UndoManager.h"
 
 #include "Core/Document.h"
-#include "Core/PropertyList.h"
+#include "Core/PredicateList.h"
 
 #include <QDebug>
 #include <QEvent>
 
-#include "ui_PropertyListEditWidget.h"
+#include "ui_PredicateListEditWidget.h"
 
 namespace Gui
 {
 
-class PropertyListAddUndoCommand : public QUndoCommand
+class PredicateListAddUndoCommand : public QUndoCommand
 {
 	public:
-		PropertyListAddUndoCommand(PropertyListEditWidget *target,
+		PredicateListAddUndoCommand(PredicateListEditWidget *target,
 			const QString &name, const QString &value)
 		: m_target(target), m_treeWidget(target->m_ui->treeWidget),
 		  m_name(name), m_value(value),
@@ -41,16 +41,16 @@ class PropertyListAddUndoCommand : public QUndoCommand
 		}
 
 	private:
-		PropertyListEditWidget *m_target;
+		PredicateListEditWidget *m_target;
 		QTreeWidget *m_treeWidget;
 		QString m_name, m_value;
 		int m_index;
 };
 
-class PropertyListEditUndoCommand : public QUndoCommand
+class PredicateListEditUndoCommand : public QUndoCommand
 {
 	public:
-		PropertyListEditUndoCommand(PropertyListEditWidget *target, int index,
+		PredicateListEditUndoCommand(PredicateListEditWidget *target, int index,
 			const QString &oldName, const QString &oldValue,
 			const QString &newName, const QString &newValue)
 		: m_target(target), m_treeWidget(target->m_ui->treeWidget),
@@ -78,16 +78,16 @@ class PropertyListEditUndoCommand : public QUndoCommand
 		}
 
 	private:
-		PropertyListEditWidget *m_target;
+		PredicateListEditWidget *m_target;
 		QTreeWidget *m_treeWidget;
 		int m_index;
 		QString m_oldName, m_oldValue, m_newName, m_newValue;
 };
 
-class PropertyListRemoveUndoCommand : public QUndoCommand
+class PredicateListRemoveUndoCommand : public QUndoCommand
 {
 	public:
-		PropertyListRemoveUndoCommand(PropertyListEditWidget *target, int index,
+		PredicateListRemoveUndoCommand(PredicateListEditWidget *target, int index,
 			const QString &name, const QString &value)
 		: m_target(target), m_treeWidget(target->m_ui->treeWidget),
 		  m_index(index), m_name(name), m_value(value)
@@ -111,16 +111,16 @@ class PropertyListRemoveUndoCommand : public QUndoCommand
 		}
 
 	private:
-		PropertyListEditWidget *m_target;
+		PredicateListEditWidget *m_target;
 		QTreeWidget *m_treeWidget;
 		int m_index;
 		QString m_name, m_value;
 };
 
-class PropertyListMoveUpUndoCommand : public QUndoCommand
+class PredicateListMoveUpUndoCommand : public QUndoCommand
 {
 	public:
-		PropertyListMoveUpUndoCommand(PropertyListEditWidget *target, int index)
+		PredicateListMoveUpUndoCommand(PredicateListEditWidget *target, int index)
 		: m_target(target), m_treeWidget(target->m_ui->treeWidget),
 		  m_index(index)
 		{
@@ -141,16 +141,16 @@ class PropertyListMoveUpUndoCommand : public QUndoCommand
 		}
 
 	private:
-		PropertyListEditWidget *m_target;
+		PredicateListEditWidget *m_target;
 		QTreeWidget *m_treeWidget;
 		int m_index;
 		QString m_name, m_value;
 };
 
-class PropertyListMoveDownUndoCommand : public QUndoCommand
+class PredicateListMoveDownUndoCommand : public QUndoCommand
 {
 	public:
-		PropertyListMoveDownUndoCommand(PropertyListEditWidget *target, int index)
+		PredicateListMoveDownUndoCommand(PredicateListEditWidget *target, int index)
 		: m_target(target), m_treeWidget(target->m_ui->treeWidget),
 		  m_index(index)
 		{
@@ -171,15 +171,15 @@ class PropertyListMoveDownUndoCommand : public QUndoCommand
 		}
 
 	private:
-		PropertyListEditWidget *m_target;
+		PredicateListEditWidget *m_target;
 		QTreeWidget *m_treeWidget;
 		int m_index;
 		QString m_name, m_value;
 };
 
-PropertyListEditWidget::PropertyListEditWidget(QWidget *parent)
-: QWidget(parent), m_ui(new Ui_PropertyListEditWidget),
-  m_listType(PropertyList), m_docList(nullptr), m_undoManager(nullptr)
+PredicateListEditWidget::PredicateListEditWidget(QWidget *parent)
+: QWidget(parent), m_ui(new Ui_PredicateListEditWidget),
+  m_listType(PredicateList), m_docList(nullptr), m_undoManager(nullptr)
 {
 	m_ui->setupUi(this);
 	m_ui->treeWidget->header()->resizeSections(QHeaderView::ResizeToContents);
@@ -188,28 +188,28 @@ PropertyListEditWidget::PropertyListEditWidget(QWidget *parent)
 	flushChanges();
 }
 
-PropertyListEditWidget::~PropertyListEditWidget()
+PredicateListEditWidget::~PredicateListEditWidget()
 {
 	m_ui->treeWidget->removeEventFilter(this);
 	delete m_ui;
 }
 
-void PropertyListEditWidget::setList(Core::PropertyList *list)
+void PredicateListEditWidget::setList(Core::PredicateList *list)
 {
-	if (list->contentType() == Core::PropertyList::Properties)
-		m_listType = PropertyList;
+	if (list->contentType() == Core::PredicateList::Properties)
+		m_listType = PredicateList;
 	else
 		m_listType = LabelList;
 
 	m_docList = list;
 }
 
-void PropertyListEditWidget::setUndoManager(UndoManager *undoManager)
+void PredicateListEditWidget::setUndoManager(UndoManager *undoManager)
 {
 	m_undoManager = undoManager;
 }
 
-bool PropertyListEditWidget::eventFilter(QObject *obj, QEvent *event)
+bool PredicateListEditWidget::eventFilter(QObject *obj, QEvent *event)
 {
 	if (obj == m_ui->treeWidget)
 	{
@@ -226,7 +226,7 @@ bool PropertyListEditWidget::eventFilter(QObject *obj, QEvent *event)
 	return QWidget::eventFilter(obj, event);
 }
 
-void PropertyListEditWidget::slotAdd()
+void PredicateListEditWidget::slotAdd()
 {
 	emit focusReceived();
 
@@ -234,14 +234,14 @@ void PropertyListEditWidget::slotAdd()
 
 	QString prefix = (m_listType == LabelList) ? "NewLabel" : "NewProperty";
 
-	m_undoManager->push(new PropertyListAddUndoCommand(this,
+	m_undoManager->push(new PredicateListAddUndoCommand(this,
 		m_docList->document()->generateFreshName(prefix),
 		"true"));
 
 	m_ui->treeWidget->setCurrentItem(m_ui->treeWidget->topLevelItem(m_ui->treeWidget->topLevelItemCount() - 1));
 }
 
-void PropertyListEditWidget::editSelectedItem()
+void PredicateListEditWidget::editSelectedItem()
 {
 	emit focusReceived();
 	qDebug() << "Edit";
@@ -250,7 +250,7 @@ void PropertyListEditWidget::editSelectedItem()
 		return;
 
 	Q_ASSERT(m_undoManager != nullptr);
-	m_undoManager->push(new PropertyListEditUndoCommand(this,
+	m_undoManager->push(new PredicateListEditUndoCommand(this,
 		m_ui->treeWidget->indexOfTopLevelItem(m_ui->treeWidget->currentItem()),
 		m_ui->treeWidget->currentItem()->text(0),
 		m_ui->treeWidget->currentItem()->text(1),
@@ -258,13 +258,13 @@ void PropertyListEditWidget::editSelectedItem()
 		m_ui->treeWidget->currentItem()->text(1) + "~"));
 }
 
-void PropertyListEditWidget::renameSelectedItem()
+void PredicateListEditWidget::renameSelectedItem()
 {
 	emit focusReceived();
 	qDebug() << "Rename";
 }
 
-void PropertyListEditWidget::removeSelectedItem()
+void PredicateListEditWidget::removeSelectedItem()
 {
 	emit focusReceived();
 
@@ -272,13 +272,13 @@ void PropertyListEditWidget::removeSelectedItem()
 		return;
 
 	Q_ASSERT(m_undoManager != nullptr);
-	m_undoManager->push(new PropertyListRemoveUndoCommand(this,
+	m_undoManager->push(new PredicateListRemoveUndoCommand(this,
 		m_ui->treeWidget->indexOfTopLevelItem(m_ui->treeWidget->currentItem()),
 		m_ui->treeWidget->currentItem()->text(0),
 		m_ui->treeWidget->currentItem()->text(1)));
 }
 
-void PropertyListEditWidget::slotMoveUp()
+void PredicateListEditWidget::slotMoveUp()
 {
 	emit focusReceived();
 
@@ -290,12 +290,12 @@ void PropertyListEditWidget::slotMoveUp()
 		return;
 
 	Q_ASSERT(m_undoManager != nullptr);
-	m_undoManager->push(new PropertyListMoveUpUndoCommand(this, index));
+	m_undoManager->push(new PredicateListMoveUpUndoCommand(this, index));
 
 	m_ui->treeWidget->scrollToItem(m_ui->treeWidget->currentItem());
 }
 
-void PropertyListEditWidget::slotMoveDown()
+void PredicateListEditWidget::slotMoveDown()
 {
 	emit focusReceived();
 
@@ -307,18 +307,18 @@ void PropertyListEditWidget::slotMoveDown()
 		return;
 
 	Q_ASSERT(m_undoManager != nullptr);
-	m_undoManager->push(new PropertyListMoveDownUndoCommand(this, index));
+	m_undoManager->push(new PredicateListMoveDownUndoCommand(this, index));
 
 	m_ui->treeWidget->scrollToItem(m_ui->treeWidget->currentItem());
 }
 
-void PropertyListEditWidget::slotCurrentRowChanged()
+void PredicateListEditWidget::slotCurrentRowChanged()
 {
 	emit focusReceived();
 	flushChanges();
 }
 
-void PropertyListEditWidget::flushChanges()
+void PredicateListEditWidget::flushChanges()
 {
 	const bool nullItem = m_ui->treeWidget->currentItem() == nullptr;
 	emit actionsEnabledChanged(!nullItem, !nullItem, !nullItem, false);

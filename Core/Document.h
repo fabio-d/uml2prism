@@ -6,7 +6,7 @@
 namespace Core
 {
 
-class PropertyList;
+class PredicateList;
 class UMLDiagram;
 
 class Document : public QObject
@@ -21,10 +21,10 @@ class Document : public QObject
 		const UMLDiagram *activityDiagram() const { return m_activityDiagram; }
 		UMLDiagram *classDiagram() { return m_classDiagram; }
 		const UMLDiagram *classDiagram() const { return m_classDiagram; }
-		PropertyList *labels() { return m_labels; }
-		const PropertyList *labels() const { return m_labels; }
-		PropertyList *properties() { return m_properties; }
-		const PropertyList *properties() const { return m_properties; }
+		PredicateList *labels() { return m_labels; }
+		const PredicateList *labels() const { return m_labels; }
+		PredicateList *properties() { return m_properties; }
+		const PredicateList *properties() const { return m_properties; }
 
 		// Remove all elements from activity and class diagrams
 		void clear();
@@ -50,8 +50,8 @@ class Document : public QObject
 	private:
 		UMLDiagram *m_activityDiagram;
 		UMLDiagram *m_classDiagram;
-		PropertyList *m_labels;
-		PropertyList *m_properties;
+		PredicateList *m_labels;
+		PredicateList *m_properties;
 		bool m_deserializeInProgress;
 };
 

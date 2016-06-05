@@ -1,5 +1,5 @@
-#ifndef CORE_PROPERTYLIST_H
-#define CORE_PROPERTYLIST_H
+#ifndef CORE_PREDICATELIST_H
+#define CORE_PREDICATELIST_H
 
 #include <QObject>
 #include <QPair>
@@ -9,7 +9,7 @@ namespace Core
 
 class Document;
 
-class PropertyList : public QObject
+class PredicateList : public QObject
 {
 	Q_OBJECT
 
@@ -20,7 +20,7 @@ class PropertyList : public QObject
 			Labels
 		};
 
-		PropertyList(Document *doc, Type contentType);
+		PredicateList(Document *doc, Type contentType);
 		Type contentType() const;
 
 		Document *document() const;
@@ -33,9 +33,9 @@ class PropertyList : public QObject
 	private:
 		Document *m_doc;
 		Type m_contentType;
-		QList<QPair<QString, QString>> m_properties;
+		QList<QPair<QString, QString>> m_predicates;
 };
 
 }
 
-#endif // CORE_PROPERTYLIST_H
+#endif // CORE_PREDICATELIST_H

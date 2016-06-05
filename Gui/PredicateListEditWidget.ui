@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PropertyListEditWidget</class>
- <widget class="QWidget" name="PropertyListEditWidget">
+ <class>PredicateListEditWidget</class>
+ <widget class="QWidget" name="PredicateListEditWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -115,7 +115,7 @@
   <connection>
    <sender>addPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>PropertyListEditWidget</receiver>
+   <receiver>PredicateListEditWidget</receiver>
    <slot>slotAdd()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -131,7 +131,7 @@
   <connection>
    <sender>removePushButton</sender>
    <signal>clicked()</signal>
-   <receiver>PropertyListEditWidget</receiver>
+   <receiver>PredicateListEditWidget</receiver>
    <slot>removeSelectedItem()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -147,7 +147,7 @@
   <connection>
    <sender>moveUpPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>PropertyListEditWidget</receiver>
+   <receiver>PredicateListEditWidget</receiver>
    <slot>slotMoveUp()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -163,7 +163,7 @@
   <connection>
    <sender>moveDownPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>PropertyListEditWidget</receiver>
+   <receiver>PredicateListEditWidget</receiver>
    <slot>slotMoveDown()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -179,7 +179,7 @@
   <connection>
    <sender>editPushButton</sender>
    <signal>clicked()</signal>
-   <receiver>PropertyListEditWidget</receiver>
+   <receiver>PredicateListEditWidget</receiver>
    <slot>editSelectedItem()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -195,7 +195,7 @@
   <connection>
    <sender>treeWidget</sender>
    <signal>currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)</signal>
-   <receiver>PropertyListEditWidget</receiver>
+   <receiver>PredicateListEditWidget</receiver>
    <slot>slotCurrentRowChanged()</slot>
    <hints>
     <hint type="sourcelabel">

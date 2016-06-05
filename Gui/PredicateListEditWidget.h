@@ -1,34 +1,34 @@
-#ifndef GUI_PROPERTYLISTEDITWIDGET_H
-#define GUI_PROPERTYLISTEDITWIDGET_H
+#ifndef GUI_PREDICATELISTEDITWIDGET_H
+#define GUI_PREDICATELISTEDITWIDGET_H
 
 #include <QWidget>
 
-class Ui_PropertyListEditWidget;
+class Ui_PredicateListEditWidget;
 
 namespace Core
 {
-class PropertyList;
+class PredicateList;
 }
 
 namespace Gui
 {
 class UndoManager;
 
-class PropertyListEditWidget : public QWidget
+class PredicateListEditWidget : public QWidget
 {
 	Q_OBJECT
 
-	friend class PropertyListAddUndoCommand;
-	friend class PropertyListEditUndoCommand;
-	friend class PropertyListRemoveUndoCommand;
-	friend class PropertyListMoveUpUndoCommand;
-	friend class PropertyListMoveDownUndoCommand;
+	friend class PredicateListAddUndoCommand;
+	friend class PredicateListEditUndoCommand;
+	friend class PredicateListRemoveUndoCommand;
+	friend class PredicateListMoveUpUndoCommand;
+	friend class PredicateListMoveDownUndoCommand;
 
 	public:
-		explicit PropertyListEditWidget(QWidget *parent = nullptr);
-		~PropertyListEditWidget();
+		explicit PredicateListEditWidget(QWidget *parent = nullptr);
+		~PredicateListEditWidget();
 
-		void setList(Core::PropertyList *list);
+		void setList(Core::PredicateList *list);
 		void setUndoManager(UndoManager *undoManager);
 
 	signals:
@@ -50,19 +50,19 @@ class PropertyListEditWidget : public QWidget
 		enum ListType
 		{
 			LabelList,
-			PropertyList
+			PredicateList
 		};
 
 		bool eventFilter(QObject *obj, QEvent *event) override;
 
 		void flushChanges();
 
-		Ui_PropertyListEditWidget *m_ui;
+		Ui_PredicateListEditWidget *m_ui;
 		ListType m_listType;
-		Core::PropertyList *m_docList;
+		Core::PredicateList *m_docList;
 		UndoManager *m_undoManager;
 };
 
 }
 
-#endif // GUI_PROPERTYLISTEDITWIDGET_H
+#endif // GUI_PREDICATELISTEDITWIDGET_H

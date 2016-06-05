@@ -1,6 +1,6 @@
 #include "Core/Document.h"
 
-#include "Core/PropertyList.h"
+#include "Core/PredicateList.h"
 #include "Core/UMLDiagram.h"
 
 #include <QDomDocument>
@@ -14,8 +14,8 @@ Document::Document(QObject *parent)
 {
 	m_activityDiagram = new UMLDiagram(this, UMLDiagram::Activity);
 	m_classDiagram = new UMLDiagram(this, UMLDiagram::Class);
-	m_labels = new PropertyList(this, PropertyList::Labels);
-	m_properties = new PropertyList(this, PropertyList::Properties);
+	m_labels = new PredicateList(this, PredicateList::Labels);
+	m_properties = new PredicateList(this, PredicateList::Properties);
 }
 
 Document::~Document()
