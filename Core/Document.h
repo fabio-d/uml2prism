@@ -17,6 +17,17 @@ class Document : public QObject
 		explicit Document(QObject *parent = nullptr);
 		~Document();
 
+		enum SerializationOption
+		{
+			NoOptions = 0,
+			ActivityDiagram = 1 << 1,
+			ClassDiagram = 1 << 2,
+			Labels = 1 << 3,
+			Properties = 1 << 4
+		};
+		Q_DECLARE_FLAGS(SerializationOptions, SerializationOption)
+		Q_FLAGS(SerializationOptions SerializationOption)
+
 		UMLDiagram *activityDiagram() { return m_activityDiagram; }
 		const UMLDiagram *activityDiagram() const { return m_activityDiagram; }
 		UMLDiagram *classDiagram() { return m_classDiagram; }
@@ -40,12 +51,12 @@ class Document : public QObject
 		QString generateFreshName(const QString &prefix) const;
 
 		// Save/restore document to/from XML string
-		QByteArray serialize() const;
-		bool deserialize(const QByteArray &data);
+		QByteArray serialize(SerializationOptions storeWhat) const;
+		bool deserialize(const QByteArray &data, SerializationOptions loadWhat);
 		bool isDeserializationInProgress() const;
 
 	signals:
-		void deserializationCompleted();
+		void deserializationCompleted(Core::Document::SerializationOptions loadedWhat);
 
 	private:
 		UMLDiagram *m_activityDiagram;
@@ -54,6 +65,8 @@ class Document : public QObject
 		PredicateList *m_properties;
 		bool m_deserializeInProgress;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Document::SerializationOptions)
 
 }
 

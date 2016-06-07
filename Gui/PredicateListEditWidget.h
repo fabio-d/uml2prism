@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include "Core/Document.h"
+
 class Ui_PredicateListEditWidget;
 
 namespace Core
@@ -45,6 +47,7 @@ class PredicateListEditWidget : public QWidget
 		void slotMoveUp();
 		void slotMoveDown();
 		void slotCurrentRowChanged();
+		void slotDeserializationCompleted(Core::Document::SerializationOptions loadedWhat);
 
 	private:
 		bool eventFilter(QObject *obj, QEvent *event) override;

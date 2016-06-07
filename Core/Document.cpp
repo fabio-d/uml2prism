@@ -35,7 +35,7 @@ void Document::clear()
 QStringList Document::listAllNames() const
 {
 	return m_activityDiagram->listNames() + m_classDiagram->listNames()
-		+ m_labels->listNames() + m_properties->listNames();
+		+ m_labels->names() + m_properties->names();
 }
 
 QStringList Document::listDatatypeNames() const
@@ -58,25 +58,46 @@ QString Document::generateFreshName(const QString &prefix) const
 	return result;
 }
 
-QByteArray Document::serialize() const
+QByteArray Document::serialize(SerializationOptions storeWhat) const
 {
 	QDomDocument doc;
 	QDomElement rootElem = doc.createElement("model");
 	doc.appendChild(rootElem);
 
-	QDomElement activityDiagElem = doc.createElement("activity-diagram");
-	rootElem.appendChild(activityDiagElem);
-	m_activityDiagram->storeToXml(activityDiagElem, doc);
+	if (storeWhat.testFlag(ActivityDiagram))
+	{
+		QDomElement activityDiagElem = doc.createElement("activity-diagram");
+		rootElem.appendChild(activityDiagElem);
+		m_activityDiagram->storeToXml(activityDiagElem, doc);
+	}
 
-	QDomElement classDiagElem = doc.createElement("class-diagram");
-	rootElem.appendChild(classDiagElem);
-	m_classDiagram->storeToXml(classDiagElem, doc);
+	if (storeWhat.testFlag(ClassDiagram))
+	{
+		QDomElement classDiagElem = doc.createElement("class-diagram");
+		rootElem.appendChild(classDiagElem);
+		m_classDiagram->storeToXml(classDiagElem, doc);
+	}
+
+	if (storeWhat.testFlag(Labels))
+	{
+		QDomElement labelsElem = doc.createElement("labels");
+		rootElem.appendChild(labelsElem);
+		m_labels->storeToXml(labelsElem, doc);
+	}
+
+	if (storeWhat.testFlag(Properties))
+	{
+		QDomElement propertiesElem = doc.createElement("properties");
+		rootElem.appendChild(propertiesElem);
+		m_properties->storeToXml(propertiesElem, doc);
+	}
 
 	return doc.toByteArray(4);
 }
 
-bool Document::deserialize(const QByteArray &data)
+bool Document::deserialize(const QByteArray &data, SerializationOptions loadWhat)
 {
+	SerializationOptions loadedWhat = NoOptions;
 	m_deserializeInProgress = true;
 
 	clear();
@@ -85,30 +106,74 @@ bool Document::deserialize(const QByteArray &data)
 	if (!doc.setContent(data))
 	{
 		m_deserializeInProgress = false;
-		emit deserializationCompleted();
+		emit deserializationCompleted(loadedWhat);
 		return false;
 	}
 
 	QDomElement rootElem = doc.documentElement();
 	QDomElement activityDiagElem = rootElem.firstChildElement("activity-diagram");
 	QDomElement classDiagElem = rootElem.firstChildElement("class-diagram");
+	QDomElement labelsElem = rootElem.firstChildElement("labels");
+	QDomElement propertiesElem = rootElem.firstChildElement("properties");
 
-	if (!m_activityDiagram->loadFromXml(activityDiagElem))
+	if (loadWhat.testFlag(ActivityDiagram))
 	{
-		m_deserializeInProgress = false;
-		emit deserializationCompleted();
-		return false;
+		if (m_activityDiagram->loadFromXml(activityDiagElem))
+		{
+			loadedWhat |= ActivityDiagram;
+		}
+		else
+		{
+			m_deserializeInProgress = false;
+			emit deserializationCompleted(loadedWhat);
+			return false;
+		}
 	}
 
-	if (!m_classDiagram->loadFromXml(classDiagElem))
+	if (loadWhat.testFlag(ClassDiagram))
 	{
-		m_deserializeInProgress = false;
-		emit deserializationCompleted();
-		return false;
+		if (m_classDiagram->loadFromXml(classDiagElem))
+		{
+			loadedWhat |= ClassDiagram;
+		}
+		else
+		{
+			m_deserializeInProgress = false;
+			emit deserializationCompleted(loadedWhat);
+			return false;
+		}
+	}
+
+	if (loadWhat.testFlag(Labels))
+	{
+		if (m_labels->loadFromXml(labelsElem))
+		{
+			loadedWhat |= Labels;
+		}
+		else
+		{
+			m_deserializeInProgress = false;
+			emit deserializationCompleted(loadedWhat);
+			return false;
+		}
+	}
+
+	if (loadWhat.testFlag(Properties))
+	{
+		if (m_properties->loadFromXml(propertiesElem))
+		{
+			loadedWhat |= Properties;
+		}
+		else
+		{
+			m_deserializeInProgress = false;
+			emit deserializationCompleted(loadedWhat);
+			return false;
+		}
 	}
 
 	m_deserializeInProgress = false;
-	emit deserializationCompleted();
+	emit deserializationCompleted(loadedWhat);
 	return true;
 }
 

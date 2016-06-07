@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QPair>
 
+class QDomDocument;
+class QDomElement;
+
 namespace Core
 {
 
@@ -46,7 +49,12 @@ class PredicateList : public QObject
 		void clear();
 		void append(const Predicate &p);
 
-		QStringList listNames() const;
+		QStringList names() const;
+		const QList<Predicate> &predicates() const;
+
+		// Store/load from XML element
+		void storeToXml(QDomElement &target, QDomDocument &doc) const;
+		bool loadFromXml(const QDomElement &source);
 
 	private:
 		Document *m_doc;

@@ -3,7 +3,6 @@
 #include "Gui/RenameDialog.h"
 #include "Gui/UndoManager.h"
 
-#include "Core/Document.h"
 #include "Core/PredicateList.h"
 
 #include <QDebug>
@@ -198,6 +197,9 @@ PredicateListEditWidget::~PredicateListEditWidget()
 void PredicateListEditWidget::setList(Core::PredicateList *list)
 {
 	m_docList = list;
+
+	connect(m_docList->document(), SIGNAL(deserializationCompleted(Core::Document::SerializationOptions)),
+		this, SLOT(slotDeserializationCompleted(Core::Document::SerializationOptions)));
 }
 
 void PredicateListEditWidget::setUndoManager(UndoManager *undoManager)
@@ -331,6 +333,26 @@ void PredicateListEditWidget::slotCurrentRowChanged()
 {
 	emit focusReceived();
 	flushChanges();
+}
+
+void PredicateListEditWidget::slotDeserializationCompleted(Core::Document::SerializationOptions loadedWhat)
+{
+	if (loadedWhat.testFlag(m_docList->contentType() == Core::PredicateType::Label ?
+		Core::Document::Labels : Core::Document::Properties))
+	{
+		m_ui->treeWidget->clear();
+
+		foreach (const Core::Predicate &p, m_docList->predicates())
+		{
+			QTreeWidgetItem *item = new QTreeWidgetItem();
+			item->setText(0, p.name());
+			item->setText(1, p.expression());
+			m_ui->treeWidget->addTopLevelItem(item);
+			m_ui->treeWidget->resizeColumnToContents(0);
+		}
+
+		flushChanges();
+	}
 }
 
 void PredicateListEditWidget::flushChanges()

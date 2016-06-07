@@ -5,6 +5,9 @@
 #include <QAction>
 #include <QDebug>
 
+static constexpr const Core::Document::SerializationOptions DiagramsOnlySerializationOptions =
+	Core::Document::ActivityDiagram | Core::Document::ClassDiagram;
+
 namespace Gui
 {
 
@@ -18,7 +21,7 @@ class UndoCommand : public QUndoCommand
 
 		void undo() override
 		{
-			document->deserialize(oldXml);
+			document->deserialize(oldXml, DiagramsOnlySerializationOptions);
 		}
 
 		void redo() override
@@ -32,7 +35,7 @@ class UndoCommand : public QUndoCommand
 				return;
 			}
 
-			document->deserialize(newXml);
+			document->deserialize(newXml, DiagramsOnlySerializationOptions);
 		}
 
 	private:
@@ -51,11 +54,11 @@ UndoManager::UndoManager(Core::Document *document, QAction *undoAction, QAction 
 	undoAction->setEnabled(m_undoStack.canUndo());
 	redoAction->setEnabled(m_undoStack.canRedo());
 
-	connect(document, SIGNAL(deserializationCompleted()), this, SLOT(updateSavedState()));
+	connect(document, SIGNAL(deserializationCompleted(Core::Document::SerializationOptions)), this, SLOT(updateSavedState()));
 	connect(undoAction, SIGNAL(triggered()), &m_undoStack, SLOT(undo()));
 	connect(redoAction, SIGNAL(triggered()), &m_undoStack, SLOT(redo()));
 
-	m_prevDocXml = m_doc->serialize();
+	m_prevDocXml = m_doc->serialize(DiagramsOnlySerializationOptions);
 }
 
 void UndoManager::push(QUndoCommand *command)
@@ -82,7 +85,7 @@ bool UndoManager::isStackEmpty() const
 
 void UndoManager::createCheckpoint()
 {
-	const QByteArray newDocXml = m_doc->serialize();
+	const QByteArray newDocXml = m_doc->serialize(DiagramsOnlySerializationOptions);
 
 	if (m_prevDocXml == newDocXml)
 	{
@@ -99,7 +102,7 @@ void UndoManager::createCheckpoint()
 
 void UndoManager::updateSavedState()
 {
-	m_prevDocXml = m_doc->serialize();
+	m_prevDocXml = m_doc->serialize(DiagramsOnlySerializationOptions);
 }
 
 }

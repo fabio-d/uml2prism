@@ -14,6 +14,10 @@
 
 #include "ui_MainWindow.h"
 
+static constexpr const Core::Document::SerializationOptions AllSerializationOptions =
+	Core::Document::ActivityDiagram | Core::Document::ClassDiagram |
+	Core::Document::Labels | Core::Document::Properties;
+
 namespace Gui
 {
 
@@ -132,7 +136,7 @@ bool MainWindow::loadFile(const QString &path)
 	}
 	else
 	{
-		success = m_doc->deserialize(file.readAll());
+		success = m_doc->deserialize(file.readAll(), AllSerializationOptions);
 		m_filename = path;
 		m_undoManager->clearStack();
 		if (!success)
@@ -214,7 +218,7 @@ bool MainWindow::slotSave()
 		return false;
 	}
 
-	file.write(m_doc->serialize());
+	file.write(m_doc->serialize(AllSerializationOptions));
 	m_undoManager->setCleanStack();
 	file.close();
 

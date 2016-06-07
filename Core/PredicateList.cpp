@@ -1,5 +1,6 @@
 #include "Core/PredicateList.h"
 
+#include <QDomDocument>
 #include <QStringList>
 
 namespace Core
@@ -55,7 +56,7 @@ void PredicateList::append(const Predicate &p)
 	m_predicates.append(p);
 }
 
-QStringList PredicateList::listNames() const
+QStringList PredicateList::names() const
 {
 	QStringList res;
 
@@ -63,6 +64,36 @@ QStringList PredicateList::listNames() const
 		res.append(p.name());
 
 	return res;
+}
+
+const QList<Predicate> &PredicateList::predicates() const
+{
+	return m_predicates;
+}
+
+void PredicateList::storeToXml(QDomElement &target, QDomDocument &doc) const
+{
+	foreach (const Predicate &p, m_predicates)
+	{
+		QDomElement predicateElem = doc.createElement("predicate");
+		target.appendChild(predicateElem);
+
+		predicateElem.setAttribute("name", p.name());
+		predicateElem.appendChild(doc.createTextNode(p.expression()));
+	}
+}
+
+bool PredicateList::loadFromXml(const QDomElement &source)
+{
+	for (QDomElement predicateElem = source.firstChildElement();
+		!predicateElem.isNull();
+		predicateElem = predicateElem.nextSiblingElement())
+	{
+		append(Predicate(predicateElem.attribute("name"), predicateElem.text()));
+
+	}
+
+	return true;
 }
 
 }
