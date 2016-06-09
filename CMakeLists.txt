@@ -75,6 +75,7 @@ add_executable(ModelEditor
 	Gui/EditEnumerationDialog.cpp
 	Gui/EditGlobalVariablesDialog.cpp
 	Gui/EditListWidget.cpp
+	Gui/EditPredicateDialog.cpp
 	Gui/EditScriptedNodeElementDialog.cpp
 	Gui/EditSignalEdgeDialog.cpp
 	Gui/GraphicsAuxiliaryItems.cpp

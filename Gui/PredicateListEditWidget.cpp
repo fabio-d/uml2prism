@@ -1,5 +1,6 @@
 #include "Gui/PredicateListEditWidget.h"
 
+#include "Gui/EditPredicateDialog.h"
 #include "Gui/RenameDialog.h"
 #include "Gui/UndoManager.h"
 
@@ -185,6 +186,9 @@ PredicateListEditWidget::PredicateListEditWidget(QWidget *parent)
 	m_ui->treeWidget->header()->resizeSections(QHeaderView::ResizeToContents);
 	m_ui->treeWidget->installEventFilter(this);
 
+	connect(m_ui->treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+		this, SLOT(slotItemActivated(QTreeWidgetItem*)));
+
 	flushChanges();
 }
 
@@ -242,19 +246,7 @@ void PredicateListEditWidget::slotAdd()
 
 void PredicateListEditWidget::editSelectedItem()
 {
-	emit focusReceived();
-	qDebug() << "Edit";
-
-	if (m_ui->treeWidget->currentItem() == nullptr)
-		return;
-
-	Q_ASSERT(m_undoManager != nullptr);
-	m_undoManager->push(new PredicateListEditUndoCommand(this,
-		m_ui->treeWidget->indexOfTopLevelItem(m_ui->treeWidget->currentItem()),
-		m_ui->treeWidget->currentItem()->text(0),
-		m_ui->treeWidget->currentItem()->text(1),
-		m_ui->treeWidget->currentItem()->text(0) + "~",
-		m_ui->treeWidget->currentItem()->text(1) + "~"));
+	slotItemActivated(m_ui->treeWidget->currentItem());
 }
 
 void PredicateListEditWidget::renameSelectedItem()
@@ -352,6 +344,29 @@ void PredicateListEditWidget::slotDeserializationCompleted(Core::Document::Seria
 		}
 
 		flushChanges();
+	}
+}
+
+void Gui::PredicateListEditWidget::slotItemActivated(QTreeWidgetItem *item)
+{
+	emit focusReceived();
+
+	if (item == nullptr)
+		return;
+
+	Core::Predicate p(item->text(0), item->text(1));
+	EditPredicateDialog r(&p, m_docList->contentType(), this);
+	r.exec();
+
+	Q_ASSERT(m_undoManager != nullptr);
+	if (p.name() != item->text(0) || p.expression() != item->text(1))
+	{
+		m_undoManager->push(new PredicateListEditUndoCommand(this,
+			m_ui->treeWidget->indexOfTopLevelItem(item),
+			item->text(0),
+			item->text(1),
+			p.name(),
+			p.expression()));
 	}
 }
 
