@@ -355,7 +355,7 @@ void Gui::PredicateListEditWidget::slotItemActivated(QTreeWidgetItem *item)
 		return;
 
 	Core::Predicate p(item->text(0), item->text(1));
-	EditPredicateDialog r(&p, m_docList->contentType(), this);
+	EditPredicateDialog r(m_docList->document(), &p, m_docList->contentType(), this);
 	r.exec();
 
 	Q_ASSERT(m_undoManager != nullptr);

@@ -14,8 +14,9 @@
 namespace Gui
 {
 
-EditPredicateDialog::EditPredicateDialog(Core::Predicate *pred, Core::PredicateType type, QWidget *parent)
-: QDialog(parent), m_ui(new Ui_EditPredicateDialog), m_pred(pred), m_predType(type)
+EditPredicateDialog::EditPredicateDialog(Core::Document *doc, Core::Predicate *pred, Core::PredicateType type, QWidget *parent)
+: QDialog(parent), m_ui(new Ui_EditPredicateDialog), m_doc(doc), m_pred(pred),
+  m_predType(type)
 {
 	m_ui->setupUi(this);
 	m_ui->nameLineEdit->setValidator(new IdentifierValidator(this));
@@ -55,7 +56,23 @@ void EditPredicateDialog::accept()
 
 void EditPredicateDialog::slotParse()
 {
-	qDebug() << "Not implemented";
+	Core::ModelBuilder builder(m_doc);
+	if (builder.run())
+	{
+		Core::Compiler::SemanticTreeGenerator stgen(
+			m_ui->expressionTextEdit->toPlainText(),
+			builder.semanticContext()->boolType(),
+			builder.semanticContext());
+		if (stgen.success())
+		{
+			const Core::Compiler::SemanticTree::Expr *semTree = stgen.takeResultExpr();
+			qDebug() << "C++ semantic tree:";
+			qDebug() << semTree->toString();
+			qDebug() << "Haskell semantic tree:";
+			hsExpr_dump(semTree->haskellHandle());
+			delete semTree;
+		}
+	}
 }
 
 }
