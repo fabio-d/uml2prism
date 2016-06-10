@@ -143,7 +143,9 @@ class BinaryOperator : public Expression
 			Equal,
 			NotEqual,
 			And,
-			Or
+			Or,
+			Implies,
+			Iff
 		};
 
 		BinaryOperator(SyntaxTreeGenerator *owner, const SourceLocation &location, Operator op, const Expression *arg1, const Expression *arg2);

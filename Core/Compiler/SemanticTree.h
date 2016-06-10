@@ -207,7 +207,9 @@ class ExprBinOp : public Expr
 			Equal,
 			NotEqual,
 			And,
-			Or
+			Or,
+			Implies,
+			Iff
 		};
 
 		ExprBinOp(Operator op, const Expr *arg1, const Expr *arg2);

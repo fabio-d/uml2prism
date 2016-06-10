@@ -447,7 +447,7 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 					return nullptr;
 				}
 			}
-			else // Binary AND or OR
+			else // Binary AND, OR, IMPLIES of IFF
 			{
 				operandType = m_context->boolType();
 			}
@@ -481,6 +481,12 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 					break;
 				case SyntaxTree::BinaryOperator::Or:
 					op = SemanticTree::ExprBinOp::Or;
+					break;
+				case SyntaxTree::BinaryOperator::Implies:
+					op = SemanticTree::ExprBinOp::Implies;
+					break;
+				case SyntaxTree::BinaryOperator::Iff:
+					op = SemanticTree::ExprBinOp::Iff;
 					break;
 			}
 

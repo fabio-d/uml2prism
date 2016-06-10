@@ -36,6 +36,8 @@ data Expr =
 	| ExprNeqOp Expr Expr		-- not equal operator (any type)
 	| ExprAndOp Expr Expr		-- boolean and operator
 	| ExprOrOp Expr Expr		-- boolean or operator
+	| ExprImpliesOp Expr Expr	-- boolean implies operator
+	| ExprIffOp Expr Expr		-- boolean if-and-only-if operator
 	| ExprNotOp Expr		-- boolean not operator
 	| ExprTuple Type [Expr]		-- either a non-nil TypeClass value or a TypeSet (set of values)
 	| ExprSetContains Idnt Expr	-- test whether a set (first arg) contains a given element (second arg)
@@ -52,6 +54,8 @@ instance Show Expr where
 	show (ExprNeqOp a b) = "(" ++ (show a) ++ " != " ++ (show b) ++ ")"
 	show (ExprAndOp a b) = "(" ++ (show a) ++ " && " ++ (show b) ++ ")"
 	show (ExprOrOp a b) = "(" ++ (show a) ++ " || " ++ (show b) ++ ")"
+	show (ExprImpliesOp a b) = "(" ++ (show a) ++ " => " ++ (show b) ++ ")"
+	show (ExprIffOp a b) = "(" ++ (show a) ++ " <=> " ++ (show b) ++ ")"
 	show (ExprNotOp a) = "!" ++ (show a)
 	show (ExprTuple _ vs) = "{" ++ (intercalate "," [show x | x <- vs]) ++ "}"
 	show (ExprSetContains idnt v) = show idnt ++ ".contains(" ++ show v ++ ")"

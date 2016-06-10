@@ -64,6 +64,7 @@
 }
 
 %right		'='
+%right		IMPLIES_OPERATOR IFF_OPERATOR
 %left		AND_OPERATOR OR_OPERATOR
 %left		EQUAL_OPERATOR NOT_EQUAL_OPERATOR
 %precedence	'!'
@@ -137,6 +138,8 @@ expr:
 | expr NOT_EQUAL_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::NotEqual, $1, $3); }
 | expr AND_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::And, $1, $3); }
 | expr OR_OPERATOR expr		{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Or, $1, $3); }
+| expr IMPLIES_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Implies, $1, $3); }
+| expr IFF_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Iff, $1, $3); }
 | '(' expr ')'			{ $$ = $2; }
 | tuple				{ $$ = $1; }
 ;

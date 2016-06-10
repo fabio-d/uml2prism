@@ -86,6 +86,8 @@ foreign export ccall hsExprEqOp_create :: StablePtr Expr -> StablePtr Expr -> IO
 foreign export ccall hsExprNeqOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprAndOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprOrOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
+foreign export ccall hsExprImpliesOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
+foreign export ccall hsExprIffOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprNotOp_create :: StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprTuple_create :: StablePtr Type -> IO (StablePtr Expr)
 foreign export ccall hsExprTuple_prependTerm :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
@@ -134,6 +136,18 @@ hsExprOrOp_create e1_ptr e2_ptr = do
 	e1 <- deRefStablePtr e1_ptr
 	e2 <- deRefStablePtr e2_ptr
 	newStablePtr (ExprOrOp e1 e2)
+
+hsExprImpliesOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
+hsExprImpliesOp_create e1_ptr e2_ptr = do
+	e1 <- deRefStablePtr e1_ptr
+	e2 <- deRefStablePtr e2_ptr
+	newStablePtr (ExprImpliesOp e1 e2)
+
+hsExprIffOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
+hsExprIffOp_create e1_ptr e2_ptr = do
+	e1 <- deRefStablePtr e1_ptr
+	e2 <- deRefStablePtr e2_ptr
+	newStablePtr (ExprIffOp e1 e2)
 
 hsExprNotOp_create :: StablePtr Expr -> IO (StablePtr Expr)
 hsExprNotOp_create e_ptr = do

@@ -171,6 +171,12 @@ QString BinaryOperator::toString() const
 		case Or:
 			opStr = "Or";
 			break;
+		case Implies:
+			opStr = "Implies";
+			break;
+		case Iff:
+			opStr = "Iff";
+			break;
 	}
 
 	return QString("BinaryOperator(%1, %2, %3)")

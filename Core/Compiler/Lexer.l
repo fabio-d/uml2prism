@@ -98,6 +98,14 @@ or	{
 		return token::NOT_EQUAL_OPERATOR;
 	}
 
+=>	{
+		return token::IMPLIES_OPERATOR;
+	}
+
+\<=>	{
+		return token::IFF_OPERATOR;
+	}
+
 &&	{
 		return token::AND_OPERATOR;
 	}

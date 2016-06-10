@@ -315,6 +315,12 @@ ExprBinOp::ExprBinOp(Operator op, const Expr *arg1, const Expr *arg2)
 		case Or:
 			m_haskellHandle = hsExprOrOp_create(arg1->haskellHandle(), arg2->haskellHandle());
 			break;
+		case Implies:
+			m_haskellHandle = hsExprImpliesOp_create(arg1->haskellHandle(), arg2->haskellHandle());
+			break;
+		case Iff:
+			m_haskellHandle = hsExprIffOp_create(arg1->haskellHandle(), arg2->haskellHandle());
+			break;
 	}
 }
 
@@ -341,6 +347,12 @@ QString ExprBinOp::toString() const
 			break;
 		case Or:
 			opStr = "Or";
+			break;
+		case Implies:
+			opStr = "Implies";
+			break;
+		case Iff:
+			opStr = "Iff";
 			break;
 	}
 
