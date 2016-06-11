@@ -17,8 +17,9 @@ class SemanticContext;
 class SemanticTreeGenerator
 {
 	public:
-		// Parse a value
-		SemanticTreeGenerator(const QString &sourceCode, const SemanticTree::Type *valueType, const SemanticContext *context);
+		// Parse an expression
+		SemanticTreeGenerator(const QString &sourceCode, const SemanticContext *context,
+			const SemanticTree::Type *valueType, bool allowProperties);
 
 		// Parse a statement
 		SemanticTreeGenerator(const QString &sourceCode, const SemanticContext *context,

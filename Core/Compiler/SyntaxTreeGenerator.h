@@ -20,7 +20,8 @@ class SyntaxTreeGenerator
 		enum SourceType
 		{
 			Script,		// a script (to define nodes' behaviors)
-			Value		// a value (to initialize global variales)
+			Value,		// a value (a label or to initialize global variales)
+			Property	// a properties to be verified
 		};
 
 		SyntaxTreeGenerator(const QString &sourceCode, SourceType type);
@@ -31,7 +32,7 @@ class SyntaxTreeGenerator
 		const QString &errorMessage() const;
 
 		SyntaxTree::Statement *resultScript();
-		SyntaxTree::Expression *resultValue();
+		SyntaxTree::Expression *resultValue(); // for properties too
 
 	private:
 		void setError(const SourceLocation &location, const QString &message);

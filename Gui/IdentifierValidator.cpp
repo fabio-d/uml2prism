@@ -5,7 +5,7 @@
 static const QRegExp regexp("^[_a-zA-Z0-9]*$");
 static const QRegExp strict_regexp("^[_a-zA-Z][_a-zA-Z0-9]*$");
 
-static QString notAllowedWordsMessage = "The following words are also forbidden: true, false, bool, nil, branch, if, else, choice, or.";
+static QString notAllowedWordsMessage = "The following keywords are also forbidden: true, false, bool, nil, branch, if, else, choice, or, and names consisting of a single capital letter among A, E, F, G, R, U, W and X.";
 
 namespace Gui
 {
@@ -31,7 +31,15 @@ bool StrictIdentifierValidator::isAcceptable(const QString &str)
 		&& str != "if"
 		&& str != "else"
 		&& str != "choice"
-		&& str != "or";
+		&& str != "or"
+		&& str != "A"
+		&& str != "E"
+		&& str != "F"
+		&& str != "G"
+		&& str != "R"
+		&& str != "U"
+		&& str != "W"
+		&& str != "X";
 }
 
 bool StrictIdentifierValidator::checkNodeNameWithMessageBox(QWidget *parent, const QString &str)

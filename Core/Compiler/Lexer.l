@@ -1,5 +1,6 @@
 %{
 #include "Core/Compiler/Lexer.h"
+#include "Core/Compiler/SyntaxTree.h"
 
 typedef Core::Compiler::Parser::token token;
 
@@ -76,6 +77,46 @@ choice	{
 
 or	{
 		return token::OR;
+	}
+
+A	{
+		yylval->build<SyntaxTree::PropertyQuantifier>(SyntaxTree::PropertyQuantifier::ForAll);
+		return token::PROP_QUANTIF;
+	}
+
+E	{
+		yylval->build<SyntaxTree::PropertyQuantifier>(SyntaxTree::PropertyQuantifier::Exists);
+		return token::PROP_QUANTIF;
+	}
+
+X	{
+		yylval->build<SyntaxTree::UnaryProperty::Operator>(SyntaxTree::UnaryProperty::Operator::Next);
+		return token::PROP_UN_OP;
+	}
+
+F	{
+		yylval->build<SyntaxTree::UnaryProperty::Operator>(SyntaxTree::UnaryProperty::Operator::Eventually);
+		return token::PROP_UN_OP;
+	}
+
+G	{
+		yylval->build<SyntaxTree::UnaryProperty::Operator>(SyntaxTree::UnaryProperty::Operator::Always);
+		return token::PROP_UN_OP;
+	}
+
+U	{
+		yylval->build<SyntaxTree::BinaryProperty::Operator>(SyntaxTree::BinaryProperty::Operator::Until);
+		return token::PROP_BIN_OP;
+	}
+
+W	{
+		yylval->build<SyntaxTree::BinaryProperty::Operator>(SyntaxTree::BinaryProperty::Operator::WeakUntil);
+		return token::PROP_BIN_OP;
+	}
+
+R	{
+		yylval->build<SyntaxTree::BinaryProperty::Operator>(SyntaxTree::BinaryProperty::Operator::Release);
+		return token::PROP_BIN_OP;
 	}
 
 {branchn} {

@@ -234,6 +234,34 @@ class ExprNotOp : public Expr
 		const Expr *m_arg;
 };
 
+class ExprUnProp : public Expr
+{
+	public:
+		ExprUnProp(char quantif, char operand, const Expr *arg);
+		~ExprUnProp() override;
+
+		QString toString() const override;
+
+	private:
+		char m_quantif; // A or E
+		char m_operand; // X, F or G
+		const Expr *m_arg;
+};
+
+class ExprBinProp : public Expr
+{
+	public:
+		ExprBinProp(char quantif, char operand, const Expr *arg1, const Expr *arg2);
+		~ExprBinProp() override;
+
+		QString toString() const override;
+
+	private:
+		char m_quantif; // A or E
+		char m_operand; // U, W or R
+		const Expr *m_arg1, *m_arg2;
+};
+
 class ExprTuple : public Expr
 {
 	public:

@@ -185,6 +185,120 @@ QString BinaryOperator::toString() const
 		.arg(m_arg2->toString());
 }
 
+UnaryProperty::UnaryProperty(SyntaxTreeGenerator *owner, const SourceLocation &location, PropertyQuantifier quantif, Operator op, const Expression *arg)
+: Expression(owner, location, NodeType::UnaryProperty), m_quantif(quantif),
+  m_op(op), m_arg(arg)
+{
+}
+
+PropertyQuantifier UnaryProperty::quantifier() const
+{
+	return m_quantif;
+}
+
+UnaryProperty::Operator UnaryProperty::op() const
+{
+	return m_op;
+}
+
+const Expression *UnaryProperty::arg() const
+{
+	return m_arg;
+}
+
+QString UnaryProperty::toString() const
+{
+	QString quantifStr, opStr;
+
+	switch (m_quantif)
+	{
+		case PropertyQuantifier::ForAll:
+			quantifStr = "ForAll";
+			break;
+		case PropertyQuantifier::Exists:
+			quantifStr = "Exists";
+			break;
+	}
+
+	switch (m_op)
+	{
+		case Next:
+			opStr = "Next";
+			break;
+		case Eventually:
+			opStr = "Eventually";
+			break;
+		case Always:
+			opStr = "Always";
+			break;
+	}
+
+	return QString("UnaryProperty(%1, %2, %3)")
+		.arg(quantifStr)
+		.arg(opStr)
+		.arg(m_arg->toString());
+}
+
+BinaryProperty::BinaryProperty(SyntaxTreeGenerator *owner, const SourceLocation &location, PropertyQuantifier quantif, Operator op, const Expression *arg1, const Expression *arg2)
+: Expression(owner, location, NodeType::BinaryProperty), m_quantif(quantif),
+  m_op(op), m_arg1(arg1), m_arg2(arg2)
+{
+}
+
+PropertyQuantifier BinaryProperty::quantifier() const
+{
+	return m_quantif;
+}
+
+BinaryProperty::Operator BinaryProperty::op() const
+{
+	return m_op;
+}
+
+const Expression *BinaryProperty::arg1() const
+{
+	return m_arg1;
+}
+
+const Expression *BinaryProperty::arg2() const
+{
+	return m_arg2;
+}
+
+QString BinaryProperty::toString() const
+{
+	QString quantifStr, opStr;
+
+	switch (m_quantif)
+	{
+		case PropertyQuantifier::ForAll:
+			quantifStr = "ForAll";
+			break;
+		case PropertyQuantifier::Exists:
+			quantifStr = "Exists";
+			break;
+	}
+
+	switch (m_op)
+	{
+		case Until:
+			opStr = "Until";
+			break;
+		case WeakUntil:
+			opStr = "WeakUntil";
+			break;
+		case Release:
+			opStr = "Release";
+			break;
+	}
+
+	return QString("BinaryProperty(%1, %2, %3, %4)")
+		.arg(quantifStr)
+		.arg(opStr)
+		.arg(m_arg1->toString())
+		.arg(m_arg2->toString());
+}
+
 Tuple::Tuple(SyntaxTreeGenerator *owner, const SourceLocation &location, const QList<const Expression*> &elements)
 : Expression(owner, location, NodeType::Tuple), m_elements(elements)
 {

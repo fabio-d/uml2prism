@@ -379,6 +379,46 @@ QString ExprNotOp::toString() const
 		.arg(m_arg->toString());
 }
 
+ExprUnProp::ExprUnProp(char quantif, char operand, const Expr *arg)
+: m_quantif(quantif), m_operand(operand), m_arg(arg)
+{
+	m_haskellHandle = hsExprUnProp_create(quantif, operand, arg->haskellHandle());
+}
+
+ExprUnProp::~ExprUnProp()
+{
+	delete m_arg;
+}
+
+QString ExprUnProp::toString() const
+{
+	return QString("ExprUnOp(%1, %2, %3)")
+		.arg(m_quantif)
+		.arg(m_operand)
+		.arg(m_arg->toString());
+}
+
+ExprBinProp::ExprBinProp(char quantif, char operand, const Expr *arg1, const Expr *arg2)
+: m_quantif(quantif), m_operand(operand), m_arg1(arg1), m_arg2(arg2)
+{
+	m_haskellHandle = hsExprBinProp_create(quantif, operand, arg1->haskellHandle(), arg2->haskellHandle());
+}
+
+ExprBinProp::~ExprBinProp()
+{
+	delete m_arg1;
+	delete m_arg2;
+}
+
+QString ExprBinProp::toString() const
+{
+	return QString("ExprBinProp(%1, %2, %3, %4)")
+		.arg(m_quantif)
+		.arg(m_operand)
+		.arg(m_arg1->toString())
+		.arg(m_arg2->toString());
+}
+
 ExprTuple::ExprTuple(const Type *type, const QList<const Expr*> &args)
 : m_type(type), m_args(args)
 {

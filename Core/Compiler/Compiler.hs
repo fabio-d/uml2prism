@@ -41,6 +41,8 @@ typeOfExpr (ExprOrOp _ _) = TypeBool
 typeOfExpr (ExprImpliesOp _ _) = TypeBool
 typeOfExpr (ExprIffOp _ _) = TypeBool
 typeOfExpr (ExprNotOp _) = TypeBool
+typeOfExpr (ExprUnProp _ _ _) = TypeBool
+typeOfExpr (ExprBinProp _ _ _ _) = TypeBool
 typeOfExpr (ExprTuple t _) = t
 typeOfExpr (ExprSetContains _ _) = TypeBool
 

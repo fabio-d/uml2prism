@@ -10,10 +10,13 @@ namespace Core
 namespace Compiler
 {
 
-SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const SemanticTree::Type *valueType, const SemanticContext *context)
+SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const SemanticContext *context,
+	const SemanticTree::Type *valueType, bool allowProperties)
 : m_success(true), m_context(context), m_resultExpr(nullptr), m_resultStmt(nullptr)
 {
-	SyntaxTreeGenerator sygen(sourceCode, SyntaxTreeGenerator::Value);
+	SyntaxTreeGenerator sygen(sourceCode,
+		allowProperties ? SyntaxTreeGenerator::Property : SyntaxTreeGenerator::Value);
+
 	if (!sygen.success())
 	{
 		setError(sygen.errorLocation(), sygen.errorMessage());
@@ -229,6 +232,14 @@ const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Ex
 			return m_context->boolType();
 		}
 		case SyntaxTree::NodeType::BinaryOperator:
+		{
+			return m_context->boolType();
+		}
+		case SyntaxTree::NodeType::UnaryProperty:
+		{
+			return m_context->boolType();
+		}
+		case SyntaxTree::NodeType::BinaryProperty:
 		{
 			return m_context->boolType();
 		}
@@ -491,6 +502,99 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 			}
 
 			return new SemanticTree::ExprBinOp(op, op1.take(), op2.take());
+		}
+		case SyntaxTree::NodeType::UnaryProperty:
+		{
+			const SyntaxTree::UnaryProperty *node =
+				static_cast<const SyntaxTree::UnaryProperty*>(expression);
+
+			QScopedPointer<const SemanticTree::Expr> op(
+				convertExpression(node->arg(), m_context->boolType()));
+			if (op.isNull())
+			{
+					return nullptr;
+			}
+			else if (expectedType == m_context->boolType())
+			{
+				char quantif, operand;
+
+				switch (node->quantifier())
+				{
+					case SyntaxTree::PropertyQuantifier::ForAll:
+						quantif = 'A';
+						break;
+					case SyntaxTree::PropertyQuantifier::Exists:
+						quantif = 'E';
+						break;
+				}
+
+				switch (node->op())
+				{
+					case SyntaxTree::UnaryProperty::Next:
+						operand = 'X';
+						break;
+					case SyntaxTree::UnaryProperty::Eventually:
+						operand = 'F';
+						break;
+					case SyntaxTree::UnaryProperty::Always:
+						operand = 'G';
+						break;
+				}
+
+				return new SemanticTree::ExprUnProp(quantif, operand, op.take());
+			}
+			else
+			{
+				setUnexpectedTypeError(expression->location(), expectedType, m_context->boolType());
+				return nullptr;
+			}
+		}
+		case SyntaxTree::NodeType::BinaryProperty:
+		{
+			const SyntaxTree::BinaryProperty *node =
+				static_cast<const SyntaxTree::BinaryProperty*>(expression);
+
+			QScopedPointer<const SemanticTree::Expr> op1(
+				convertExpression(node->arg1(), m_context->boolType()));
+			if (op1.isNull())
+					return nullptr;
+			QScopedPointer<const SemanticTree::Expr> op2(
+				convertExpression(node->arg2(), m_context->boolType()));
+			if (op2.isNull())
+					return nullptr;
+
+			if (expectedType != m_context->boolType())
+			{
+				setUnexpectedTypeError(expression->location(), expectedType, m_context->boolType());
+				return nullptr;
+			}
+
+			char quantif, operand;
+
+			switch (node->quantifier())
+			{
+				case SyntaxTree::PropertyQuantifier::ForAll:
+					quantif = 'A';
+					break;
+				case SyntaxTree::PropertyQuantifier::Exists:
+					quantif = 'E';
+					break;
+			}
+
+			switch (node->op())
+			{
+				case SyntaxTree::BinaryProperty::Until:
+					operand = 'U';
+					break;
+				case SyntaxTree::BinaryProperty::WeakUntil:
+					operand = 'W';
+					break;
+				case SyntaxTree::BinaryProperty::Release:
+					operand = 'R';
+					break;
+			}
+
+			return new SemanticTree::ExprBinProp(quantif, operand, op1.take(), op2.take());
 		}
 		case SyntaxTree::NodeType::Tuple:
 		{

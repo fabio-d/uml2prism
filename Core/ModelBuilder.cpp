@@ -547,7 +547,7 @@ void ModelBuilder::registerGlobalVariables()
 			}
 			else
 			{
-				Compiler::SemanticTreeGenerator stgen(var.initialValue, type, &m_semanticContext);
+				Compiler::SemanticTreeGenerator stgen(var.initialValue, &m_semanticContext, type, false);
 				if (stgen.success())
 				{
 					const Compiler::SemanticTree::Expr *initVal = stgen.takeResultExpr();

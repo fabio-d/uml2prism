@@ -61,8 +61,9 @@ void EditPredicateDialog::slotParse()
 	{
 		Core::Compiler::SemanticTreeGenerator stgen(
 			m_ui->expressionTextEdit->toPlainText(),
+			builder.semanticContext(),
 			builder.semanticContext()->boolType(),
-			builder.semanticContext());
+			m_predType == Core::PredicateType::Property);
 		if (stgen.success())
 		{
 			const Core::Compiler::SemanticTree::Expr *semTree = stgen.takeResultExpr();

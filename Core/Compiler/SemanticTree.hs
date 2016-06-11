@@ -39,6 +39,8 @@ data Expr =
 	| ExprImpliesOp Expr Expr	-- boolean implies operator
 	| ExprIffOp Expr Expr		-- boolean if-and-only-if operator
 	| ExprNotOp Expr		-- boolean not operator
+	| ExprUnProp Char Char Expr	-- unary property
+	| ExprBinProp Char Char Expr Expr -- binary property
 	| ExprTuple Type [Expr]		-- either a non-nil TypeClass value or a TypeSet (set of values)
 	| ExprSetContains Idnt Expr	-- test whether a set (first arg) contains a given element (second arg)
 	deriving (Data, Typeable)
@@ -57,6 +59,8 @@ instance Show Expr where
 	show (ExprImpliesOp a b) = "(" ++ (show a) ++ " => " ++ (show b) ++ ")"
 	show (ExprIffOp a b) = "(" ++ (show a) ++ " <=> " ++ (show b) ++ ")"
 	show (ExprNotOp a) = "!" ++ (show a)
+	show (ExprUnProp q o a) = q:" [ " ++ o:' ':(show a) ++ " ]"
+	show (ExprBinProp q o a b) = q:" [ " ++ (show a) ++ ' ':o:' ':(show b) ++ " ]"
 	show (ExprTuple _ vs) = "{" ++ (intercalate "," [show x | x <- vs]) ++ "}"
 	show (ExprSetContains idnt v) = show idnt ++ ".contains(" ++ show v ++ ")"
 

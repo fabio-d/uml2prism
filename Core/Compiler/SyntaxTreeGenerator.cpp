@@ -25,11 +25,12 @@ SyntaxTreeGenerator::SyntaxTreeGenerator(const QString &sourceCode, SourceType t
 			lexer.injectToken(Core::Compiler::Parser::token::START_SCRIPT);
 			break;
 		case Value:
+		case Property:
 			lexer.injectToken(Core::Compiler::Parser::token::START_VALUE);
 			break;
 	}
 
-	Parser parser(lexer, this);
+	Parser parser(lexer, this, type == Property);
 	//parser.set_debug_level(true);
 	if (parser.parse() != 0 && m_success)
 		setError(SourceLocation(), "Unknown error");

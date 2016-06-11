@@ -8,11 +8,12 @@
 %define		parse.trace
 %expect		2 // if-else and choice-or
 %locations
-%parse-param	{Lexer &lexer} {SyntaxTreeGenerator *owner}
+%parse-param	{Lexer &lexer} {SyntaxTreeGenerator *owner} {bool allowProperties}
 
 %code requires
 {
 	#include <QList>
+	#include "Core/Compiler/SyntaxTree.h"
 
 	namespace Core
 	{
@@ -20,19 +21,6 @@
 	{
 	class SyntaxTreeGenerator;
 	class Lexer;
-
-	namespace SyntaxTree
-	{
-	class ChoiceOr;
-	class GlobalIdentifier;
-	class Identifier;
-	class IfElse;
-	class Expression;
-	class MethodCall;
-	class Statement;
-	class Tuple;
-	}
-
 	}
 	}
 }
@@ -61,6 +49,14 @@
 	#define STDARGS \
 		owner, \
 		convertLocation(yylhs.location)
+
+	// According to the type of expression that is being parsed, properties
+	// might not be allowed
+	#define CHECK_PROP_ALLOWED \
+		do { \
+			if (!allowProperties) \
+				throw syntax_error(yylhs.location, "Property operators are not allowed in this context"); \
+		} while(false)
 }
 
 %right		'='
@@ -70,6 +66,9 @@
 %precedence	'!'
 %left		'.'
 
+%token		<SyntaxTree::PropertyQuantifier> PROP_QUANTIF
+%token		<SyntaxTree::UnaryProperty::Operator> PROP_UN_OP
+%token		<SyntaxTree::BinaryProperty::Operator> PROP_BIN_OP
 %token		<std::string> IDENTIFIER_SEGMENT
 %token		<std::string> BRANCH_LABEL
 %token		<bool> BOOL_LITERAL
@@ -140,6 +139,8 @@ expr:
 | expr OR_OPERATOR expr		{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Or, $1, $3); }
 | expr IMPLIES_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Implies, $1, $3); }
 | expr IFF_OPERATOR expr	{ $$ = new SyntaxTree::BinaryOperator(STDARGS, SyntaxTree::BinaryOperator::Iff, $1, $3); }
+| PROP_QUANTIF '[' PROP_UN_OP expr ']' { CHECK_PROP_ALLOWED; $$ = new SyntaxTree::UnaryProperty(STDARGS, $1, $3, $4); }
+| PROP_QUANTIF '[' expr PROP_BIN_OP expr ']' { CHECK_PROP_ALLOWED; $$ = new SyntaxTree::BinaryProperty(STDARGS, $1, $4, $3, $5); }
 | '(' expr ')'			{ $$ = $2; }
 | tuple				{ $$ = $1; }
 ;

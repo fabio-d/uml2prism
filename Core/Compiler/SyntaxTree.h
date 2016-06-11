@@ -23,6 +23,8 @@ enum class NodeType
 	BoolLiteral,
 	NotOperator,
 	BinaryOperator,
+	UnaryProperty,
+	BinaryProperty,
 	Tuple,
 	CompoundStatement,
 	MethodCall,
@@ -157,6 +159,61 @@ class BinaryOperator : public Expression
 		QString toString() const override;
 
 	private:
+		Operator m_op;
+		const Expression *m_arg1, *m_arg2;
+};
+
+enum class PropertyQuantifier
+{
+	ForAll,
+	Exists
+};
+
+class UnaryProperty : public Expression
+{
+	public:
+		enum Operator
+		{
+			Next,		// 'X'
+			Eventually,	// 'F'
+			Always		// 'G'
+		};
+
+		UnaryProperty(SyntaxTreeGenerator *owner, const SourceLocation &location, PropertyQuantifier quantif, Operator op, const Expression *arg);
+
+		PropertyQuantifier quantifier() const;
+		Operator op() const;
+		const Expression *arg() const;
+
+		QString toString() const override;
+
+	private:
+		PropertyQuantifier m_quantif;
+		Operator m_op;
+		const Expression *m_arg;
+};
+
+class BinaryProperty : public Expression
+{
+	public:
+		enum Operator
+		{
+			Until,		// 'U'
+			WeakUntil,	// 'W'
+			Release		// 'R'
+		};
+
+		BinaryProperty(SyntaxTreeGenerator *owner, const SourceLocation &location, PropertyQuantifier quantif, Operator op, const Expression *arg1, const Expression *arg2);
+
+		PropertyQuantifier quantifier() const;
+		Operator op() const;
+		const Expression *arg1() const;
+		const Expression *arg2() const;
+
+		QString toString() const override;
+
+	private:
+		PropertyQuantifier m_quantif;
 		Operator m_op;
 		const Expression *m_arg1, *m_arg2;
 };

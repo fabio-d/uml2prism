@@ -89,6 +89,8 @@ foreign export ccall hsExprOrOp_create :: StablePtr Expr -> StablePtr Expr -> IO
 foreign export ccall hsExprImpliesOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprIffOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprNotOp_create :: StablePtr Expr -> IO (StablePtr Expr)
+foreign export ccall hsExprUnProp_create :: Char -> Char -> StablePtr Expr -> IO (StablePtr Expr)
+foreign export ccall hsExprBinProp_create :: Char -> Char -> StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprTuple_create :: StablePtr Type -> IO (StablePtr Expr)
 foreign export ccall hsExprTuple_prependTerm :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprSetContains_create :: StablePtr Idnt -> StablePtr Expr -> IO (StablePtr Expr)
@@ -153,6 +155,17 @@ hsExprNotOp_create :: StablePtr Expr -> IO (StablePtr Expr)
 hsExprNotOp_create e_ptr = do
 	e <- deRefStablePtr e_ptr
 	newStablePtr (ExprNotOp e)
+
+hsExprUnProp_create :: Char -> Char -> StablePtr Expr -> IO (StablePtr Expr)
+hsExprUnProp_create q o e_ptr = do
+	e <- deRefStablePtr e_ptr
+	newStablePtr (ExprUnProp q o e)
+
+hsExprBinProp_create :: Char -> Char -> StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
+hsExprBinProp_create q o e1_ptr e2_ptr = do
+	e1 <- deRefStablePtr e1_ptr
+	e2 <- deRefStablePtr e2_ptr
+	newStablePtr (ExprBinProp q o e1 e2)
 
 hsExprTuple_create :: StablePtr Type -> IO (StablePtr Expr)
 hsExprTuple_create t_ptr = do
