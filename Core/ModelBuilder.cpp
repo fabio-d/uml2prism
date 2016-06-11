@@ -28,7 +28,7 @@ namespace Core
 {
 
 ModelBuilder::ModelBuilder(const Document *doc)
-: m_doc(doc), m_started(false), m_error(false)
+: m_doc(doc), m_started(false), m_error(false), m_modelOutput("mdp\n\n")
 {
 }
 
@@ -58,17 +58,24 @@ bool ModelBuilder::run()
 	if (m_error)
 		return false;
 
-	qDebug() << "Registering global variables, signals and states...";
+	qDebug() << "Registering global variables, signals...";
 	registerGlobalVariables(); // this must be done before registering signals, see comment inside
 	registerSignals();
-	registerStates(); // <-- TODO: move it after actions' scripts have been parsed
 	if (m_error)
 		return false;
 
 	qDebug() << "Compiling global variables' declarations...";
-	compileVariableDecls();
+	m_modelOutput += compileVariableDecls();
+
+	m_modelOutput += "module MyModule\n";
+
+	qDebug() << "Compiling and registering states...";
+	m_modelOutput += compileStates();
+	registerStates(); // states must be registered after compiling scripts because scripts are not meant to be aware of them
 
 	qDebug() << "Success";
+
+	m_modelOutput += "\nendmodule\n";
 	return true;
 }
 
@@ -619,16 +626,18 @@ void ModelBuilder::registerStates()
 {
 	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
 	{
-		const UMLNodeElement *signalElem = dynamic_cast<const UMLNodeElement*>(elem);
-		if (signalElem == nullptr)
+		const UMLNodeElement *nodeElem = dynamic_cast<const UMLNodeElement*>(elem);
+		if (nodeElem == nullptr)
 			continue;
 
-		m_semanticContext.registerState(signalElem->nodeName());
+		m_semanticContext.registerState(nodeElem->nodeName());
 	}
 }
 
-void ModelBuilder::compileVariableDecls()
+QString ModelBuilder::compileVariableDecls()
 {
+	QString result;
+
 	Compiler::Compiler comp(&m_semanticContext);
 	foreach (const QString &varName, m_globalVarsInitValue.keys())
 	{
@@ -638,8 +647,26 @@ void ModelBuilder::compileVariableDecls()
 			m_globalVarsInitValue[varName];
 		const bool isPersistent = m_persistentVariables.contains(varName);
 
-		m_modelOutput += comp.compileVariableDeclaration(varName, type, initVal, isPersistent) + "\n";
+		result += comp.compileVariableDeclaration(varName, type, initVal, isPersistent) + "\n";
 	}
+
+	return result;
+}
+
+QString ModelBuilder::compileStates()
+{
+	QString result;
+
+	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
+	{
+		const UMLNodeElement *nodeElem = dynamic_cast<const UMLNodeElement*>(elem);
+		if (nodeElem == nullptr)
+			continue;
+
+		result += QString("\n// TODO: compile state \"%1\"\n").arg(nodeElem->nodeName());
+	}
+
+	return result;
 }
 
 }

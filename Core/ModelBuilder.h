@@ -41,7 +41,8 @@ class ModelBuilder : public QObject
 		void registerGlobalVariables();
 		void registerSignals();
 		void registerStates();
-		void compileVariableDecls();
+		QString compileVariableDecls();
+		QString compileStates();
 
 		const Document *m_doc;
 		bool m_started, m_error;
