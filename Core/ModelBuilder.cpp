@@ -84,6 +84,18 @@ const Compiler::SemanticContext *ModelBuilder::semanticContext() const
 	return &m_semanticContext;
 }
 
+const QString &ModelBuilder::modelOutput() const
+{
+	Q_ASSERT(m_started == true && m_error == false);
+	return m_modelOutput;
+}
+
+const QString &ModelBuilder::propertiesOutput() const
+{
+	Q_ASSERT(m_started == true && m_error == false);
+	return m_propertiesOutput;
+}
+
 void ModelBuilder::emitWarning(const QString &location, const QString &description)
 {
 	qDebug() << "WARNING:" << location << ":" << description;
@@ -625,7 +637,8 @@ void ModelBuilder::compileVariableDecls()
 		const Compiler::SemanticTree::Expr *initVal =
 			m_globalVarsInitValue[varName];
 		const bool isPersistent = m_persistentVariables.contains(varName);
-		comp.compileVariableDeclaration(varName, type, initVal, isPersistent);
+
+		m_modelOutput += comp.compileVariableDeclaration(varName, type, initVal, isPersistent) + "\n";
 	}
 }
 

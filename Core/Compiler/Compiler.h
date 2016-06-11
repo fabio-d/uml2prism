@@ -14,7 +14,7 @@ class Compiler
 	public:
 		Compiler(const SemanticContext *context);
 
-		void compileVariableDeclaration(const QString &name,
+		QString compileVariableDeclaration(const QString &name,
 			const SemanticTree::Type *type,
 			const SemanticTree::Expr *initialValue, bool isPersistent);
 

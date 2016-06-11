@@ -14,7 +14,7 @@ Compiler::Compiler(const SemanticContext *context)
 {
 }
 
-void Compiler::compileVariableDeclaration(const QString &name,
+QString Compiler::compileVariableDeclaration(const QString &name,
 	const SemanticTree::Type *type, const SemanticTree::Expr *initialValue,
 	bool isPersistent)
 {
@@ -29,7 +29,7 @@ void Compiler::compileVariableDeclaration(const QString &name,
 		.arg(rawResult);
 	free(rawResult);
 
-	qDebug() << result.toLatin1().constData();
+	return result;
 }
 
 }

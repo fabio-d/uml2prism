@@ -1,5 +1,6 @@
 #include "Gui/MainWindow.h"
 
+#include "Gui/OutputDialog.h"
 #include "Gui/UMLGraphicsScene.h"
 #include "Gui/UndoManager.h"
 
@@ -466,7 +467,10 @@ void MainWindow::slotBuild()
 
 	if (success)
 	{
-		QMessageBox::information(this, "Build model", "Model built successfully");
+		OutputDialog *diag = new OutputDialog(builder.modelOutput(), builder.propertiesOutput(), this);
+		diag->setAttribute(Qt::WA_DeleteOnClose);
+		diag->show();
+		QMessageBox::information(diag, "Build model", "Model built successfully");
 	}
 	else
 	{
