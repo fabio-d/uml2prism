@@ -76,7 +76,7 @@ bool ModelBuilder::run()
 	qDebug() << "Success";
 
 	m_modelOutput += "\nendmodule\n";
-	return true;
+	return m_error == false;
 }
 
 bool ModelBuilder::success() const
@@ -660,10 +660,44 @@ QString ModelBuilder::compileStates()
 	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
 	{
 		const UMLNodeElement *nodeElem = dynamic_cast<const UMLNodeElement*>(elem);
-		if (nodeElem == nullptr)
-			continue;
+		if (nodeElem != nullptr)
+		{
+			Compiler::Compiler comp(&m_semanticContext);
+			Compiler::Compiler::ErrorList errList;
 
-		result += QString("\n// TODO: compile state \"%1\"\n").arg(nodeElem->nodeName());
+			switch (elem->type())
+			{
+				case UMLElementType::InitialNode:
+					result += comp.compileInitialNode(static_cast<const UMLInitialNode*>(nodeElem));
+					break;
+				case UMLElementType::FlowFinalNode:
+					result += comp.compileFlowFinalNode(static_cast<const UMLFlowFinalNode*>(nodeElem));
+					break;
+				case UMLElementType::ActivityFinalNode:
+					result += comp.compileActivityFinalNode(static_cast<const UMLActivityFinalNode*>(nodeElem));
+					break;
+				case UMLElementType::ActionNode:
+					result += comp.compileActionNode(static_cast<const UMLActionNode*>(nodeElem), &errList);
+					break;
+				case UMLElementType::DecisionMergeNode:
+					result += comp.compileDecisionMergeNode(static_cast<const UMLDecisionMergeNode*>(nodeElem), &errList);
+					break;
+				case UMLElementType::ForkJoinNode:
+					result += comp.compileForkJoinNode(static_cast<const UMLForkJoinNode*>(nodeElem));
+					break;
+				default:
+					qFatal("This should never happen");
+					break;
+			}
+
+			foreach (const Compiler::Compiler::Error &error, errList)
+			{
+				if (error.first == Compiler::Compiler::ErrorType::Error)
+					emitError(nodeElem->nodeName(), error.second);
+				else
+					emitWarning(nodeElem->nodeName(), error.second);
+			}
+		}
 	}
 
 	return result;
