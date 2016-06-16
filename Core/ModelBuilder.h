@@ -8,6 +8,7 @@ namespace Core
 
 class DatatypeName;
 class Document;
+class UMLScriptedNodeElement;
 
 class ModelBuilder : public QObject
 {
@@ -33,6 +34,7 @@ class ModelBuilder : public QObject
 		void emitError(const QString &location, const QString &description);
 
 		const Compiler::SemanticTree::Type *resolveType(const DatatypeName *dt) const;
+		const Compiler::SemanticTree::Stmt *parseCustomScript(const UMLScriptedNodeElement *elem);
 
 		void checkDuplicateGlobalNames();
 		void checkControlFlowEdges();

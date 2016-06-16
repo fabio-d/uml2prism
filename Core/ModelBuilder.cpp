@@ -457,6 +457,45 @@ void ModelBuilder::checkSignalEdges()
 	}
 }
 
+const Compiler::SemanticTree::Stmt *ModelBuilder::parseCustomScript(const UMLScriptedNodeElement *elem)
+{
+	Q_ASSERT(elem->hasCustomScript() == true);
+
+	QMap<QString, QString> labelMap;
+	QStringList signalList;
+	foreach (const Core::UMLEdgeElement *edge, elem->outgoingEdges())
+	{
+		const Core::UMLControlFlowEdge *branchEdge =
+			dynamic_cast<const Core::UMLControlFlowEdge*>(edge);
+		const Core::UMLSignalEdge *signalEdge =
+			dynamic_cast<const Core::UMLSignalEdge*>(edge);
+		Q_ASSERT(!branchEdge != !signalEdge);
+
+		if (branchEdge != nullptr)
+		{
+			if (branchEdge->branchName().isEmpty())
+				continue;
+			labelMap.insert(branchEdge->branchName(), branchEdge->to()->nodeName());
+		}
+		else // signalEdge != nullptr
+		{
+			signalList.append(signalEdge->signalName());
+		}
+	}
+
+	Compiler::SemanticTreeGenerator stgen(
+		elem->customScript(),
+		&m_semanticContext,
+		signalList,
+		labelMap);
+
+	if (stgen.success())
+		return stgen.takeResultStmt();
+
+	emitError(QString("%1:%2").arg(elem->nodeName()).arg(stgen.errorLocation().toString()), stgen.errorMessage());
+	return nullptr;
+}
+
 void ModelBuilder::registerTypes()
 {
 	// Register enumarations first. Classes and global variables will be handled later
@@ -668,26 +707,70 @@ QString ModelBuilder::compileStates()
 			switch (elem->type())
 			{
 				case UMLElementType::InitialNode:
+				{
 					result += comp.compileInitialNode(static_cast<const UMLInitialNode*>(nodeElem));
 					break;
+				}
 				case UMLElementType::FlowFinalNode:
+				{
 					result += comp.compileFlowFinalNode(static_cast<const UMLFlowFinalNode*>(nodeElem));
 					break;
+				}
 				case UMLElementType::ActivityFinalNode:
+				{
 					result += comp.compileActivityFinalNode(static_cast<const UMLActivityFinalNode*>(nodeElem));
 					break;
+				}
 				case UMLElementType::ActionNode:
-					result += comp.compileActionNode(static_cast<const UMLActionNode*>(nodeElem), &errList);
+				{
+					const UMLActionNode *actionNode = static_cast<const UMLActionNode*>(nodeElem);
+					QScopedPointer<const Compiler::SemanticTree::Stmt> script;
+
+					if (actionNode->hasCustomScript())
+					{
+						script.reset(parseCustomScript(actionNode));
+						if (script.isNull())
+							continue; // parse error
+					}
+
+					// ActionNodes can only have 0 or 1 outgoing edge
+					const QString nextNode = (actionNode->outgoingControlFlowEdges().count() == 0) ?
+						QString() : actionNode->outgoingControlFlowEdges().first()->to()->nodeName();
+
+					result += comp.compileActionNode(actionNode, script.data(), nextNode, &errList);
 					break;
+				}
 				case UMLElementType::DecisionMergeNode:
-					result += comp.compileDecisionMergeNode(static_cast<const UMLDecisionMergeNode*>(nodeElem), &errList);
+				{
+					const UMLDecisionMergeNode *decisionMergeNode = static_cast<const UMLDecisionMergeNode*>(nodeElem);
+					QScopedPointer<const Compiler::SemanticTree::Stmt> script;
+
+					if (decisionMergeNode->hasCustomScript())
+					{
+						script.reset(parseCustomScript(decisionMergeNode));
+						if (script.isNull())
+							continue; // parse error
+					}
+
+					// DecisionMergeNode can have any number of outgoing edges. If
+					// there is only one, set it as default if no branch is provided
+					// by the custom script (e.g. a merge node)
+					const QString nextNode = (decisionMergeNode->outgoingControlFlowEdges().count() != 1) ?
+						QString() : decisionMergeNode->outgoingControlFlowEdges().first()->to()->nodeName();
+
+					result += comp.compileDecisionMergeNode(decisionMergeNode, script.data(), nextNode, &errList);
 					break;
+				}
 				case UMLElementType::ForkJoinNode:
+				{
 					result += comp.compileForkJoinNode(static_cast<const UMLForkJoinNode*>(nodeElem));
 					break;
+				}
 				default:
+				{
 					qFatal("This should never happen");
 					break;
+				}
 			}
 
 			foreach (const Compiler::Compiler::Error &error, errList)

@@ -73,25 +73,39 @@ QString Compiler::compileActivityFinalNode(const UMLActivityFinalNode *node)
 	return result;
 }
 
-QString Compiler::compileActionNode(const UMLActionNode *node, ErrorList *out_errorList)
+QString Compiler::compileActionNode(const UMLActionNode *node, const SemanticTree::Stmt *script,
+	const QString &nextNode, ErrorList *out_errorList)
 {
 	QString result = QString("\n// ActionNode \"%1\"\n").arg(node->nodeName());
 
-	// ActionNodes can only have 0 or 1 outgoing edge
-	const UMLControlFlowEdge *edge = (node->outgoingControlFlowEdges().count() == 0) ?
-		nullptr : node->outgoingControlFlowEdges().first();
-	result += "// TODO-ACTIONS\n";
+	if (script != nullptr)
+		result += QString("// Script: %1\n").arg(script->toString());
+	else
+		result += "// No script\n";
+
+	if (!nextNode.isEmpty())
+		result += QString("// Next is %1\n").arg(nextNode);
+	else
+		result += "// No next\n";
 
 	*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
 	return result;
 }
 
-QString Compiler::compileDecisionMergeNode(const UMLDecisionMergeNode *node, ErrorList *out_errorList)
+QString Compiler::compileDecisionMergeNode(const UMLDecisionMergeNode *node, const SemanticTree::Stmt *script,
+	const QString &nextNode, ErrorList *out_errorList)
 {
 	QString result = QString("\n// DecisionMergeNode \"%1\"\n").arg(node->nodeName());
 
-	// DecisionMergeNodes can have any number of outgoing edges
-	result += "// TODO-ACTIONS\n";
+	if (script != nullptr)
+		result += QString("// Script: %1\n").arg(script->toString());
+	else
+		result += "// No script\n";
+
+	if (!nextNode.isEmpty())
+		result += QString("// Default next is %1\n").arg(nextNode);
+	else
+		result += "// No default next\n";
 
 	*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
 	return result;

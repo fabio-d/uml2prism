@@ -32,8 +32,12 @@ class Compiler
 		QString compileInitialNode(const UMLInitialNode *node);
 		QString compileFlowFinalNode(const UMLFlowFinalNode *node);
 		QString compileActivityFinalNode(const UMLActivityFinalNode *node);
-		QString compileActionNode(const UMLActionNode *node, ErrorList *out_errorList);
-		QString compileDecisionMergeNode(const UMLDecisionMergeNode *node, ErrorList *out_errorList);
+		QString compileActionNode(const UMLActionNode *node,
+			const SemanticTree::Stmt *script, const QString &nextNode,
+			ErrorList *out_errorList);
+		QString compileDecisionMergeNode(const UMLDecisionMergeNode *node,
+			const SemanticTree::Stmt *script, const QString &nextNode,
+			ErrorList *out_errorList);
 		QString compileForkJoinNode(const UMLForkJoinNode *node);
 
 	private:
