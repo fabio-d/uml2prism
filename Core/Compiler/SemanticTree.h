@@ -187,6 +187,17 @@ class ExprClassNilLiteral : public Expr
 		const ClassType *m_type;
 };
 
+class ExprStateCheck : public Expr
+{
+	public:
+		explicit ExprStateCheck(const QString &stateName);
+
+		QString toString() const override;
+
+	private:
+		QString m_stateName;
+};
+
 class ExprVariable : public Expr
 {
 	public:

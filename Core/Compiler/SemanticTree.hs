@@ -31,6 +31,7 @@ data Expr =
 	  ExprBoolLiteral Bool		-- bool literal
 	| ExprEnumLiteral Type Int	-- literal for a given TypeEnumeration (arg is 1-based index, 0 means nil)
 	| ExprClassNilLiteral Type	-- nil literal for a given TypeClass
+	| ExprStateCheck String		-- boolean expression that is true when a given state is active
 	| ExprVariable Idnt		-- variable being read (any type)
 	| ExprEqOp Expr Expr		-- equal operator (any type)
 	| ExprNeqOp Expr Expr		-- not equal operator (any type)
@@ -51,6 +52,7 @@ instance Show Expr where
 	show (ExprEnumLiteral _ 0) = "nil"
 	show (ExprEnumLiteral (TypeEnumeration values) idx) = values!!(idx - 1)
 	show (ExprClassNilLiteral _) = "nil"
+	show (ExprStateCheck stateName) = "(" ++ stateName ++ " > 0)"
 	show (ExprVariable idnt) = show idnt
 	show (ExprEqOp a b) = "(" ++ (show a) ++ " == " ++ (show b) ++ ")"
 	show (ExprNeqOp a b) = "(" ++ (show a) ++ " != " ++ (show b) ++ ")"

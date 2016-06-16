@@ -33,6 +33,7 @@ typeOfExpr :: Expr -> Type
 typeOfExpr (ExprBoolLiteral _) = TypeBool
 typeOfExpr (ExprEnumLiteral t _) = t
 typeOfExpr (ExprClassNilLiteral t) = t
+typeOfExpr (ExprStateCheck _) = TypeBool
 typeOfExpr (ExprVariable idnt) = typeOfIdnt idnt
 typeOfExpr (ExprEqOp _ _) = TypeBool
 typeOfExpr (ExprNeqOp _ _) = TypeBool

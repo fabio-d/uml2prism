@@ -282,6 +282,18 @@ QString ExprClassNilLiteral::toString() const
 	return QString("ExprClassNilLiteral(%1)").arg(m_type->datatypeName());
 }
 
+ExprStateCheck::ExprStateCheck(const QString &stateName)
+: m_stateName(stateName)
+{
+	const QByteArray n = stateName.toLatin1();
+	m_haskellHandle = hsExprStateCheck_create((void*)n.constData());
+}
+
+QString ExprStateCheck::toString() const
+{
+	return QString("ExprStateCheck(%1)").arg(m_stateName);
+}
+
 ExprVariable::ExprVariable(const Idnt *identifier)
 : m_identifier(identifier)
 {

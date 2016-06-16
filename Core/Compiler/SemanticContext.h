@@ -34,6 +34,7 @@ class SemanticContext
 		bool isSignalWithMessage(const QString &name) const;
 		bool isSignalWithoutMessage(const QString &name) const;
 		bool isGlobalVariable(const QString &name) const;
+		bool isState(const QString &name) const;
 
 	private:
 		SemanticTree::BoolType m_boolType;

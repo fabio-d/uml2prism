@@ -325,7 +325,11 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 			if (varType == nullptr && m_context->findStateOrSignalWithoutMessage(node->name()))
 				varType = m_context->boolType();
 
-			if (enumType != nullptr)
+			if (m_context->isState(node->name()))
+			{
+				return new SemanticTree::ExprStateCheck(node->name());
+			}
+			else if (enumType != nullptr)
 			{
 				if (expectedType == enumType)
 				{

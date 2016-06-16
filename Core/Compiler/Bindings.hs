@@ -81,6 +81,7 @@ hsIdnt_free x = freeStablePtr x
 foreign export ccall hsExprBoolLiteral_create :: Bool -> IO (StablePtr Expr)
 foreign export ccall hsExprEnumLiteral_create :: StablePtr Type -> Int -> IO (StablePtr Expr)
 foreign export ccall hsExprClassNilLiteral_create :: StablePtr Type -> IO (StablePtr Expr)
+foreign export ccall hsExprStateCheck_create :: CString -> IO (StablePtr Expr)
 foreign export ccall hsExprVariable_create :: StablePtr Idnt -> IO (StablePtr Expr)
 foreign export ccall hsExprEqOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
 foreign export ccall hsExprNeqOp_create :: StablePtr Expr -> StablePtr Expr -> IO (StablePtr Expr)
@@ -109,6 +110,11 @@ hsExprClassNilLiteral_create :: StablePtr Type -> IO (StablePtr Expr)
 hsExprClassNilLiteral_create type_ptr = do
 	t <- deRefStablePtr type_ptr
 	newStablePtr (ExprClassNilLiteral t)
+
+hsExprStateCheck_create :: CString -> IO (StablePtr Expr)
+hsExprStateCheck_create stateName = do
+	n <- peekCString stateName
+	newStablePtr (ExprStateCheck n)
 
 hsExprVariable_create :: StablePtr Idnt -> IO (StablePtr Expr)
 hsExprVariable_create idnt_ptr = do

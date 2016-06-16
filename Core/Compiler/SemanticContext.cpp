@@ -108,5 +108,10 @@ bool SemanticContext::isGlobalVariable(const QString &name) const
 	return m_globalVariables.contains(name);
 }
 
+bool SemanticContext::isState(const QString &name) const
+{
+	return m_states.contains(name);
+}
+
 }
 }
