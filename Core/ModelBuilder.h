@@ -45,6 +45,7 @@ class ModelBuilder : public QObject
 		void registerStates();
 		void registerLabels();
 		QString compileVariableDecls();
+		QString compileSignalDecls();
 		QString compileStates();
 		QString compileLabels();
 		QString compileProperties();

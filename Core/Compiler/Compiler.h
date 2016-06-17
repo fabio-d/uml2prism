@@ -29,6 +29,9 @@ class Compiler
 			const SemanticTree::Type *type,
 			const SemanticTree::Expr *initialValue, bool isPersistent);
 
+		QString compileSignalDeclaration(const QString &name,
+			const SemanticTree::Type *type);
+
 		QString compileInitialNode(const UMLInitialNode *node);
 		QString compileFlowFinalNode(const UMLFlowFinalNode *node);
 		QString compileActivityFinalNode(const UMLActivityFinalNode *node);

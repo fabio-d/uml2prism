@@ -250,6 +250,9 @@ compileVariableDeclaration varName initVal =
 	in
 		setValList varType ++ (convToVarDecls (unrollSeq [] (expandStatement initValAssignment)))
 
+compileSignalDeclaration :: String -> Type -> String
+compileSignalDeclaration s t = compileVariableDeclaration s (nilValue t)
+
 compileScriptedAction :: Stmt -> String
 compileScriptedAction stmt = concat [ show seq ++ "\n" | seq <- unrollSeq [] (expandStatement stmt) ]
 

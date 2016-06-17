@@ -33,6 +33,31 @@ QString Compiler::compileVariableDeclaration(const QString &name,
 	return result;
 }
 
+QString Compiler::compileSignalDeclaration(const QString &name,
+	const SemanticTree::Type *type)
+{
+	QString result = QString("// Signal \"%1\"").arg(name);
+
+	if (type == nullptr)
+	{
+		type = m_context->boolType();
+		result += "\n";
+	}
+	else
+	{
+		result += QString(" : %1\n").arg(type->datatypeName());
+	}
+
+	const QByteArray n = name.toLatin1();
+	char *rawResult = (char*)hsCompileSignalDeclaration(
+		(void*)n.constData(),
+		type->haskellHandle());
+	result += rawResult;
+	free(rawResult);
+
+	return result;
+}
+
 QString Compiler::compileInitialNode(const UMLInitialNode *node)
 {
 	QString result = QString("\n// InitialNode \"%1\"\n").arg(node->nodeName());

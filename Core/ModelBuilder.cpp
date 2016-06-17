@@ -72,8 +72,9 @@ bool ModelBuilder::run()
 		return false;
 
 	if (m_verboseDebugEnabled)
-		qDebug() << "Compiling global variables' declarations...";
+		qDebug() << "Compiling global variable and signal declarations...";
 	m_modelOutput += compileVariableDecls();
+	m_modelOutput += compileSignalDecls();
 
 	m_modelOutput += "module MyModule\n";
 
@@ -745,6 +746,32 @@ QString ModelBuilder::compileVariableDecls()
 		const bool isPersistent = m_persistentVariables.contains(varName);
 
 		result += comp.compileVariableDeclaration(varName, type, initVal, isPersistent) + "\n";
+	}
+
+	return result;
+}
+
+QString ModelBuilder::compileSignalDecls()
+{
+	QString result;
+
+	Compiler::Compiler comp(&m_semanticContext);
+	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
+	{
+		const UMLSignalEdge *signalElem = dynamic_cast<const UMLSignalEdge*>(elem);
+		if (signalElem == nullptr)
+			continue;
+
+		const QString &signalName = signalElem->signalName();
+		const DatatypeName &datatype = signalElem->messageDatatypeName();
+		const Core::Compiler::SemanticTree::Type *resolvedType;
+
+		if (datatype.type() == DatatypeName::Invalid)
+			resolvedType = nullptr;
+		else
+			resolvedType = resolveType(&datatype);
+
+		result += comp.compileSignalDeclaration(signalName, resolvedType) + "\n";
 	}
 
 	return result;
