@@ -24,7 +24,7 @@ QString Compiler::compileVariableDeclaration(const QString &name,
 		(void*)n.constData(),
 		initialValue->haskellHandle());
 	const QString result = QString("// %1 %2 : %3\n%4")
-		.arg(isPersistent ? "Variable" : "Persistent variable")
+		.arg(isPersistent ? "Persistent variable" : "Variable")
 		.arg(name)
 		.arg(type->datatypeName())
 		.arg(rawResult);
