@@ -202,8 +202,8 @@ unrollSeq prevseq (StmtIfElse cond tstmt fstmt) =
 unrollSeq prevseq (StmtChoiceOr alt1 alt2) = (unrollSeq prevseq alt1) ++ (unrollSeq prevseq alt2)
 unrollSeq prevseq (StmtBranch str) = [prevseq ++ [UnrollBranch str]]
 
-variableDeclaration :: String -> Expr -> String
-variableDeclaration varName initVal =
+compileVariableDeclaration :: String -> Expr -> String
+compileVariableDeclaration varName initVal =
 	let
 		varType = typeOfExpr initVal
 	in let
@@ -215,3 +215,9 @@ variableDeclaration varName initVal =
 		initValAssignment = StmtAssignment (IdntGlobal varName varType) initVal
 	in
 		setValList varType ++ (convToVarDecls (unrollSeq [] (expandStatement initValAssignment)))
+
+compileScriptedAction :: Stmt -> String
+compileScriptedAction stmt = concat [ show seq ++ "\n" | seq <- unrollSeq [] (expandStatement stmt) ]
+
+compilePredicate :: Expr -> String
+compilePredicate = show . expandExpression

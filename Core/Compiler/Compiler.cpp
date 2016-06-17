@@ -88,7 +88,14 @@ QString Compiler::compileActionNode(const UMLActionNode *node, const SemanticTre
 	else
 		result += "// No next\n";
 
-	*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
+	if (script != nullptr)
+	{
+		char *rawResult = (char*)hsCompileScriptedAction(script->haskellHandle());
+		result += rawResult;
+		free(rawResult);
+	}
+
+	//*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
 	return result;
 }
 
@@ -107,7 +114,14 @@ QString Compiler::compileDecisionMergeNode(const UMLDecisionMergeNode *node, con
 	else
 		result += "// No default next\n";
 
-	*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
+	if (script != nullptr)
+	{
+		char *rawResult = (char*)hsCompileScriptedAction(script->haskellHandle());
+		result += rawResult;
+		free(rawResult);
+	}
+
+	//*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
 	return result;
 }
 
@@ -125,6 +139,15 @@ QString Compiler::compileForkJoinNode(const UMLForkJoinNode *node)
 	result += QString("%1 : [0..%2] init 0;\n").arg(node->nodeName()).arg(incomingCount + 1);
 	result += QString("[] %1>%2 -> 1.0 : %3;\n").arg(node->nodeName()).arg(qMax(incomingCount - 1, 0)).arg(outgoingList.join(" & "));
 
+	return result;
+}
+
+QString Compiler::compilePredicate(const SemanticTree::Expr *pred)
+{
+	QString result;
+	char *rawResult = (char*)hsCompilePredicate(pred->haskellHandle());
+	result = rawResult;
+	free(rawResult);
 	return result;
 }
 

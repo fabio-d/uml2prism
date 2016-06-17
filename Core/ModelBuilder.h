@@ -45,6 +45,7 @@ class ModelBuilder : public QObject
 		void registerStates();
 		QString compileVariableDecls();
 		QString compileStates();
+		QString compileLabels();
 
 		const Document *m_doc;
 		bool m_started, m_error;

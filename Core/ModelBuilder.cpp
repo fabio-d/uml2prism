@@ -3,6 +3,7 @@
 #include "Core/Compiler/Compiler.h"
 #include "Core/Compiler/SemanticTreeGenerator.h"
 #include "Core/Document.h"
+#include "Core/PredicateList.h"
 #include "Core/UMLDiagram.h"
 #include "Core/UMLElement.h"
 
@@ -73,10 +74,17 @@ bool ModelBuilder::run()
 	m_modelOutput += compileStates();
 	registerStates(); // states must be registered after compiling scripts because scripts are not meant to be aware of them
 
-	qDebug() << "Success";
-
 	m_modelOutput += "\nendmodule\n";
-	return m_error == false;
+
+	if (m_error)
+		return false;
+
+	qDebug() << "Compiling and registering labels...";
+	m_propertiesOutput += compileLabels();
+	// TODO register labels
+
+	qDebug() << "Success";
+	return true;
 }
 
 bool ModelBuilder::success() const
@@ -781,6 +789,33 @@ QString ModelBuilder::compileStates()
 					emitWarning(nodeElem->nodeName(), error.second);
 			}
 		}
+	}
+
+	return result;
+}
+
+QString ModelBuilder::compileLabels()
+{
+	Compiler::Compiler comp(&m_semanticContext);
+	QString result;
+
+	foreach (const Predicate &p, m_doc->labels()->predicates())
+	{
+		Core::Compiler::SemanticTreeGenerator stgen(
+			p.expression(),
+			&m_semanticContext,
+			m_semanticContext.boolType(),
+			false);
+
+		if (!stgen.success())
+		{
+			emitError(QString("%1:%2").arg(p.name()).arg(stgen.errorLocation().toString()), stgen.errorMessage());
+			continue;
+		}
+
+		const Core::Compiler::SemanticTree::Expr *semTree = stgen.takeResultExpr();
+		result += QString("label \"%1\" = %2;\n").arg(p.name()).arg(comp.compilePredicate(semTree));
+		delete semTree;
 	}
 
 	return result;

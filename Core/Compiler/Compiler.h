@@ -40,6 +40,8 @@ class Compiler
 			ErrorList *out_errorList);
 		QString compileForkJoinNode(const UMLForkJoinNode *node);
 
+		QString compilePredicate(const SemanticTree::Expr *pred);
+
 	private:
 		const SemanticContext *m_context;
 };
