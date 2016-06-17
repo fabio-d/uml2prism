@@ -15,7 +15,7 @@ class ModelBuilder : public QObject
 	Q_OBJECT
 
 	public:
-		explicit ModelBuilder(const Document *doc); // does NOT take ownership
+		ModelBuilder(const Document *doc, bool debugOutput); // does NOT take ownership
 		~ModelBuilder();
 
 		bool run(); // to called only once, returns same value as success()
@@ -57,6 +57,8 @@ class ModelBuilder : public QObject
 		QList<QString> m_persistentVariables;
 
 		QString m_modelOutput, m_propertiesOutput;
+
+		bool m_verboseDebugEnabled;
 };
 
 }

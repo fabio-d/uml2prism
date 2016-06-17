@@ -24,9 +24,6 @@ class EditScriptedNodeElementDialog : public QDialog
 
 		void accept() override;
 
-	private slots:
-		void slotParse();
-
 	private:
 		Ui_EditScriptedNodeElementDialog *m_ui;
 		Core::Document *m_doc;

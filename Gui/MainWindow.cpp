@@ -457,7 +457,7 @@ void MainWindow::slotBuild()
 {
 	m_ui->errorListWidget->clear();
 
-	Core::ModelBuilder builder(m_doc);
+	Core::ModelBuilder builder(m_doc, false);
 	connect(&builder, SIGNAL(error(QString,QString)), this, SLOT(slotError(QString,QString)));
 	connect(&builder, SIGNAL(warning(QString,QString)), this, SLOT(slotWarning(QString,QString)));
 

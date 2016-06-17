@@ -25,9 +25,6 @@ class EditPredicateDialog : public QDialog
 
 		void accept() override;
 
-	private slots:
-		void slotParse();
-
 	private:
 		Ui_EditPredicateDialog *m_ui;
 		Core::Document *m_doc;

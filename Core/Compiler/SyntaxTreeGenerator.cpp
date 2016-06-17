@@ -93,7 +93,7 @@ void SyntaxTreeGenerator::setResultScript(SyntaxTree::Statement *expr)
 	// setError must not have been called
 	Q_ASSERT(m_success == true);
 
-	qDebug() << "Got resultScript:" << expr->toString().toLatin1().constData();
+	//qDebug() << "Got resultScript:" << expr->toString().toLatin1().constData();
 	m_resultScript = expr;
 }
 

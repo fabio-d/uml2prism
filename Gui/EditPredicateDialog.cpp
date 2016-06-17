@@ -34,9 +34,6 @@ EditPredicateDialog::EditPredicateDialog(Core::Document *doc, Core::Predicate *p
 	setWindowTitle(QString("Edit %1").arg(m_pred->name()));
 	m_ui->nameLineEdit->setText(m_pred->name());
 	m_ui->expressionTextEdit->setPlainText(m_pred->expression());
-
-	QPushButton *parseButton = m_ui->buttonBox->addButton("Parse", QDialogButtonBox::ActionRole);
-	connect(parseButton, SIGNAL(clicked()), this, SLOT(slotParse()));
 }
 
 EditPredicateDialog::~EditPredicateDialog()
@@ -52,28 +49,6 @@ void EditPredicateDialog::accept()
 	m_pred->setName(m_ui->nameLineEdit->text());
 	m_pred->setExpression(m_ui->expressionTextEdit->toPlainText());
 	QDialog::accept();
-}
-
-void EditPredicateDialog::slotParse()
-{
-	Core::ModelBuilder builder(m_doc);
-	if (builder.run())
-	{
-		Core::Compiler::SemanticTreeGenerator stgen(
-			m_ui->expressionTextEdit->toPlainText(),
-			builder.semanticContext(),
-			builder.semanticContext()->boolType(),
-			m_predType == Core::PredicateType::Property);
-		if (stgen.success())
-		{
-			const Core::Compiler::SemanticTree::Expr *semTree = stgen.takeResultExpr();
-			qDebug() << "C++ semantic tree:";
-			qDebug() << semTree->toString();
-			qDebug() << "Haskell semantic tree:";
-			hsExpr_dump(semTree->haskellHandle());
-			delete semTree;
-		}
-	}
 }
 
 }

@@ -93,7 +93,7 @@ void SemanticTreeGenerator::setError(const SourceLocation &location, const QStri
 	m_errorMessage = message;
 	m_success = false;
 
-	qDebug() << "SemanticTreeGenerator failed at" << location.toString() << ":" << message;
+	//qDebug() << "SemanticTreeGenerator failed at" << location.toString() << ":" << message;
 }
 
 void SemanticTreeGenerator::setUnexpectedTypeError(const SourceLocation &location, const SemanticTree::Type *expectedType, const SemanticTree::Type *actualType)

@@ -28,8 +28,9 @@ static QString naturalTextJoin(const QStringList &list)
 namespace Core
 {
 
-ModelBuilder::ModelBuilder(const Document *doc)
-: m_doc(doc), m_started(false), m_error(false), m_modelOutput("mdp\n\n")
+ModelBuilder::ModelBuilder(const Document *doc, bool debugOutput)
+: m_doc(doc), m_started(false), m_error(false), m_modelOutput("mdp\n\n"),
+  m_verboseDebugEnabled(debugOutput)
 {
 }
 
@@ -42,35 +43,42 @@ bool ModelBuilder::run()
 {
 	Q_ASSERT(m_started == false);
 
-	qDebug() << "ModelBuilder started";
+	if (m_verboseDebugEnabled)
+		qDebug() << "ModelBuilder started";
 	m_started =  true;
 
-	qDebug() << "Checking that no duplicate global names are present...";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Checking that no duplicate global names are present...";
 	checkDuplicateGlobalNames();
 	if (m_error)
 		return false;
 
-	qDebug() << "Checking that control-flow and signal edges are used properly...";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Checking that control-flow and signal edges are used properly...";
 	checkControlFlowEdges();
 	checkSignalEdges();
 
-	qDebug() << "Checking that types are sound...";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Checking that types are sound...";
 	registerTypes();
 	if (m_error)
 		return false;
 
-	qDebug() << "Registering global variables, signals...";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Registering global variables, signals...";
 	registerGlobalVariables(); // this must be done before registering signals, see comment inside
 	registerSignals();
 	if (m_error)
 		return false;
 
-	qDebug() << "Compiling global variables' declarations...";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Compiling global variables' declarations...";
 	m_modelOutput += compileVariableDecls();
 
 	m_modelOutput += "module MyModule\n";
 
-	qDebug() << "Compiling and registering states...";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Compiling and registering states...";
 	m_modelOutput += compileStates();
 	registerStates(); // states must be registered after compiling scripts because scripts are not meant to be aware of them
 
@@ -79,14 +87,16 @@ bool ModelBuilder::run()
 	if (m_error)
 		return false;
 
-	qDebug() << "Compiling and registering labels...";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Compiling and registering labels...";
 	m_propertiesOutput += compileLabels();
 	registerLabels(); // labels must be registered after compiling labels because labels are not meant to be aware of themselves
 
 	if (m_error)
 		return false;
 
-	qDebug() << "Compiling properties...";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Compiling properties...";
 	if (!m_propertiesOutput.isEmpty())
 		m_propertiesOutput += "\n";
 	m_propertiesOutput += compileProperties();
@@ -94,7 +104,8 @@ bool ModelBuilder::run()
 	if (m_error)
 		return false;
 
-	qDebug() << "Success";
+	if (m_verboseDebugEnabled)
+		qDebug() << "Success";
 	return true;
 }
 
@@ -124,13 +135,15 @@ const QString &ModelBuilder::propertiesOutput() const
 
 void ModelBuilder::emitWarning(const QString &location, const QString &description)
 {
-	qDebug() << "WARNING:" << location << ":" << description;
+	if (m_verboseDebugEnabled)
+		qDebug() << "WARNING:" << location << ":" << description;
 	emit warning(location, description);
 }
 
 void ModelBuilder::emitError(const QString &location, const QString &description)
 {
-	qDebug() << "ERROR:" << location << ":" << description;
+	if (m_verboseDebugEnabled)
+		qDebug() << "ERROR:" << location << ":" << description;
 	m_error = true;
 	emit error(location, description);
 }
