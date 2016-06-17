@@ -218,6 +218,7 @@ void ModelBuilder::checkDuplicateGlobalNames()
 				break;
 		}
 	}
+
 	foreach (const UMLElement *elem, m_doc->classDiagram()->elements())
 	{
 		switch (elem->type())
@@ -257,6 +258,12 @@ void ModelBuilder::checkDuplicateGlobalNames()
 		}
 	}
 
+	foreach (const Predicate &p, m_doc->labels()->predicates())
+		definitionOrigins.insert(p.name(), "l");
+
+	foreach (const Predicate &p, m_doc->properties()->predicates())
+		definitionOrigins.insert(p.name(), "p");
+
 	foreach (const QString &name, definitionOrigins.uniqueKeys())
 	{
 		if (definitionOrigins.count(name) == 1)
@@ -266,21 +273,32 @@ void ModelBuilder::checkDuplicateGlobalNames()
 		QMap<QString, int> activityDiagramOccurrenceCountByType, classDiagramOccurrenceCountByType;
 		int activityDiagramOccurrenceTotalCount = 0;
 		int classDiagramOccurrenceTotalCount = 0;
+		int labelListOccurrenceCount = 0;
+		int propertyListOccurrenceCount = 0;
 
 		foreach (const QString &occ, occurrences)
 		{
-			// occurrences must be either from the activity or class diagram
-			Q_ASSERT(occ.startsWith("a/") || occ.startsWith("c/"));
-
 			if (occ.startsWith("a/"))
 			{
 				activityDiagramOccurrenceCountByType[occ.mid(2)]++;
 				activityDiagramOccurrenceTotalCount++;
 			}
-			else
+			else if (occ.startsWith("c/"))
 			{
 				classDiagramOccurrenceCountByType[occ.mid(2)]++;
 				classDiagramOccurrenceTotalCount++;
+			}
+			else if (occ == "l")
+			{
+				labelListOccurrenceCount++;
+			}
+			else if (occ == "p")
+			{
+				propertyListOccurrenceCount++;
+			}
+			else
+			{
+				qFatal("This should never happen");
 			}
 		}
 
@@ -318,19 +336,21 @@ void ModelBuilder::checkDuplicateGlobalNames()
 			}
 		}
 
-		QString locText;
+		QStringList locTexts;
 		if (!activityDiagramOccurrenceDescriptions.isEmpty())
-		{
-			locText = QString("in Activity Diagram (%1)").arg(naturalTextJoin(activityDiagramOccurrenceDescriptions));
-		}
+			locTexts.append(QString("in Activity Diagram (%1)").arg(naturalTextJoin(activityDiagramOccurrenceDescriptions)));
 		if (!classDiagramOccurrenceDescriptions.isEmpty())
-		{
-			if (!activityDiagramOccurrenceDescriptions.isEmpty())
-				locText += " and ";
-			locText += QString("in Class Diagram (%1)").arg(naturalTextJoin(classDiagramOccurrenceDescriptions));
-		}
+			locTexts.append(QString("in Class Diagram (%1)").arg(naturalTextJoin(classDiagramOccurrenceDescriptions)));
+		if (labelListOccurrenceCount == 1)
+			locTexts.append(QString("in Label list"));
+		else if (labelListOccurrenceCount > 1)
+			locTexts.append(QString("in Label list (more than once)"));
+		if (propertyListOccurrenceCount == 1)
+			locTexts.append(QString("in Property list"));
+		else if (propertyListOccurrenceCount > 1)
+			locTexts.append(QString("in Property list (more than once)"));
 
-		emitError(name, "Name defined multiple times " + locText);
+		emitError(name, "Name defined multiple times " + naturalTextJoin(locTexts));
 	}
 }
 
