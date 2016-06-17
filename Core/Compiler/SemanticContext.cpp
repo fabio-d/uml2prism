@@ -65,6 +65,11 @@ void SemanticContext::registerState(const QString &name)
 	m_states.append(name);
 }
 
+void SemanticContext::registerLabel(const QString &name)
+{
+	m_labels.append(name);
+}
+
 const SemanticTree::EnumerationType *SemanticContext::findEnumerationValue(const QString &value) const
 {
 	foreach (const SemanticTree::Type *t, m_classAndEnumTypes)
@@ -83,9 +88,9 @@ const SemanticTree::Type *SemanticContext::findGlobalVariableOrSignalWithMessage
 		m_signals.value(name, nullptr);
 }
 
-bool SemanticContext::findStateOrSignalWithoutMessage(const QString &name) const
+bool SemanticContext::findStateOrLabelOrSignalWithoutMessage(const QString &name) const
 {
-	if (m_states.contains(name))
+	if (m_states.contains(name) || m_labels.contains(name))
 		return true;
 	if (m_signals.contains(name) && m_signals.value(name) == nullptr)
 		return true;
@@ -111,6 +116,11 @@ bool SemanticContext::isGlobalVariable(const QString &name) const
 bool SemanticContext::isState(const QString &name) const
 {
 	return m_states.contains(name);
+}
+
+bool SemanticContext::isLabel(const QString &name) const
+{
+	return m_labels.contains(name);
 }
 
 }

@@ -26,15 +26,17 @@ class SemanticContext
 		void registerGlobalVariable(const QString &name, const SemanticTree::Type *type);
 		void registerSignal(const QString &name, const SemanticTree::Type *type); // type==nullptr means no attached message
 		void registerState(const QString &name);
+		void registerLabel(const QString &name);
 
 		const SemanticTree::EnumerationType *findEnumerationValue(const QString &value) const;
 		const SemanticTree::Type *findGlobalVariableOrSignalWithMessage(const QString &name) const;
-		bool findStateOrSignalWithoutMessage(const QString &name) const;
+		bool findStateOrLabelOrSignalWithoutMessage(const QString &name) const;
 
 		bool isSignalWithMessage(const QString &name) const;
 		bool isSignalWithoutMessage(const QString &name) const;
 		bool isGlobalVariable(const QString &name) const;
 		bool isState(const QString &name) const;
+		bool isLabel(const QString &name) const;
 
 	private:
 		SemanticTree::BoolType m_boolType;
@@ -42,7 +44,7 @@ class SemanticContext
 		mutable QMap<const SemanticTree::Type*, const SemanticTree::SetType*> m_setTypes; // SetType instances by innerType
 		QMap<QString, const SemanticTree::Type*> m_globalVariables;
 		QMap<QString, const SemanticTree::Type*> m_signals;
-		QStringList m_states;
+		QStringList m_states, m_labels;
 };
 
 }

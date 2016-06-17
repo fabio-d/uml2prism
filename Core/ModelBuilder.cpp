@@ -81,7 +81,18 @@ bool ModelBuilder::run()
 
 	qDebug() << "Compiling and registering labels...";
 	m_propertiesOutput += compileLabels();
-	// TODO register labels
+	registerLabels(); // labels must be registered after compiling labels because labels are not meant to be aware of themselves
+
+	if (m_error)
+		return false;
+
+	qDebug() << "Compiling properties...";
+	if (!m_propertiesOutput.isEmpty())
+		m_propertiesOutput += "\n";
+	m_propertiesOutput += compileProperties();
+
+	if (m_error)
+		return false;
 
 	qDebug() << "Success";
 	return true;
@@ -681,6 +692,12 @@ void ModelBuilder::registerStates()
 	}
 }
 
+void ModelBuilder::registerLabels()
+{
+	foreach (const Predicate &p, m_doc->labels()->predicates())
+		m_semanticContext.registerLabel(p.name());
+}
+
 QString ModelBuilder::compileVariableDecls()
 {
 	QString result;
@@ -814,7 +831,37 @@ QString ModelBuilder::compileLabels()
 		}
 
 		const Core::Compiler::SemanticTree::Expr *semTree = stgen.takeResultExpr();
-		result += QString("label \"%1\" = %2;\n").arg(p.name()).arg(comp.compilePredicate(semTree));
+		result += comp.compileLabel(p.name(), semTree);
+		delete semTree;
+	}
+
+	return result;
+}
+
+QString ModelBuilder::compileProperties()
+{
+	Compiler::Compiler comp(&m_semanticContext);
+	QString result;
+
+	foreach (const Predicate &p, m_doc->properties()->predicates())
+	{
+		Core::Compiler::SemanticTreeGenerator stgen(
+			p.expression(),
+			&m_semanticContext,
+			m_semanticContext.boolType(),
+			true);
+
+		if (!stgen.success())
+		{
+			emitError(QString("%1:%2").arg(p.name()).arg(stgen.errorLocation().toString()), stgen.errorMessage());
+			continue;
+		}
+
+		if (!result.isEmpty())
+			result += "\n";
+
+		const Core::Compiler::SemanticTree::Expr *semTree = stgen.takeResultExpr();
+		result += comp.compileProperty(p.name(), semTree);
 		delete semTree;
 	}
 

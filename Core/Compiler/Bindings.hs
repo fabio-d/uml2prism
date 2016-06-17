@@ -259,7 +259,8 @@ hsStmt_free x = freeStablePtr x
 -- Compiler
 foreign export ccall hsCompileVariableDeclaration :: CString -> StablePtr Expr -> IO (CString)
 foreign export ccall hsCompileScriptedAction :: StablePtr Stmt -> IO (CString)
-foreign export ccall hsCompilePredicate :: StablePtr Expr -> IO (CString)
+foreign export ccall hsCompileLabel :: CString -> StablePtr Expr -> IO (CString)
+foreign export ccall hsCompileProperty :: StablePtr Expr -> IO (CString)
 
 hsCompileVariableDeclaration :: CString -> StablePtr Expr -> IO (CString)
 hsCompileVariableDeclaration varName_ptr initVal_ptr = do
@@ -272,7 +273,13 @@ hsCompileScriptedAction stmt = do
 	s <- deRefStablePtr stmt
 	newCString (compileScriptedAction s)
 
-hsCompilePredicate :: StablePtr Expr -> IO (CString)
-hsCompilePredicate expr = do
+hsCompileLabel :: CString -> StablePtr Expr -> IO (CString)
+hsCompileLabel name_ptr expr = do
+	name <- peekCString name_ptr
 	e <- deRefStablePtr expr
-	newCString (compilePredicate e)
+	newCString (compileLabel name e)
+
+hsCompileProperty :: StablePtr Expr -> IO (CString)
+hsCompileProperty expr = do
+	e <- deRefStablePtr expr
+	newCString (compileProperty e)

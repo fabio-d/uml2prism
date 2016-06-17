@@ -120,7 +120,7 @@ const SemanticTree::Idnt *SemanticTreeGenerator::resolveIdentifier(const SyntaxT
 
 	const SyntaxTree::GlobalIdentifier *baseVar = static_cast<const SyntaxTree::GlobalIdentifier*>(nextSegm);
 	const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignalWithMessage(baseVar->name());
-	if (varType == nullptr && m_context->findStateOrSignalWithoutMessage(baseVar->name()))
+	if (varType == nullptr && m_context->findStateOrLabelOrSignalWithoutMessage(baseVar->name()))
 		varType = m_context->boolType();
 
 	if (varType == nullptr)
@@ -187,7 +187,7 @@ const SemanticTree::Type *SemanticTreeGenerator::deduceType(const SyntaxTree::Ex
 			// Try to resolve it as variable or signal name
 			const SemanticTree::EnumerationType *enumType = m_context->findEnumerationValue(node->name());
 			const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignalWithMessage(node->name());
-			if (varType == nullptr && m_context->findStateOrSignalWithoutMessage(node->name()))
+			if (varType == nullptr && m_context->findStateOrLabelOrSignalWithoutMessage(node->name()))
 				varType = m_context->boolType();
 
 			if (enumType != nullptr)
@@ -322,14 +322,10 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 			// Try to resolve it as variable or signal name
 			const SemanticTree::EnumerationType *enumType = m_context->findEnumerationValue(node->name());
 			const SemanticTree::Type *varType = m_context->findGlobalVariableOrSignalWithMessage(node->name());
-			if (varType == nullptr && m_context->findStateOrSignalWithoutMessage(node->name()))
+			if (varType == nullptr && m_context->findStateOrLabelOrSignalWithoutMessage(node->name()))
 				varType = m_context->boolType();
 
-			if (m_context->isState(node->name()))
-			{
-				return new SemanticTree::ExprStateCheck(node->name());
-			}
-			else if (enumType != nullptr)
+			if (enumType != nullptr)
 			{
 				if (expectedType == enumType)
 				{
@@ -345,7 +341,12 @@ const SemanticTree::Expr *SemanticTreeGenerator::convertExpression(const SyntaxT
 			{
 				if (expectedType == varType)
 				{
-					return new SemanticTree::ExprVariable(new SemanticTree::IdntGlobal(node->name(), varType));
+					if (m_context->isState(node->name()))
+						return new SemanticTree::ExprStateCheck(node->name());
+					else if (m_context->isLabel(node->name()))
+						return new SemanticTree::ExprVariable(new SemanticTree::IdntGlobal(QString("\"%1\"").arg(node->name()), varType));
+					else
+						return new SemanticTree::ExprVariable(new SemanticTree::IdntGlobal(node->name(), varType));
 				}
 				else
 				{

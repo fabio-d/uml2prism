@@ -213,8 +213,8 @@ flattenIdnt (IdntGlobal name _) = name
 flattenIdnt (IdntMember parent name _) = (flattenIdnt parent) ++ "." ++ name
 
 -- Convert a Idnt to an escaped string
-escapedIdnt :: Idnt -> String
-escapedIdnt = escapeString . flattenIdnt
+escapeIdnt :: Idnt -> String
+escapeIdnt = escapeString . flattenIdnt
 
 -- Convert an expanded Expr (see expandExpression) to a prism Expr
 -- Note: some Expr cases are not handled because they never occur in expanded
@@ -223,7 +223,7 @@ convertExpandedExprToPrismExpr :: Expr -> PrismExpr
 convertExpandedExprToPrismExpr (ExprBoolLiteral v) = PrismExprBoolLiteral v
 convertExpandedExprToPrismExpr (ExprEnumLiteral _ idx) = PrismExprIntLiteral idx
 convertExpandedExprToPrismExpr (ExprStateCheck stateName) = PrismExprBinOp ">" (PrismExprVariable (escapeString stateName)) (PrismExprIntLiteral 0)
-convertExpandedExprToPrismExpr (ExprVariable idnt) = PrismExprVariable (escapedIdnt idnt)
+convertExpandedExprToPrismExpr (ExprVariable idnt) = PrismExprVariable (escapeIdnt idnt)
 convertExpandedExprToPrismExpr (ExprEqOp a b) = PrismExprBinOp "=" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
 convertExpandedExprToPrismExpr (ExprNeqOp a b) = PrismExprBinOp "!=" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
 convertExpandedExprToPrismExpr (ExprAndOp a b) = PrismExprBinOp "&" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
@@ -244,8 +244,8 @@ compileVariableDeclaration varName initVal =
 		setValList _ = ""
 		convToVarDecls [[]] = ""
 		convToVarDecls [((UnrollAssgn idnt expr):vs)]
-			| TypeBool <- typeOfIdnt idnt = formatPrismGlobalVarDecl (PrismGlobalVarDeclBool (escapedIdnt idnt) (convertExpandedExprToPrismExpr expr)) ++ ";\n" ++ convToVarDecls [vs]
-			| TypeEnumeration enumvals <- typeOfIdnt idnt = formatPrismGlobalVarDecl (PrismGlobalVarDeclInt (escapedIdnt idnt) 0 (length enumvals) (convertExpandedExprToPrismExpr expr)) ++ ";\n" ++ convToVarDecls [vs]
+			| TypeBool <- typeOfIdnt idnt = formatPrismGlobalVarDecl (PrismGlobalVarDeclBool (escapeIdnt idnt) (convertExpandedExprToPrismExpr expr)) ++ ";\n" ++ convToVarDecls [vs]
+			| TypeEnumeration enumvals <- typeOfIdnt idnt = formatPrismGlobalVarDecl (PrismGlobalVarDeclInt (escapeIdnt idnt) 0 (length enumvals) (convertExpandedExprToPrismExpr expr)) ++ ";\n" ++ convToVarDecls [vs]
 		initValAssignment = StmtAssignment (IdntGlobal varName varType) initVal
 	in
 		setValList varType ++ (convToVarDecls (unrollSeq [] (expandStatement initValAssignment)))
@@ -253,5 +253,8 @@ compileVariableDeclaration varName initVal =
 compileScriptedAction :: Stmt -> String
 compileScriptedAction stmt = concat [ show seq ++ "\n" | seq <- unrollSeq [] (expandStatement stmt) ]
 
-compilePredicate :: Expr -> String
-compilePredicate = formatPrismExpr . convertExpandedExprToPrismExpr . expandExpression
+compileProperty :: Expr -> String
+compileProperty = formatPrismExpr . convertExpandedExprToPrismExpr . expandExpression
+
+compileLabel :: String -> Expr -> String
+compileLabel name expr = "label \"" ++ (escapeString name) ++ "\" = " ++ (compileProperty expr) ++ ";\n"

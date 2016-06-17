@@ -142,11 +142,20 @@ QString Compiler::compileForkJoinNode(const UMLForkJoinNode *node)
 	return result;
 }
 
-QString Compiler::compilePredicate(const SemanticTree::Expr *pred)
+QString Compiler::compileLabel(const QString &name, const SemanticTree::Expr *pred)
 {
+	const QByteArray n = name.toLatin1();
 	QString result;
-	char *rawResult = (char*)hsCompilePredicate(pred->haskellHandle());
+	char *rawResult = (char*)hsCompileLabel((void*)n.constData(), pred->haskellHandle());
 	result = rawResult;
+	free(rawResult);
+	return result;
+}
+
+QString Compiler::compileProperty(const QString &name, const SemanticTree::Expr *pred)
+{
+	char *rawResult = (char*)hsCompileProperty(pred->haskellHandle());
+	QString result = QString("// Property \"%1\"\n%2\n").arg(name).arg(rawResult);
 	free(rawResult);
 	return result;
 }
