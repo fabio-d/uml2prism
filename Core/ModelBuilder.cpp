@@ -803,7 +803,44 @@ QString ModelBuilder::compileStates()
 				}
 				case UMLElementType::ActivityFinalNode:
 				{
-					result += comp.compileActivityFinalNode(static_cast<const UMLActivityFinalNode*>(nodeElem));
+					QStringList allStates;
+					QMap<QString, const Compiler::SemanticTree::Expr *> restartVarValues;
+					QMap<QString, const Compiler::SemanticTree::Type *> restartSignalTypes;
+
+					foreach (const UMLElement *elem2, m_doc->activityDiagram()->elements())
+					{
+						const UMLNodeElement *nodeElem2 = dynamic_cast<const UMLNodeElement*>(elem2);
+						if (nodeElem2 != nullptr)
+							allStates.append(nodeElem2->nodeName());
+					}
+
+					foreach (const QString &varName, m_globalVarsInitValue.keys())
+					{
+						const Compiler::SemanticTree::Expr *initVal =
+							m_globalVarsInitValue[varName];
+						if (m_persistentVariables.contains(varName) == false)
+							restartVarValues.insert(varName, initVal);
+					}
+
+					foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
+					{
+						const UMLSignalEdge *signalElem = dynamic_cast<const UMLSignalEdge*>(elem);
+						if (signalElem != nullptr)
+						{
+							const DatatypeName &datatype = signalElem->messageDatatypeName();
+							const Core::Compiler::SemanticTree::Type *resolvedType;
+
+							if (datatype.type() == DatatypeName::Invalid)
+								resolvedType = m_semanticContext.boolType();
+							else
+								resolvedType = resolveType(&datatype);
+
+							restartSignalTypes.insert(signalElem->signalName(), resolvedType);
+						}
+					}
+
+					result += comp.compileActivityFinalNode(static_cast<const UMLActivityFinalNode*>(nodeElem),
+						allStates, restartVarValues, restartSignalTypes);
 					break;
 				}
 				case UMLElementType::ActionNode:

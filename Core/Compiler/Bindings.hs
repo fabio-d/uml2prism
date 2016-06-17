@@ -257,11 +257,19 @@ hsStmt_free :: StablePtr Stmt -> IO ()
 hsStmt_free x = freeStablePtr x
 
 -- Compiler
+foreign export ccall hsEscapeString :: CString -> IO (CString)
 foreign export ccall hsCompileVariableDeclaration :: CString -> StablePtr Expr -> IO (CString)
 foreign export ccall hsCompileSignalDeclaration :: CString -> StablePtr Type -> IO (CString)
+foreign export ccall hsCompileSimpleAssignment :: CString -> StablePtr Expr -> IO (CString)
+foreign export ccall hsCompileNilAssignment :: CString -> StablePtr Type -> IO (CString)
 foreign export ccall hsCompileScriptedAction :: StablePtr Stmt -> IO (CString)
 foreign export ccall hsCompileLabel :: CString -> StablePtr Expr -> IO (CString)
 foreign export ccall hsCompileProperty :: StablePtr Expr -> IO (CString)
+
+hsEscapeString :: CString -> IO (CString)
+hsEscapeString str_ptr = do
+	str <- peekCString str_ptr
+	newCString (escapeString str)
 
 hsCompileVariableDeclaration :: CString -> StablePtr Expr -> IO (CString)
 hsCompileVariableDeclaration varName_ptr initVal_ptr = do
@@ -274,6 +282,18 @@ hsCompileSignalDeclaration varName_ptr type_ptr = do
 	varName <- peekCString varName_ptr
 	t <- deRefStablePtr type_ptr
 	newCString (compileSignalDeclaration varName t)
+
+hsCompileSimpleAssignment :: CString -> StablePtr Expr -> IO (CString)
+hsCompileSimpleAssignment varName_ptr initVal_ptr = do
+	varName <- peekCString varName_ptr
+	initVal <- deRefStablePtr initVal_ptr
+	newCString (compileSimpleAssignment varName initVal)
+
+hsCompileNilAssignment :: CString -> StablePtr Type -> IO (CString)
+hsCompileNilAssignment varName_ptr type_ptr = do
+	varName <- peekCString varName_ptr
+	t <- deRefStablePtr type_ptr
+	newCString (compileNilAssignment varName t)
 
 hsCompileScriptedAction :: StablePtr Stmt -> IO (CString)
 hsCompileScriptedAction stmt = do

@@ -34,7 +34,10 @@ class Compiler
 
 		QString compileInitialNode(const UMLInitialNode *node);
 		QString compileFlowFinalNode(const UMLFlowFinalNode *node);
-		QString compileActivityFinalNode(const UMLActivityFinalNode *node);
+		QString compileActivityFinalNode(const UMLActivityFinalNode *node,
+			const QStringList &allStates,
+			const QMap<QString, const SemanticTree::Expr *> &restartVarValues,
+			const QMap<QString, const SemanticTree::Type *> &restartSignalTypes);
 		QString compileActionNode(const UMLActionNode *node,
 			const SemanticTree::Stmt *script, const QString &nextNode,
 			ErrorList *out_errorList);
@@ -47,6 +50,8 @@ class Compiler
 		QString compileProperty(const QString &name, const SemanticTree::Expr *pred);
 
 	private:
+		QString escapeString(const QString &str);
+
 		const SemanticContext *m_context;
 };
 

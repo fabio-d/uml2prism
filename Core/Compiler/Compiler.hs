@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 module Compiler where
 import Data.Generics.Uniplate.Data
+import Data.List
 import PrismOutput
 import SemanticTree
 
@@ -252,6 +253,20 @@ compileVariableDeclaration varName initVal =
 
 compileSignalDeclaration :: String -> Type -> String
 compileSignalDeclaration s t = compileVariableDeclaration s (nilValue t)
+
+compileSimpleAssignment :: String -> Expr -> String
+compileSimpleAssignment varName initVal =
+	let
+		varType = typeOfExpr initVal
+	in let
+		convToAssigments [[]] = []
+		convToAssigments [((UnrollAssgn idnt expr):vs)] = (formatPrismAssignment (escapeIdnt idnt) (convertExpandedExprToPrismExpr expr)) : convToAssigments [vs]
+		initValAssignment = StmtAssignment (IdntGlobal varName varType) initVal
+	in
+		intercalate " & " (convToAssigments (unrollSeq [] (expandStatement initValAssignment)))
+
+compileNilAssignment :: String -> Type -> String
+compileNilAssignment varName t = compileSimpleAssignment varName (nilValue t)
 
 compileScriptedAction :: Stmt -> String
 compileScriptedAction stmt = concat [ show seq ++ "\n" | seq <- unrollSeq [] (expandStatement stmt) ]
