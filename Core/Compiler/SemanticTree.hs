@@ -27,6 +27,11 @@ instance Show Idnt where
 	show (IdntGlobal name _) = name
 	show (IdntMember parent name _) = (show parent) ++ "." ++ name
 
+instance Eq Idnt where
+	(IdntGlobal nameA _) == (IdntGlobal nameB _) = nameA == nameB
+	(IdntMember parentA nameA _) == (IdntMember parentB nameB _) | (parentA == parentB) = nameA == nameB
+	_ == _ = False
+
 data Expr =
 	  ExprBoolLiteral Bool		-- bool literal
 	| ExprEnumLiteral Type Int	-- literal for a given TypeEnumeration (arg is 1-based index, 0 means nil)

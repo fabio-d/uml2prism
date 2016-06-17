@@ -180,6 +180,7 @@ data UnrollElem =
 	| UnrollBranch String
 	deriving (Show)
 
+-- Unroll all possible code paths
 unrollSeq :: [UnrollElem] -> Stmt -> [[UnrollElem]]
 unrollSeq prevseq (StmtCompound []) = [prevseq]
 unrollSeq prevseq (StmtCompound (stmt:stmts)) = concat [
@@ -198,6 +199,54 @@ unrollSeq prevseq (StmtIfElse cond tstmt fstmt) =
 		(unrollSeq (prevseq ++ [UnrollGuard (ExprNotOp expandedCond)]) fstmt)
 unrollSeq prevseq (StmtChoiceOr alt1 alt2) = (unrollSeq prevseq alt1) ++ (unrollSeq prevseq alt2)
 unrollSeq prevseq (StmtBranch str) = [prevseq ++ [UnrollBranch str]]
+
+-- Truncate a sequence of UnrollElem to the first UnrollBranch. Returns Nothing
+-- if no UnrollBranch is found
+truncToBranch :: [UnrollElem] -> Maybe [UnrollElem]
+truncToBranch [] = Nothing
+truncToBranch ((UnrollBranch str):_) = Just [UnrollBranch str]
+truncToBranch (e:es) = truncToBranch es >>= (\r -> Just (e:r))
+
+-- Given a sequence of UnrollElem containing UnrollAssgn elements, this function
+-- replaces later occurrences of assigned variables to create the illusion of
+-- sequential execution
+forwardSubst :: [UnrollElem] -> [UnrollElem]
+forwardSubst =
+	let
+		-- Add a '$' somewhere in each variable's name
+		markFunc (ExprVariable (IdntGlobal name t)) | (head name /= '$') = ExprVariable (IdntGlobal ('$':name) t)
+		markFunc (ExprVariable (IdntMember parent name t)) | (head name /= '$') = ExprVariable (IdntMember parent ('$':name) t)
+		markFunc x = x
+		markVariables = transform markFunc
+		-- Remove the '$'
+		unmarkFunc (ExprVariable (IdntGlobal ('$':name) t)) = ExprVariable (IdntGlobal name t)
+		unmarkFunc (ExprVariable (IdntMember parent ('$':name) t)) = ExprVariable (IdntMember parent name t)
+		unmarkFunc x = x
+		unmarkVariables = transform unmarkFunc
+		-- Replace every occurrence of a given identifier with an
+		-- expression in a sequence of UnrollElem
+		subst elems idnt newexpr =
+			let
+				substExpr (ExprVariable idntCandidate) | (idntCandidate == idnt) = newexpr
+				substExpr x = x
+				substFunc (UnrollAssgn i e) = UnrollAssgn i (transform substExpr e)
+				substFunc (UnrollGuard e) = UnrollGuard (transform substExpr e)
+				substFunc x = x
+			in
+				map substFunc elems
+		-- Traverse the list of elems.
+		--  - when UnrollAssgn is found, all further occurrences of the
+		--    assigned identifier are replaced with the actual
+		--    expression, marking all its variables so that they do not
+		--    get replaced again later in the process
+		--  - when an element is emitted in its final form, markers are
+		--    removed
+		seqEater ((UnrollAssgn idnt expr):xs) = (UnrollAssgn idnt (unmarkVariables expr)):(seqEater (subst xs idnt (markVariables expr)))
+		seqEater ((UnrollGuard expr):xs) = (UnrollGuard (unmarkVariables expr)):(seqEater xs)
+		seqEater (x:xs) = x:(seqEater xs)
+		seqEater [] = []
+	in
+		seqEater
 
 -- Given a user identifier name, double all underscores, because the compiler
 -- uses single underscores as a separator and we want avoid conflicts. Dots are
@@ -269,7 +318,7 @@ compileNilAssignment :: String -> Type -> String
 compileNilAssignment varName t = compileSimpleAssignment varName (nilValue t)
 
 compileScriptedAction :: Stmt -> String
-compileScriptedAction stmt = concat [ show seq ++ "\n" | seq <- unrollSeq [] (expandStatement stmt) ]
+compileScriptedAction stmt = concat [ show seq ++ "\n" ++ show (truncToBranch seq) ++ "\n" ++ show (truncToBranch seq >>= Just . forwardSubst) ++ "\n" | seq <- unrollSeq [] (expandStatement stmt) ]
 
 compileProperty :: Expr -> String
 compileProperty = formatPrismExpr . convertExpandedExprToPrismExpr . expandExpression

@@ -870,10 +870,25 @@ QString ModelBuilder::compileStates()
 						if (script.isNull())
 							continue; // parse error
 					}
+					else
+					{
+						// Dummy empty script
+						script.reset(new Compiler::SemanticTree::StmtCompound(QList<const Compiler::SemanticTree::Stmt*>()));
+					}
 
 					// ActionNodes can only have 0 or 1 outgoing edge
 					const QString nextNode = (actionNode->outgoingControlFlowEdges().count() == 0) ?
 						QString() : actionNode->outgoingControlFlowEdges().first()->to()->nodeName();
+
+					// Append branch to nextNode
+					if (!nextNode.isEmpty())
+					{
+						script.reset(new Compiler::SemanticTree::StmtCompound(
+							QList<const Compiler::SemanticTree::Stmt*>()
+								<< script.take()
+								<< new Compiler::SemanticTree::StmtBranch(nextNode)
+							));
+					}
 
 					result += comp.compileActionNode(actionNode, script.data(), nextNode, &errList);
 					break;
@@ -889,12 +904,27 @@ QString ModelBuilder::compileStates()
 						if (script.isNull())
 							continue; // parse error
 					}
+					else
+					{
+						// Dummy empty script
+						script.reset(new Compiler::SemanticTree::StmtCompound(QList<const Compiler::SemanticTree::Stmt*>()));
+					}
 
 					// DecisionMergeNode can have any number of outgoing edges. If
 					// there is only one, set it as default if no branch is provided
 					// by the custom script (e.g. a merge node)
 					const QString nextNode = (decisionMergeNode->outgoingControlFlowEdges().count() != 1) ?
 						QString() : decisionMergeNode->outgoingControlFlowEdges().first()->to()->nodeName();
+
+					// Append branch to nextNode
+					if (!nextNode.isEmpty())
+					{
+						script.reset(new Compiler::SemanticTree::StmtCompound(
+							QList<const Compiler::SemanticTree::Stmt*>()
+								<< script.take()
+								<< new Compiler::SemanticTree::StmtBranch(nextNode)
+							));
+					}
 
 					result += comp.compileDecisionMergeNode(decisionMergeNode, script.data(), nextNode, &errList);
 					break;

@@ -156,22 +156,9 @@ QString Compiler::compileActionNode(const UMLActionNode *node, const SemanticTre
 	QString result = QString("\n// ActionNode \"%1\"\n").arg(node->nodeName());
 	result += QString("%1 : [0..2] init 0;\n").arg(escapeString(node->nodeName()));
 
-	if (script != nullptr)
-		result += QString("// Script: %1\n").arg(script->toString());
-	else
-		result += "// No script\n";
-
-	if (!nextNode.isEmpty())
-		result += QString("// Next is %1\n").arg(nextNode);
-	else
-		result += "// No next\n";
-
-	if (script != nullptr)
-	{
-		char *rawResult = (char*)hsCompileScriptedAction(script->haskellHandle());
-		result += rawResult;
-		free(rawResult);
-	}
+	char *rawResult = (char*)hsCompileScriptedAction(script->haskellHandle());
+	result += rawResult;
+	free(rawResult);
 
 	//*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
 	return result;
@@ -183,22 +170,9 @@ QString Compiler::compileDecisionMergeNode(const UMLDecisionMergeNode *node, con
 	QString result = QString("\n// DecisionMergeNode \"%1\"\n").arg(node->nodeName());
 	result += QString("%1 : [0..2] init 0;\n").arg(escapeString(node->nodeName()));
 
-	if (script != nullptr)
-		result += QString("// Script: %1\n").arg(script->toString());
-	else
-		result += "// No script\n";
-
-	if (!nextNode.isEmpty())
-		result += QString("// Default next is %1\n").arg(nextNode);
-	else
-		result += "// No default next\n";
-
-	if (script != nullptr)
-	{
-		char *rawResult = (char*)hsCompileScriptedAction(script->haskellHandle());
-		result += rawResult;
-		free(rawResult);
-	}
+	char *rawResult = (char*)hsCompileScriptedAction(script->haskellHandle());
+	result += rawResult;
+	free(rawResult);
 
 	//*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
 	return result;
