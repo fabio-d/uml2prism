@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 module Compiler where
 import Data.Generics.Uniplate.Data
+import PrismOutput
 import SemanticTree
 
 -- Given a type, list all its possible values
@@ -164,18 +165,13 @@ expandCompareExpressions =
 	in
 		rewrite f
 
+-- Apply expandAssignmentStatements and expandSetInsertStatements to a Stmt
 expandStatement :: Stmt -> Stmt
 expandStatement = expandAssignmentStatements . expandSetInsertStatements
 
+-- Apply expandCompareExpressions and expandSetContainsExpressions to a Stmt
 expandExpression :: Expr -> Expr
 expandExpression = expandCompareExpressions . expandSetContainsExpressions
-
--- Given a user identifier name, double all underscores, because the compiler
--- uses single underscores as a separator and we want avoid conflicts
-escape :: String -> String
-escape ('_':cs) = '_':'_':(escape cs)
-escape (c:cs) = c:(escape cs)
-escape "" = ""
 
 data UnrollElem =
 	  UnrollAssgn Idnt Expr
@@ -202,6 +198,42 @@ unrollSeq prevseq (StmtIfElse cond tstmt fstmt) =
 unrollSeq prevseq (StmtChoiceOr alt1 alt2) = (unrollSeq prevseq alt1) ++ (unrollSeq prevseq alt2)
 unrollSeq prevseq (StmtBranch str) = [prevseq ++ [UnrollBranch str]]
 
+-- Given a user identifier name, double all underscores, because the compiler
+-- uses single underscores as a separator and we want avoid conflicts. Dots are
+-- replaced with a single underscore
+escapeString :: String -> String
+escapeString ('_':cs) = '_':'_':(escapeString cs)
+escapeString ('.':cs) = '_':(escapeString cs)
+escapeString (c:cs) = c:(escapeString cs)
+escapeString "" = ""
+
+-- Convert a Idnt to a string (each segment being separated by a dot)
+flattenIdnt :: Idnt -> String
+flattenIdnt (IdntGlobal name _) = name
+flattenIdnt (IdntMember parent name _) = (flattenIdnt parent) ++ "." ++ name
+
+-- Convert a Idnt to an escaped string
+escapedIdnt :: Idnt -> String
+escapedIdnt = escapeString . flattenIdnt
+
+-- Convert an expanded Expr (see expandExpression) to a prism Expr
+-- Note: some Expr cases are not handled because they never occur in expanded
+-- expressions
+convertExpandedExprToPrismExpr :: Expr -> PrismExpr
+convertExpandedExprToPrismExpr (ExprBoolLiteral v) = PrismExprBoolLiteral v
+convertExpandedExprToPrismExpr (ExprEnumLiteral _ idx) = PrismExprIntLiteral idx
+convertExpandedExprToPrismExpr (ExprStateCheck stateName) = PrismExprBinOp ">" (PrismExprVariable (escapeString stateName)) (PrismExprIntLiteral 0)
+convertExpandedExprToPrismExpr (ExprVariable idnt) = PrismExprVariable (escapedIdnt idnt)
+convertExpandedExprToPrismExpr (ExprEqOp a b) = PrismExprBinOp "=" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
+convertExpandedExprToPrismExpr (ExprNeqOp a b) = PrismExprBinOp "!=" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
+convertExpandedExprToPrismExpr (ExprAndOp a b) = PrismExprBinOp "&" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
+convertExpandedExprToPrismExpr (ExprOrOp a b) = PrismExprBinOp "|" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
+convertExpandedExprToPrismExpr (ExprImpliesOp a b) = PrismExprBinOp "=>" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
+convertExpandedExprToPrismExpr (ExprIffOp a b) = PrismExprBinOp "<=>" (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
+convertExpandedExprToPrismExpr (ExprNotOp a) = PrismExprNotOp (convertExpandedExprToPrismExpr a)
+convertExpandedExprToPrismExpr (ExprUnProp q o a) = PrismExprUnProp q o (convertExpandedExprToPrismExpr a)
+convertExpandedExprToPrismExpr (ExprBinProp q o a b) = PrismExprBinProp q o (convertExpandedExprToPrismExpr a) (convertExpandedExprToPrismExpr b)
+
 compileVariableDeclaration :: String -> Expr -> String
 compileVariableDeclaration varName initVal =
 	let
@@ -211,7 +243,9 @@ compileVariableDeclaration varName initVal =
 			"//  " ++ show k ++ " -> " ++ show v ++ "\n" | (k,v) <- allValuesWithKey innerType ]
 		setValList _ = ""
 		convToVarDecls [[]] = ""
-		convToVarDecls [((UnrollAssgn idnt expr):vs)] = "global " ++ show idnt ++ " : " ++ show (typeOfIdnt idnt) ++ " init " ++ show expr ++ ";\n" ++ convToVarDecls [vs]
+		convToVarDecls [((UnrollAssgn idnt expr):vs)]
+			| TypeBool <- typeOfIdnt idnt = formatPrismGlobalVarDecl (PrismGlobalVarDeclBool (escapedIdnt idnt) (convertExpandedExprToPrismExpr expr)) ++ ";\n" ++ convToVarDecls [vs]
+			| TypeEnumeration enumvals <- typeOfIdnt idnt = formatPrismGlobalVarDecl (PrismGlobalVarDeclInt (escapedIdnt idnt) 0 (length enumvals) (convertExpandedExprToPrismExpr expr)) ++ ";\n" ++ convToVarDecls [vs]
 		initValAssignment = StmtAssignment (IdntGlobal varName varType) initVal
 	in
 		setValList varType ++ (convToVarDecls (unrollSeq [] (expandStatement initValAssignment)))
@@ -220,4 +254,4 @@ compileScriptedAction :: Stmt -> String
 compileScriptedAction stmt = concat [ show seq ++ "\n" | seq <- unrollSeq [] (expandStatement stmt) ]
 
 compilePredicate :: Expr -> String
-compilePredicate = show . expandExpression
+compilePredicate = formatPrismExpr . convertExpandedExprToPrismExpr . expandExpression

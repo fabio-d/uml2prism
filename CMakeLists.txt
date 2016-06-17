@@ -47,6 +47,7 @@ add_flex_bison_dependency(CompilerLexer CompilerParser)
 
 add_library(Haskell_CoreCompiler STATIC
 	Core/Compiler/SemanticTree.hs
+	Core/Compiler/PrismOutput.hs
 	Core/Compiler/Compiler.hs
 	Core/Compiler/Bindings.hs
 )
