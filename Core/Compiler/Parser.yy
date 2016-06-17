@@ -153,6 +153,7 @@ stmt-list:
 stmt:
   ';'				{ $$ = new SyntaxTree::CompoundStatement(STDARGS); }
 | ident '=' expr ';'		{ $$ = new SyntaxTree::Assignment(STDARGS, $1, $3); }
+| BRANCH ';'			{ $$ = new SyntaxTree::Branch(STDARGS, "$default$"); }
 | BRANCH BRANCH_LABEL ';'	{ $$ = new SyntaxTree::Branch(STDARGS, QString::fromStdString($2)); }
 | method-call ';'		{ $$ = $1; }
 | signal '!' ';'		{ $$ = new SyntaxTree::SignalEmission(STDARGS, $1); }

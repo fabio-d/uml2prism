@@ -516,6 +516,9 @@ const Compiler::SemanticTree::Stmt *ModelBuilder::parseCustomScript(const UMLScr
 
 	QMap<QString, QString> labelMap;
 	QStringList signalList;
+	QString defaultBranchTarget; // only valid if there is one and only one outgoing edge
+	bool defaultBranchTargetIsValid = false;
+
 	foreach (const Core::UMLEdgeElement *edge, elem->outgoingEdges())
 	{
 		const Core::UMLControlFlowEdge *branchEdge =
@@ -526,6 +529,15 @@ const Compiler::SemanticTree::Stmt *ModelBuilder::parseCustomScript(const UMLScr
 
 		if (branchEdge != nullptr)
 		{
+			if (defaultBranchTargetIsValid) // more than one edge
+				defaultBranchTargetIsValid = false;
+
+			if (defaultBranchTarget.isEmpty()) // first edge so far
+			{
+				defaultBranchTarget = branchEdge->to()->nodeName();
+				defaultBranchTargetIsValid = true;
+			}
+
 			if (branchEdge->branchName().isEmpty())
 				continue;
 			labelMap.insert(branchEdge->branchName(), branchEdge->to()->nodeName());
@@ -536,11 +548,15 @@ const Compiler::SemanticTree::Stmt *ModelBuilder::parseCustomScript(const UMLScr
 		}
 	}
 
+	if (defaultBranchTargetIsValid == false)
+		defaultBranchTarget.clear();
+
 	Compiler::SemanticTreeGenerator stgen(
 		elem->customScript(),
 		&m_semanticContext,
 		signalList,
-		labelMap);
+		labelMap,
+		defaultBranchTarget);
 
 	if (stgen.success())
 		return stgen.takeResultStmt();

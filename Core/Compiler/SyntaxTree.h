@@ -327,6 +327,7 @@ class ChoiceOr : public Statement
 class Branch : public Statement
 {
 	public:
+		// Note: label = "$default$" is a special marker for branch statements without a label
 		Branch(SyntaxTreeGenerator *owner, const SourceLocation &location, const QString &label);
 
 		const QString &label() const;

@@ -23,7 +23,8 @@ class SemanticTreeGenerator
 
 		// Parse a statement
 		SemanticTreeGenerator(const QString &sourceCode, const SemanticContext *context,
-			const QStringList &writableSignals, const QMap<QString, QString> &labelMap);
+			const QStringList &writableSignals, const QMap<QString, QString> &labelMap,
+			const QString &defaultBranchTarget);
 
 		~SemanticTreeGenerator();
 
@@ -76,6 +77,7 @@ class SemanticTreeGenerator
 		// being converted
 		QStringList m_writableSignals;
 		QMap<QString, QString> m_labelMap;
+		QString m_defaultBranchTarget;
 };
 
 }

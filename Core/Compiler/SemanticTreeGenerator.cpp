@@ -27,9 +27,11 @@ SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const Se
 }
 
 SemanticTreeGenerator::SemanticTreeGenerator(const QString &sourceCode, const SemanticContext *context,
-	const QStringList &writableSignals, const QMap<QString, QString> &labelMap)
+	const QStringList &writableSignals, const QMap<QString, QString> &labelMap,
+	const QString &defaultBranchTarget)
 : m_success(true), m_context(context), m_resultExpr(nullptr), m_resultStmt(nullptr),
-  m_writableSignals(writableSignals), m_labelMap(labelMap)
+  m_writableSignals(writableSignals), m_labelMap(labelMap),
+  m_defaultBranchTarget(defaultBranchTarget)
 {
 	SyntaxTreeGenerator sygen(sourceCode, SyntaxTreeGenerator::Script);
 	if (!sygen.success())
@@ -800,16 +802,33 @@ const SemanticTree::Stmt *SemanticTreeGenerator::convertStatement(const SyntaxTr
 		{
 			const SyntaxTree::Branch *node =
 				static_cast<const SyntaxTree::Branch*>(statement);
-			if (m_labelMap.contains(node->label()))
+
+			// only accept "branch;" (w/o label) if there is one and only one outgoing edge
+			if (node->label() == "$default$")
 			{
-				return new SemanticTree::StmtBranch(m_labelMap[node->label()]);
+				if (m_defaultBranchTarget.isEmpty())
+				{
+					setError(statement->location(), "Default branch can be used only when a node has one and only one outgoing control flow edge");
+					return nullptr;
+				}
+				else
+				{
+					return new SemanticTree::StmtBranch(m_defaultBranchTarget);
+				}
 			}
 			else
 			{
-				setError(statement->location(),
-					QString("Undefined label: %1")
-						.arg(node->label()));
-				return nullptr;
+				if (m_labelMap.contains(node->label()))
+				{
+					return new SemanticTree::StmtBranch(m_labelMap[node->label()]);
+				}
+				else
+				{
+					setError(statement->location(),
+						QString("Undefined label: %1")
+							.arg(node->label()));
+					return nullptr;
+				}
 			}
 		}
 		default:
