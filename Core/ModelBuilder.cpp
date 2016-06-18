@@ -565,6 +565,45 @@ const Compiler::SemanticTree::Stmt *ModelBuilder::parseCustomScript(const UMLScr
 	return nullptr;
 }
 
+const Compiler::SemanticTree::Stmt *ModelBuilder::generateDefaultScript(const UMLNodeElement *elem)
+{
+	QStringList signalsWithoutMessage;
+	bool error = false;
+
+	foreach (const Core::UMLSignalEdge *signalEdge, elem->outgoingSignalEdges())
+	{
+		const QString &signalName = signalEdge->signalName();
+		const DatatypeName &datatype = signalEdge->messageDatatypeName();
+
+		if (datatype.type() == DatatypeName::Invalid)
+		{
+			// This is a signal without attachment, we can
+			// auto-generate the script!
+			signalsWithoutMessage.append(signalName);
+		}
+		else
+		{
+			emitError(elem->nodeName(),
+				QString("Signal \"%1\" has attachment of type %2: a custom script is required")
+					.arg(signalName)
+					.arg(datatype.datatypeName()));
+		}
+	}
+
+	if (error)
+		return nullptr;
+
+	QList<const Compiler::SemanticTree::Stmt*> stmts;
+	foreach (const QString &signalName, signalsWithoutMessage)
+	{
+		Compiler::SemanticTree::IdntGlobal *dest = new Compiler::SemanticTree::IdntGlobal(signalName, m_semanticContext.boolType());
+		Compiler::SemanticTree::ExprBoolLiteral *val = new Compiler::SemanticTree::ExprBoolLiteral(true);
+		stmts.append(new Compiler::SemanticTree::StmtAssignment(dest, val));
+	}
+
+	return new Compiler::SemanticTree::StmtCompound(stmts);
+}
+
 void ModelBuilder::registerTypes()
 {
 	// Register enumarations first. Classes and global variables will be handled later
@@ -876,8 +915,9 @@ QString ModelBuilder::compileStates()
 					}
 					else
 					{
-						// Dummy empty script
-						script.reset(new Compiler::SemanticTree::StmtCompound(QList<const Compiler::SemanticTree::Stmt*>()));
+						script.reset(generateDefaultScript(actionNode));
+						if (script.isNull())
+							continue; // default script cannot be generated
 					}
 
 					// ActionNodes can only have 0 or 1 outgoing edge
@@ -911,8 +951,9 @@ QString ModelBuilder::compileStates()
 					}
 					else
 					{
-						// Dummy empty script
-						script.reset(new Compiler::SemanticTree::StmtCompound(QList<const Compiler::SemanticTree::Stmt*>()));
+						script.reset(generateDefaultScript(decisionMergeNode));
+						if (script.isNull())
+							continue; // default script cannot be generated
 					}
 
 					// DecisionMergeNode can have any number of outgoing edges. If
