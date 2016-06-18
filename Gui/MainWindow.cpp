@@ -182,6 +182,7 @@ void MainWindow::slotNew()
 {
 	MainWindow *newWindow = new MainWindow();
 	newWindow->show();
+	newWindow->slotUndoCleanChanged(true);
 }
 
 void MainWindow::slotOpen()
@@ -201,6 +202,7 @@ void MainWindow::slotOpen()
 
 	targetWindow->loadFile(selectedFileName);
 	targetWindow->show();
+	targetWindow->slotUndoCleanChanged(true);
 
 	// Fit in view
 	m_activityDiagramFirstShown = false;
