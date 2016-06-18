@@ -49,6 +49,7 @@ class MainWindow : public QMainWindow
 		void slotZoomOriginal();
 		void slotZoomFit();
 		void slotBuild();
+		void slotRun();
 		void slotWarning(const QString &location, const QString &description);
 		void slotError(const QString &location, const QString &description);
 		void slotLabelListFocused();
@@ -57,6 +58,7 @@ class MainWindow : public QMainWindow
 	private:
 		bool queryClose();
 		QString docName() const;
+		bool buildModel(QString *out_nm, QString *out_pctl, QString *out_ctl);
 
 		Ui_MainWindow *m_ui;
 		UndoManager *m_undoManager;

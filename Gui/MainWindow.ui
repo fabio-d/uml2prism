@@ -135,6 +135,7 @@
     <addaction name="actionExportSvg"/>
     <addaction name="separator"/>
     <addaction name="actionBuild"/>
+    <addaction name="actionRun"/>
     <addaction name="separator"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
@@ -270,7 +271,7 @@
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
-   <addaction name="actionBuild"/>
+   <addaction name="actionRun"/>
   </widget>
   <widget class="QToolBar" name="toolBarView">
    <property name="windowTitle">
@@ -473,12 +474,8 @@
    </property>
   </action>
   <action name="actionBuild">
-   <property name="icon">
-    <iconset theme="roll" resource="../resources/resources.qrc">
-     <normaloff>:/kde_icons/roll.png</normaloff>:/kde_icons/roll.png</iconset>
-   </property>
    <property name="text">
-    <string>&amp;Build Model...</string>
+    <string>&amp;Build PRISM Model...</string>
    </property>
    <property name="shortcut">
     <string>F9</string>
@@ -495,6 +492,21 @@
   <action name="actionExportSvg">
    <property name="text">
     <string>&amp;Export diagram as SVG Image...</string>
+   </property>
+  </action>
+  <action name="actionRun">
+   <property name="icon">
+    <iconset theme="roll" resource="../resources/resources.qrc">
+     <normaloff>:/kde_icons/roll.png</normaloff>:/kde_icons/roll.png</iconset>
+   </property>
+   <property name="text">
+    <string>Run &amp;PRISM...</string>
+   </property>
+   <property name="toolTip">
+    <string>Run the PRISM model checker on this model</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F9</string>
    </property>
   </action>
  </widget>
@@ -797,8 +809,8 @@
    <slot>slotLabelListFocused()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>621</x>
-     <y>391</y>
+     <x>109</x>
+     <y>248</y>
     </hint>
     <hint type="destinationlabel">
      <x>1468</x>
@@ -813,12 +825,28 @@
    <slot>slotPropertyListFocused()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>985</x>
-     <y>747</y>
+     <x>109</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>1468</x>
      <y>789</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRun</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slotRun()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>578</y>
     </hint>
    </hints>
   </connection>
@@ -841,5 +869,6 @@
   <slot>slotBuild()</slot>
   <slot>slotLabelListFocused()</slot>
   <slot>slotPropertyListFocused()</slot>
+  <slot>slotRun()</slot>
  </slots>
 </ui>

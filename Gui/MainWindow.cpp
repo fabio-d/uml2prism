@@ -1,6 +1,7 @@
 #include "Gui/MainWindow.h"
 
 #include "Gui/ModelPreviewDialog.h"
+#include "Gui/ModelRunDialog.h"
 #include "Gui/UMLGraphicsScene.h"
 #include "Gui/UndoManager.h"
 
@@ -453,7 +454,7 @@ void MainWindow::slotFillContextMenu(QMenu *menu)
 
 }
 
-void MainWindow::slotBuild()
+bool MainWindow::buildModel(QString *out_nm, QString *out_pctl, QString *out_ctl)
 {
 	m_ui->errorListWidget->clear();
 
@@ -467,7 +468,21 @@ void MainWindow::slotBuild()
 
 	if (success)
 	{
-		ModelPreviewDialog *diag = new ModelPreviewDialog(builder.modelOutput(), builder.pctlPropertiesOutput(), builder.ctlPropertiesOutput(), this);
+		*out_nm = builder.modelOutput();
+		*out_pctl = builder.pctlPropertiesOutput();
+		*out_ctl = builder.ctlPropertiesOutput();
+	}
+
+	return success;
+}
+
+void MainWindow::slotBuild()
+{
+	QString nm, pctl, ctl;
+
+	if (buildModel(&nm, &pctl, &ctl))
+	{
+		ModelPreviewDialog *diag = new ModelPreviewDialog(nm, pctl, ctl, this);
 		diag->setAttribute(Qt::WA_DeleteOnClose);
 		diag->show();
 		QMessageBox::information(diag, "Build model", "Model built successfully");
@@ -475,6 +490,22 @@ void MainWindow::slotBuild()
 	else
 	{
 		QMessageBox::critical(this, "Build model", "Model compilation failed");
+	}
+}
+
+void MainWindow::slotRun()
+{
+	QString nm, pctl, ctl;
+
+	if (buildModel(&nm, &pctl, &ctl))
+	{
+		ModelRunDialog *diag = new ModelRunDialog(nm, pctl, ctl, this);
+		diag->setAttribute(Qt::WA_DeleteOnClose);
+		diag->show();
+	}
+	else
+	{
+		QMessageBox::critical(this, "Run model", "Model compilation failed");
 	}
 }
 
