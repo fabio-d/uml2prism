@@ -150,31 +150,61 @@ QString Compiler::compileActivityFinalNode(const UMLActivityFinalNode *node,
 	return result;
 }
 
-QString Compiler::compileActionNode(const UMLActionNode *node, const SemanticTree::Stmt *script,
-	const QString &nextNode, ErrorList *out_errorList)
+QString Compiler::compileScriptedNode(const UMLScriptedNodeElement *node,
+	const SemanticTree::Stmt *script, bool branchEnabled, ErrorList *out_errorList)
+{
+	const QByteArray n = node->nodeName().toLatin1();
+	char *rawResult = (char*)hsCompileScriptedAction(
+		(void*)n.constData(),
+		script->haskellHandle(),
+		branchEnabled);
+	QString hsResult = rawResult;
+	free(rawResult);
+
+	if (hsResult.startsWith("G/")) // success
+	{
+		QString replacement;
+
+		// Add waits for incoming signals
+		foreach (const UMLSignalEdge *signalElem, node->incomingSignalEdges())
+		{
+			const QString &signalName = signalElem->signalName();
+			const Core::Compiler::SemanticTree::Type *type =
+				m_context->findGlobalVariableOrSignalWithMessage(signalName) ?: m_context->boolType();
+
+			const QByteArray n2 = signalName.toLatin1();
+			char *rawResult2 = (char*)hsCompileNotNilCheck(
+				(void*)n2.constData(),
+				type->haskellHandle());
+			replacement += QString(" & %1").arg(rawResult2);
+			free(rawResult2);
+		}
+
+		return hsResult.mid(2).replace("$signalWaitConditions$", replacement);
+	}
+	else if (hsResult.startsWith("E/"))
+		*out_errorList << Error(ErrorType::Error, hsResult.mid(2));
+	else
+		qFatal("This should never happen");
+
+	return QString();
+}
+
+QString Compiler::compileActionNode(const UMLActionNode *node,
+	const SemanticTree::Stmt *script, bool branchEnabled, ErrorList *out_errorList)
 {
 	QString result = QString("\n// ActionNode \"%1\"\n").arg(node->nodeName());
 	result += QString("%1 : [0..2] init 0;\n").arg(escapeString(node->nodeName()));
-
-	char *rawResult = (char*)hsCompileScriptedAction(script->haskellHandle());
-	result += rawResult;
-	free(rawResult);
-
-	//*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
+	result += compileScriptedNode(node, script, branchEnabled, out_errorList);
 	return result;
 }
 
-QString Compiler::compileDecisionMergeNode(const UMLDecisionMergeNode *node, const SemanticTree::Stmt *script,
-	const QString &nextNode, ErrorList *out_errorList)
+QString Compiler::compileDecisionMergeNode(const UMLDecisionMergeNode *node,
+	const SemanticTree::Stmt *script, bool branchEnabled, ErrorList *out_errorList)
 {
 	QString result = QString("\n// DecisionMergeNode \"%1\"\n").arg(node->nodeName());
 	result += QString("%1 : [0..2] init 0;\n").arg(escapeString(node->nodeName()));
-
-	char *rawResult = (char*)hsCompileScriptedAction(script->haskellHandle());
-	result += rawResult;
-	free(rawResult);
-
-	//*out_errorList << Error(ErrorType::Warning, "Warning! Compilation is not implemented yet"); // TODO
+	result += compileScriptedNode(node, script, branchEnabled, out_errorList);
 	return result;
 }
 

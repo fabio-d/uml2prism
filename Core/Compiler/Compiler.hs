@@ -317,8 +317,48 @@ compileSimpleAssignment varName initVal =
 compileNilAssignment :: String -> Type -> String
 compileNilAssignment varName t = compileSimpleAssignment varName (nilValue t)
 
-compileScriptedAction :: Stmt -> String
-compileScriptedAction stmt = concat [ show seq ++ "\n" ++ show (truncToBranch seq) ++ "\n" ++ show (truncToBranch seq >>= Just . forwardSubst) ++ "\n" | seq <- unrollSeq [] (expandStatement stmt) ]
+compileScriptedAction :: String -> Stmt -> Bool -> String
+compileScriptedAction name script branchEnabled =
+	let
+		unrolledSequences = unrollSeq [] (expandStatement script)
+		truncatedSequences
+			| (branchEnabled == True) = map truncToBranch unrolledSequences
+			| (branchEnabled == False) = map Just unrolledSequences
+		containsNothing [] = False
+		containsNothing (Nothing:_) = True
+		containsNothing (_:xs) = containsNothing xs
+		filterAssgn [] = []
+		filterAssgn ((UnrollAssgn idnt expr):xs) = (UnrollAssgn idnt expr):(filterAssgn xs)
+		filterAssgn (_:xs) = filterAssgn xs
+		filterGuard [] = []
+		filterGuard ((UnrollGuard expr):xs) = (UnrollGuard expr):(filterGuard xs)
+		filterGuard (_:xs) = filterGuard xs
+		findBranch [UnrollBranch str] = str -- UnrollBranch is always the last element
+		findBranch (_:xs) = findBranch xs
+		-- the "$signalWaitConditions$" placeholder is replaced by C++ code
+		nodeActiveGuard = "(" ++ (escapeString name) ++ ">0)$signalWaitConditions$"
+		-- the "$max{TARGET_NODE_NAME}$" placeholder is replaced by C++ code
+		branchGuard targetNodeName = "(" ++ (escapeString targetNodeName) ++ "<$max" ++ targetNodeName ++ "$)"
+		branchAssignments str = [formatPrismAssignment (escapeString name) (PrismExprIntLiteral 0), formatPrismAssignment (escapeString str) (PrismExprBinOp "+" (PrismExprVariable str) (PrismExprIntLiteral 1))]
+		compileSequence s =
+			let
+				guards = (if branchEnabled then [branchGuard (findBranch s)] else []) ++ [ formatPrismExpr (convertExpandedExprToPrismExpr e) | UnrollGuard e <- filterGuard s]
+				assignments = (if branchEnabled then branchAssignments (findBranch s) else []) ++ [ formatPrismAssignment (escapeIdnt idnt) (convertExpandedExprToPrismExpr expr) | UnrollAssgn idnt expr <- filterAssgn s ]
+			in
+				if length assignments == 0
+					then "// No action when " ++ (intercalate " & " (nodeActiveGuard:guards))
+					else "[] " ++ (intercalate " & " (nodeActiveGuard:guards)) ++ " -> 1.0 : " ++ (intercalate " & " assignments) ++ ";"
+	in
+		if containsNothing truncatedSequences
+			then "E/Branch statement is missing in one or more code paths"
+			else concat ("G/":[ compileSequence (forwardSubst s) ++ "\n" | Just s <- truncatedSequences ])
+
+compileNotNilCheck :: String -> Type -> String
+compileNotNilCheck varName t =
+	let
+		expr = ExprNeqOp (ExprVariable (IdntGlobal varName t)) (nilValue t)
+	in
+		formatPrismExpr (convertExpandedExprToPrismExpr (expandExpression expr))
 
 compileProperty :: Expr -> String
 compileProperty = formatPrismExpr . convertExpandedExprToPrismExpr . expandExpression

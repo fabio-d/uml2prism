@@ -890,7 +890,8 @@ QString ModelBuilder::compileStates()
 							));
 					}
 
-					result += comp.compileActionNode(actionNode, script.data(), nextNode, &errList);
+					result += comp.compileActionNode(actionNode, script.data(),
+						!nextNode.isEmpty(), &errList);
 					break;
 				}
 				case UMLElementType::DecisionMergeNode:
@@ -926,7 +927,8 @@ QString ModelBuilder::compileStates()
 							));
 					}
 
-					result += comp.compileDecisionMergeNode(decisionMergeNode, script.data(), nextNode, &errList);
+					result += comp.compileDecisionMergeNode(decisionMergeNode, script.data(),
+						decisionMergeNode->outgoingControlFlowEdges().count() > 0, &errList);
 					break;
 				}
 				case UMLElementType::ForkJoinNode:

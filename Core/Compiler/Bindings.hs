@@ -262,7 +262,8 @@ foreign export ccall hsCompileVariableDeclaration :: CString -> StablePtr Expr -
 foreign export ccall hsCompileSignalDeclaration :: CString -> StablePtr Type -> IO (CString)
 foreign export ccall hsCompileSimpleAssignment :: CString -> StablePtr Expr -> IO (CString)
 foreign export ccall hsCompileNilAssignment :: CString -> StablePtr Type -> IO (CString)
-foreign export ccall hsCompileScriptedAction :: StablePtr Stmt -> IO (CString)
+foreign export ccall hsCompileScriptedAction :: CString -> StablePtr Stmt -> Bool -> IO (CString)
+foreign export ccall hsCompileNotNilCheck :: CString -> StablePtr Type -> IO (CString)
 foreign export ccall hsCompileLabel :: CString -> StablePtr Expr -> IO (CString)
 foreign export ccall hsCompileProperty :: StablePtr Expr -> IO (CString)
 
@@ -295,10 +296,17 @@ hsCompileNilAssignment varName_ptr type_ptr = do
 	t <- deRefStablePtr type_ptr
 	newCString (compileNilAssignment varName t)
 
-hsCompileScriptedAction :: StablePtr Stmt -> IO (CString)
-hsCompileScriptedAction stmt = do
-	s <- deRefStablePtr stmt
-	newCString (compileScriptedAction s)
+hsCompileScriptedAction :: CString -> StablePtr Stmt -> Bool -> IO (CString)
+hsCompileScriptedAction name_ptr script_ptr branchEnabled = do
+	n <- peekCString name_ptr
+	s <- deRefStablePtr script_ptr
+	newCString (compileScriptedAction n s branchEnabled)
+
+hsCompileNotNilCheck :: CString -> StablePtr Type -> IO (CString)
+hsCompileNotNilCheck varName_ptr type_ptr = do
+	varName <- peekCString varName_ptr
+	t <- deRefStablePtr type_ptr
+	newCString (compileNotNilCheck varName t)
 
 hsCompileLabel :: CString -> StablePtr Expr -> IO (CString)
 hsCompileLabel name_ptr expr = do

@@ -11,6 +11,7 @@ class UMLActivityFinalNode;
 class UMLActionNode;
 class UMLDecisionMergeNode;
 class UMLForkJoinNode;
+class UMLScriptedNodeElement;
 
 namespace Compiler
 {
@@ -39,10 +40,12 @@ class Compiler
 			const QMap<QString, const SemanticTree::Expr *> &restartVarValues,
 			const QMap<QString, const SemanticTree::Type *> &restartSignalTypes);
 		QString compileActionNode(const UMLActionNode *node,
-			const SemanticTree::Stmt *script, const QString &nextNode,
+			const SemanticTree::Stmt *script,
+			bool branchEnabled,
 			ErrorList *out_errorList);
 		QString compileDecisionMergeNode(const UMLDecisionMergeNode *node,
-			const SemanticTree::Stmt *script, const QString &nextNode,
+			const SemanticTree::Stmt *script,
+			bool branchEnabled,
 			ErrorList *out_errorList);
 		QString compileForkJoinNode(const UMLForkJoinNode *node);
 
@@ -51,6 +54,10 @@ class Compiler
 
 	private:
 		QString escapeString(const QString &str);
+		QString compileScriptedNode(const UMLScriptedNodeElement *node,
+			const SemanticTree::Stmt *script,
+			bool branchEnabled,
+			ErrorList *out_errorList);
 
 		const SemanticContext *m_context;
 };
