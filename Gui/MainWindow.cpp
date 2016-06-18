@@ -499,7 +499,7 @@ void MainWindow::slotRun()
 
 	if (buildModel(&nm, &pctl, &ctl))
 	{
-		ModelRunDialog *diag = new ModelRunDialog(nm, pctl, ctl, this);
+		ModelRunDialog *diag = new ModelRunDialog(m_doc->properties(), nm, pctl, ctl, this);
 		diag->setAttribute(Qt::WA_DeleteOnClose);
 		diag->show();
 	}
