@@ -33,21 +33,28 @@ class Compiler
 		QString compileSignalDeclaration(const QString &name,
 			const SemanticTree::Type *type);
 
-		QString compileInitialNode(const UMLInitialNode *node);
-		QString compileFlowFinalNode(const UMLFlowFinalNode *node);
+		QString compileInitialNode(const UMLInitialNode *node,
+			QString *out_declLine);
+		QString compileFlowFinalNode(const UMLFlowFinalNode *node,
+			QString *out_declLine);
 		QString compileActivityFinalNode(const UMLActivityFinalNode *node,
+			QString *out_declLine,
 			const QStringList &allStates,
 			const QMap<QString, const SemanticTree::Expr *> &restartVarValues,
 			const QMap<QString, const SemanticTree::Type *> &restartSignalTypes);
 		QString compileActionNode(const UMLActionNode *node,
+			QString *out_declLine,
 			const SemanticTree::Stmt *script,
 			bool branchEnabled,
 			ErrorList *out_errorList);
 		QString compileDecisionMergeNode(const UMLDecisionMergeNode *node,
+			QString *out_declLine,
 			const SemanticTree::Stmt *script,
 			bool branchEnabled,
 			ErrorList *out_errorList);
-		QString compileForkJoinNode(const UMLForkJoinNode *node);
+		QString compileForkJoinNode(const UMLForkJoinNode *node,
+			QString *out_declLine,
+			int *out_maxValue);
 
 		QString compileLabel(const QString &name, const SemanticTree::Expr *pred);
 		QString compileProperty(const QString &name, const SemanticTree::Expr *pred);

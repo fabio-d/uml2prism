@@ -28,7 +28,7 @@ formatPrismGlobalVarDecl :: PrismGlobalVarDecl -> String
 formatPrismGlobalVarDecl (PrismGlobalVarDeclBool varName expr) =
 	"global " ++ varName ++ " : bool init " ++ (formatPrismExpr expr)
 formatPrismGlobalVarDecl (PrismGlobalVarDeclInt varName from to expr) =
-	"global " ++ varName ++ " : [" ++ (show from) ++ ".." ++ (show to) ++ "] init " ++ (formatPrismExpr expr)
+	"global " ++ varName ++ " : [" ++ (show from) ++ ".." ++ (show (max to (from+1))) ++ "] init " ++ (formatPrismExpr expr)
 
 formatPrismAssignment :: String -> PrismExpr -> String
 formatPrismAssignment varName expr = "(" ++ varName ++ "'=" ++ (formatPrismExpr expr) ++ ")"

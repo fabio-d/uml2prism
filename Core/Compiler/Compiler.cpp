@@ -67,10 +67,10 @@ QString Compiler::compileSignalDeclaration(const QString &name,
 	return result;
 }
 
-QString Compiler::compileInitialNode(const UMLInitialNode *node)
+QString Compiler::compileInitialNode(const UMLInitialNode *node, QString *out_declLine)
 {
 	QString result = QString("\n// InitialNode \"%1\"\n").arg(node->nodeName());
-	result += QString("%1 : [0..2] init 1;\n").arg(escapeString(node->nodeName()));
+	*out_declLine = QString("%1 : [0..1] init 1;\n").arg(escapeString(node->nodeName()));
 
 	// InitialNodes can only have 0 or 1 outgoing edge
 	const UMLControlFlowEdge *edge = (node->outgoingControlFlowEdges().count() == 0) ?
@@ -78,31 +78,32 @@ QString Compiler::compileInitialNode(const UMLInitialNode *node)
 
 	if (edge != nullptr)
 	{
-		result += QString("[] %1>0 -> 1.0 : (%1'=0) & (%2'=%2+1);\n")
+		result += QString("[] (%1>0) & (%2<$max%3$) -> 1.0 : (%1'=0) & (%2'=%2+1);\n")
 			.arg(escapeString(node->nodeName()))
-			.arg(escapeString(edge->to()->nodeName()));
+			.arg(escapeString(edge->to()->nodeName()))
+			.arg(edge->to()->nodeName());
 	}
 
 	return result;
 }
 
-QString Compiler::compileFlowFinalNode(const UMLFlowFinalNode *node)
+QString Compiler::compileFlowFinalNode(const UMLFlowFinalNode *node, QString *out_declLine)
 {
 	QString result = QString("\n// FlowFinalNode \"%1\"\n").arg(node->nodeName());
-	result += QString("%1 : [0..2] init 0;\n").arg(escapeString(node->nodeName()));
+	*out_declLine = QString("%1 : [0..1] init 0;\n").arg(escapeString(node->nodeName()));
 
 	// FlowFinalNodes cannot have any outgoing edge
-	result += QString("[] %1>0 -> 1.0 : (%1'=0);\n").arg(escapeString(node->nodeName()));
+	result += QString("[] (%1>0) -> 1.0 : (%1'=0);\n").arg(escapeString(node->nodeName()));
 	return result;
 }
 
-QString Compiler::compileActivityFinalNode(const UMLActivityFinalNode *node,
+QString Compiler::compileActivityFinalNode(const UMLActivityFinalNode *node, QString *out_declLine,
 	const QStringList &allStates,
 	const QMap<QString, const SemanticTree::Expr *> &restartVarValues,
 	const QMap<QString, const SemanticTree::Type *> &restartSignalTypes)
 {
 	QString result = QString("\n// ActivityFinalNode \"%1\"\n").arg(node->nodeName());
-	result += QString("%1 : [0..2] init 0;\n").arg(escapeString(node->nodeName()));
+	*out_declLine = QString("%1 : [0..1] init 0;\n").arg(escapeString(node->nodeName()));
 
 	// ActivityFinalNodes can only have 0 or 1 outgoing edge, pointing to the InitialNode
 	const UMLInitialNode *restartNode = (node->outgoingControlFlowEdges().count() == 0) ?
@@ -190,42 +191,46 @@ QString Compiler::compileScriptedNode(const UMLScriptedNodeElement *node,
 	return QString();
 }
 
-QString Compiler::compileActionNode(const UMLActionNode *node,
+QString Compiler::compileActionNode(const UMLActionNode *node, QString *out_declLine,
 	const SemanticTree::Stmt *script, bool branchEnabled, ErrorList *out_errorList)
 {
 	QString result = QString("\n// ActionNode \"%1\"\n").arg(node->nodeName());
-	result += QString("%1 : [0..2] init 0;\n").arg(escapeString(node->nodeName()));
+	*out_declLine = QString("%1 : [0..1] init 0;\n").arg(escapeString(node->nodeName()));
 	result += compileScriptedNode(node, script, branchEnabled, out_errorList);
 	return result;
 }
 
-QString Compiler::compileDecisionMergeNode(const UMLDecisionMergeNode *node,
+QString Compiler::compileDecisionMergeNode(const UMLDecisionMergeNode *node, QString *out_declLine,
 	const SemanticTree::Stmt *script, bool branchEnabled, ErrorList *out_errorList)
 {
 	QString result = QString("\n// DecisionMergeNode \"%1\"\n").arg(node->nodeName());
-	result += QString("%1 : [0..2] init 0;\n").arg(escapeString(node->nodeName()));
+	*out_declLine = QString("%1 : [0..1] init 0;\n").arg(escapeString(node->nodeName()));
 	result += compileScriptedNode(node, script, branchEnabled, out_errorList);
 	return result;
 }
 
-QString Compiler::compileForkJoinNode(const UMLForkJoinNode *node)
+QString Compiler::compileForkJoinNode(const UMLForkJoinNode *node, QString *out_declLine, int *out_maxValue)
 {
 	QString result = QString("\n// ForkJoinNode \"%1\"\n").arg(node->nodeName());
 
 	// DecisionMergeNodes can have any number of incoming and outgoing edges
 	const int incomingCount = node->incomingControlFlowEdges().count();
-	QStringList outgoingList = QStringList() << QString("(%1'=0)").arg(escapeString(node->nodeName()));
+	QStringList guardList = QStringList() << QString("(%1>%2)").arg(escapeString(node->nodeName())).arg(qMax(incomingCount - 1, 0));
+	QStringList actionList = QStringList() << QString("(%1'=0)").arg(escapeString(node->nodeName()));
 
 	foreach (const UMLControlFlowEdge *elem, node->outgoingControlFlowEdges())
-		outgoingList.append(QString("(%1'=%1+1)").arg(escapeString(elem->to()->nodeName())));
+	{
+		guardList.append(QString("(%1<$max%2$)").arg(escapeString(elem->to()->nodeName())).arg(elem->to()->nodeName()));
+		actionList.append(QString("(%1'=%1+1)").arg(escapeString(elem->to()->nodeName())));
+	}
 
-	result += QString("%1 : [0..%2] init 0;\n")
+	*out_maxValue = qMax(incomingCount, 1);
+	*out_declLine = QString("%1 : [0..%2] init 0;\n")
 		.arg(escapeString(node->nodeName()))
-		.arg(incomingCount + 1);
-	result += QString("[] %1>%2 -> 1.0 : %3;\n")
-		.arg(escapeString(node->nodeName()))
-		.arg(qMax(incomingCount - 1, 0))
-		.arg(outgoingList.join(" & "));
+		.arg(*out_maxValue);
+	result += QString("[] %1 -> 1.0 : %2;\n")
+		.arg(guardList.join(" & "))
+		.arg(actionList.join(" & "));
 
 	return result;
 }

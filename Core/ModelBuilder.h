@@ -56,6 +56,7 @@ class ModelBuilder : public QObject
 		Compiler::SemanticContext m_semanticContext;
 		QMap<QString, const Compiler::SemanticTree::Expr*> m_globalVarsInitValue;
 		QList<QString> m_persistentVariables;
+		QMap<QString, int> m_maxValueByState;
 
 		QString m_modelOutput, m_propertiesOutput;
 

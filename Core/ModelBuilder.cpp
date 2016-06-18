@@ -795,6 +795,7 @@ QString ModelBuilder::compileSignalDecls()
 
 QString ModelBuilder::compileStates()
 {
+	QString declLines;
 	QString result;
 
 	foreach (const UMLElement *elem, m_doc->activityDiagram()->elements())
@@ -805,16 +806,19 @@ QString ModelBuilder::compileStates()
 			Compiler::Compiler comp(&m_semanticContext);
 			Compiler::Compiler::ErrorList errList;
 
+			int maxValue = 1;
+			QString declLine;
+
 			switch (elem->type())
 			{
 				case UMLElementType::InitialNode:
 				{
-					result += comp.compileInitialNode(static_cast<const UMLInitialNode*>(nodeElem));
+					result += comp.compileInitialNode(static_cast<const UMLInitialNode*>(nodeElem), &declLine);
 					break;
 				}
 				case UMLElementType::FlowFinalNode:
 				{
-					result += comp.compileFlowFinalNode(static_cast<const UMLFlowFinalNode*>(nodeElem));
+					result += comp.compileFlowFinalNode(static_cast<const UMLFlowFinalNode*>(nodeElem), &declLine);
 					break;
 				}
 				case UMLElementType::ActivityFinalNode:
@@ -856,7 +860,7 @@ QString ModelBuilder::compileStates()
 					}
 
 					result += comp.compileActivityFinalNode(static_cast<const UMLActivityFinalNode*>(nodeElem),
-						allStates, restartVarValues, restartSignalTypes);
+						&declLine, allStates, restartVarValues, restartSignalTypes);
 					break;
 				}
 				case UMLElementType::ActionNode:
@@ -890,7 +894,7 @@ QString ModelBuilder::compileStates()
 							));
 					}
 
-					result += comp.compileActionNode(actionNode, script.data(),
+					result += comp.compileActionNode(actionNode, &declLine, script.data(),
 						!nextNode.isEmpty(), &errList);
 					break;
 				}
@@ -927,13 +931,13 @@ QString ModelBuilder::compileStates()
 							));
 					}
 
-					result += comp.compileDecisionMergeNode(decisionMergeNode, script.data(),
+					result += comp.compileDecisionMergeNode(decisionMergeNode, &declLine, script.data(),
 						decisionMergeNode->outgoingControlFlowEdges().count() > 0, &errList);
 					break;
 				}
 				case UMLElementType::ForkJoinNode:
 				{
-					result += comp.compileForkJoinNode(static_cast<const UMLForkJoinNode*>(nodeElem));
+					result += comp.compileForkJoinNode(static_cast<const UMLForkJoinNode*>(nodeElem), &declLine, &maxValue);
 					break;
 				}
 				default:
@@ -942,6 +946,9 @@ QString ModelBuilder::compileStates()
 					break;
 				}
 			}
+
+			declLines += declLine;
+			m_maxValueByState.insert(nodeElem->nodeName(), maxValue);
 
 			foreach (const Compiler::Compiler::Error &error, errList)
 			{
@@ -953,7 +960,11 @@ QString ModelBuilder::compileStates()
 		}
 	}
 
-	return result;
+	// Fill "${TARGET_NODE_NAME}" placeholders
+	foreach (const QString &stateName, m_maxValueByState.keys())
+		result.replace(QString("$max%1$").arg(stateName), QString::number(m_maxValueByState[stateName]));
+
+	return declLines + result;
 }
 
 QString ModelBuilder::compileLabels()
