@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>OutputDialog</class>
- <widget class="QDialog" name="OutputDialog">
+ <class>ModelPreviewDialog</class>
+ <widget class="QDialog" name="ModelPreviewDialog">
   <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
@@ -56,6 +56,29 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
+        <widget class="QGroupBox" name="groupBox">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QRadioButton" name="pctlRadioButton">
+            <property name="text">
+             <string>Probabilistic Computation Tree Logic (PCTL)</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="ctlRadioButton">
+            <property name="text">
+             <string>Computation Tree Logic (CTL)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QPlainTextEdit" name="propertiesText">
          <property name="font">
           <font>
@@ -91,12 +114,12 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>OutputDialog</receiver>
+   <receiver>ModelPreviewDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>254</x>
+     <y>693</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -107,12 +130,12 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>OutputDialog</receiver>
+   <receiver>ModelPreviewDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>322</x>
+     <y>693</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -120,5 +143,40 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pctlRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ModelPreviewDialog</receiver>
+   <slot>propTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>34</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>977</x>
+     <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ctlRadioButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ModelPreviewDialog</receiver>
+   <slot>propTypeChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>462</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>979</x>
+     <y>127</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>propTypeChanged()</slot>
+ </slots>
 </ui>

@@ -24,7 +24,8 @@ class ModelBuilder : public QObject
 		const Compiler::SemanticContext *semanticContext() const;
 
 		const QString &modelOutput() const;
-		const QString &propertiesOutput() const;
+		QString pctlPropertiesOutput() const;
+		QString ctlPropertiesOutput() const;
 
 	signals:
 		void warning(const QString &location, const QString &description);

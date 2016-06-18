@@ -128,10 +128,16 @@ const QString &ModelBuilder::modelOutput() const
 	return m_modelOutput;
 }
 
-const QString &ModelBuilder::propertiesOutput() const
+QString ModelBuilder::pctlPropertiesOutput() const
 {
 	Q_ASSERT(m_started == true && m_error == false);
-	return m_propertiesOutput;
+	return QString(m_propertiesOutput).replace("$forall$", "P>=1").replace("$exists$", "P>0");
+}
+
+QString ModelBuilder::ctlPropertiesOutput() const
+{
+	Q_ASSERT(m_started == true && m_error == false);
+	return QString(m_propertiesOutput).replace("$forall$", "A").replace("$exists$", "E");
 }
 
 void ModelBuilder::emitWarning(const QString &location, const QString &description)

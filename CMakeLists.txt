@@ -82,7 +82,7 @@ add_executable(ModelEditor
 	Gui/GraphicsAuxiliaryItems.cpp
 	Gui/IdentifierValidator.cpp
 	Gui/MainWindow.cpp
-	Gui/OutputDialog.cpp
+	Gui/ModelPreviewDialog.cpp
 	Gui/PredicateListEditWidget.cpp
 	Gui/RenameDialog.cpp
 	Gui/UMLDiagramView.cpp

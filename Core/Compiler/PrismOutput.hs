@@ -10,6 +10,10 @@ data PrismExpr =
 	| PrismExprUnProp Char Char PrismExpr			-- unary property
 	| PrismExprBinProp Char Char PrismExpr PrismExpr	-- binary property
 
+formatPrismQuantifier :: Char -> String
+formatPrismQuantifier 'A' = "$forall$"
+formatPrismQuantifier 'E' = "$exists$"
+
 formatPrismExpr :: PrismExpr -> String
 formatPrismExpr (PrismExprBoolLiteral True) = "true"
 formatPrismExpr (PrismExprBoolLiteral False) = "false"
@@ -17,8 +21,8 @@ formatPrismExpr (PrismExprIntLiteral val) = show val
 formatPrismExpr (PrismExprVariable var) = var
 formatPrismExpr (PrismExprBinOp op e1 e2) = "(" ++ (formatPrismExpr e1) ++ op ++ (formatPrismExpr e2) ++ ")"
 formatPrismExpr (PrismExprNotOp e) = "!" ++ (formatPrismExpr e)
-formatPrismExpr (PrismExprUnProp q o a) = q:" [ " ++ o:' ':(formatPrismExpr a) ++ " ]"
-formatPrismExpr (PrismExprBinProp q o a b) = q:" [ " ++ (formatPrismExpr a) ++ ' ':o:' ':(formatPrismExpr b) ++ " ]"
+formatPrismExpr (PrismExprUnProp q o a) = formatPrismQuantifier q ++ " [ " ++ o:' ':(formatPrismExpr a) ++ " ]"
+formatPrismExpr (PrismExprBinProp q o a b) = formatPrismQuantifier q ++ " [ " ++ (formatPrismExpr a) ++ ' ':o:' ':(formatPrismExpr b) ++ " ]"
 
 data PrismGlobalVarDecl =
 	  PrismGlobalVarDeclBool String PrismExpr	-- boolean global variable with a given initial value
