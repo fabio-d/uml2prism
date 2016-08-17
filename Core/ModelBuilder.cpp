@@ -131,7 +131,7 @@ const QString &ModelBuilder::modelOutput() const
 QString ModelBuilder::pctlPropertiesOutput() const
 {
 	Q_ASSERT(m_started == true && m_error == false);
-	return QString(m_propertiesOutput).replace("$forall$", "P>=1").replace("$exists$", "P>0");
+	return QString(m_propertiesOutput).replace("$forall$", "P>=1").replace("$exists$", "!P<=0");
 }
 
 QString ModelBuilder::ctlPropertiesOutput() const
