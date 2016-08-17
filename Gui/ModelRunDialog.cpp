@@ -208,57 +208,80 @@ void ModelRunDialog::prismFinished(bool success)
 		reportHtml += "<p>Failed to retrieve data</p>";
 	}
 
-	reportHtml += "<h1>Property truth values</h1>";
-
-	QStringList propertiesResults;
-
-	if (m_resultsTempFile->open())
-	{
-		// This file contains each property on its own line followed by
-		// its truth value (or an error under some circumstances).
-		// We are only interested in truth values
-		bool evenLine = false;
-		QTextStream in(m_resultsTempFile.data());
-		while (!in.atEnd())
-		{
-			QString line = in.readLine().trimmed();
-			if (line.isEmpty())
-				continue;
-
-			if (evenLine == true)
-				propertiesResults << line;
-
-			evenLine = !evenLine;
-		}
-		m_resultsTempFile->close();
-	}
-
 	const QList<Core::Predicate> &propertyList = m_propertyList->predicates();
-	if (propertyList.count() == propertiesResults.count())
+
+	if (propertyList.isEmpty() == false)
 	{
-		reportHtml += "<ul>";
+		reportHtml += "<h1>Property truth values</h1>";
 
-		for (int i = 0; i < propertyList.count(); i++)
+		QStringList propertiesResults;
+
+		if (m_resultsTempFile->open())
 		{
-			const bool isTrue = propertiesResults[i] == "true";
-			QString truthValue = Qt::escape(propertiesResults[i]);
+			QTextStream in(m_resultsTempFile.data());
 
-			if (isTrue)
-				truthValue = "<font color=darkgreen>" + truthValue + "</font>";
+			// This file contains each property on its own line
+			// followed by its truth value (or an error under some
+			// circumstances). We are only interested in truth
+			// values.
+			// Special case: if only one property is checked, PRISM
+			// will just output its truth value
+			if (propertyList.count() == 1)
+			{
+				// well-formed data will only loop once
+				while (!in.atEnd())
+				{
+					QString line = in.readLine().trimmed();
+					if (line.isEmpty())
+						continue;
+
+					propertiesResults << line;
+				}
+			}
 			else
-				truthValue = "<font color=red>" + truthValue + "</font>";
+			{
+				bool evenLine = false;
+				while (!in.atEnd())
+				{
+					QString line = in.readLine().trimmed();
+					if (line.isEmpty())
+						continue;
 
-			reportHtml += QString("<li><b>%1</b> is <b>%2</b><pre>%3</pre></li>")
-				.arg(Qt::escape(propertyList[i].name()))
-				.arg(truthValue)
-				.arg(Qt::escape(propertyList[i].expression()));
+					if (evenLine == true)
+						propertiesResults << line;
+
+					evenLine = !evenLine;
+				}
+			}
+			m_resultsTempFile->close();
 		}
 
-		reportHtml += "</ul>";
-	}
-	else
-	{
-		reportHtml += "<p>Failed to retrieve data</p>";
+		if (propertyList.count() == propertiesResults.count())
+		{
+			reportHtml += "<ul>";
+
+			for (int i = 0; i < propertyList.count(); i++)
+			{
+				const bool isTrue = propertiesResults[i] == "true";
+				QString truthValue = Qt::escape(propertiesResults[i]);
+
+				if (isTrue)
+					truthValue = "<font color=darkgreen>" + truthValue + "</font>";
+				else
+					truthValue = "<font color=red>" + truthValue + "</font>";
+
+				reportHtml += QString("<li><b>%1</b> is <b>%2</b><pre>%3</pre></li>")
+					.arg(Qt::escape(propertyList[i].name()))
+					.arg(truthValue)
+					.arg(Qt::escape(propertyList[i].expression()));
+			}
+
+			reportHtml += "</ul>";
+		}
+		else
+		{
+			reportHtml += "<p>Failed to retrieve data</p>";
+		}
 	}
 
 	m_ui->reportText->setHtml(reportHtml);
