@@ -248,6 +248,27 @@ forwardSubst =
 	in
 		seqEater
 
+-- Given a sequence of UnrollElem containing UnrollAssgn elements, this function
+-- strips assignments to variables that are later assigned again
+dropDoubleWrites :: [UnrollElem] -> [UnrollElem]
+dropDoubleWrites =
+	let
+		-- Given a [UnrollElem] and an Idnt, test if it gets assigned
+		containsWrite ((UnrollAssgn idnt2 expr):xs) idnt
+			| idnt == idnt2 = True
+			| otherwise = containsWrite xs idnt
+		containsWrite (x:xs) idnt = containsWrite xs idnt
+		containsWrite [] _ = False
+
+		-- Traverse the list of elems.
+		seqEater ((UnrollAssgn idnt expr):xs)
+			| containsWrite xs idnt = xs
+			| otherwise = (UnrollAssgn idnt expr):xs
+		seqEater (x:xs) = x:(seqEater xs)
+		seqEater [] = []
+	in
+		seqEater
+
 -- Given a user identifier name, double all underscores, because the compiler
 -- uses single underscores as a separator and we want avoid conflicts. Dots are
 -- replaced with a single underscore
@@ -351,7 +372,7 @@ compileScriptedAction name script branchEnabled =
 	in
 		if containsNothing truncatedSequences
 			then "E/Branch statement is missing in one or more code paths"
-			else concat ("G/":[ compileSequence (forwardSubst s) ++ "\n" | Just s <- truncatedSequences ])
+			else concat ("G/":[ compileSequence (dropDoubleWrites $ forwardSubst s) ++ "\n" | Just s <- truncatedSequences ])
 
 compileNotNilCheck :: String -> Type -> String
 compileNotNilCheck varName t =
