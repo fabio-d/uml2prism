@@ -109,12 +109,12 @@ QString Compiler::compileActivityFinalNode(const UMLActivityFinalNode *node, QSt
 	const UMLInitialNode *restartNode = (node->outgoingControlFlowEdges().count() == 0) ?
 		nullptr : static_cast<const UMLInitialNode*>(node->outgoingControlFlowEdges().first()->to());
 
+	QStringList actions;
+
 	// if an edge is present, it points back to the initial node and it means
 	// we have to restart
 	if (restartNode != nullptr)
 	{
-		QStringList actions;
-
 		actions.append(QString("(%1'=1)").arg(escapeString(restartNode->nodeName())));
 
 		foreach (const QString &stateName, allStates)
@@ -144,9 +144,14 @@ QString Compiler::compileActivityFinalNode(const UMLActivityFinalNode *node, QSt
 				actions.append(rawResult);
 			free(rawResult);
 		}
-
-		result += QString("[] %1>0 -> 1.0 : %2;\n").arg(node->nodeName()).arg(actions.join(" & "));
 	}
+	else
+	{
+		foreach (const QString &stateName, allStates)
+			actions.append(QString("(%1'=0)").arg(escapeString(stateName)));
+	}
+
+	result += QString("[] %1>0 -> 1.0 : %2;\n").arg(node->nodeName()).arg(actions.join(" & "));
 
 	return result;
 }
