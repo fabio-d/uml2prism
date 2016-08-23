@@ -29,6 +29,9 @@ ModelRunDialog::ModelRunDialog(const Core::PredicateList *propertyList, const QS
 	m_prismProcess.setProcessChannelMode(QProcess::MergedChannels);
 	connect(&m_prismProcess, SIGNAL(readyRead()), this, SLOT(slotProcessReadyRead()));
 	connect(&m_prismProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(slotProcessFinished(int,QProcess::ExitStatus)));
+
+	m_ui->tabWidget->setTabEnabled(1, false);
+	m_ui->tabWidget->setTabEnabled(2, false);
 }
 
 ModelRunDialog::~ModelRunDialog()
@@ -62,6 +65,9 @@ void ModelRunDialog::start()
 {
 	if (m_started)
 		return;
+
+	m_ui->tabWidget->setTabEnabled(1, true);
+	m_ui->tabWidget->setTabEnabled(2, true);
 
 	QStringList prismArgs;
 
@@ -191,7 +197,7 @@ void ModelRunDialog::prismFinished(bool success)
 {
 	if (!success)
 	{
-		m_ui->reportText->setHtml("Oops! Something did not work properly.<br/>Please check out the <i>Raw PRISM output</i> tab.");
+		m_ui->reportText->setHtml("Oops! Something did not work properly.<br/>Please check the <i>Raw PRISM output</i> tab.");
 		return;
 	}
 
