@@ -1,0 +1,42 @@
+Some files in the folder come from TOPCASED 5.3.1's artwork (Eclipse Public
+License v1.0):
+ https://www.polarsys.org/topcased
+
+I have also created a new file by modifying TOPCASED's artwork. Such file is
+also covered by the Eclipse Public License v1.0.
+
+-----
+
+From TOPCASED org.topcased.modeler.uml.activitydiagram:
+ - icons/actions/OpaqueAction_24.gif
+ - icons/ActivityFinalNode_24.gif
+ - icons/ControlFlow_24.gif
+ - icons/DecisionNode_24.gif
+ - icons/FlowFinalNode_24.gif
+ - icons/ForkNode_24.gif
+ - icons/InitialNode_24.gif
+ - icons/JoinNode_24.gif
+ - icons/MergeNode_24.gif
+ - icons/ObjectFlow_24.gif
+
+From TOPCASED org.topcased.modeler.uml:
+ - icons/Class_24.gif
+ - icons/Enumeration_24.gif
+
+Originally from TOPCASED, modified by Fabio D'Urso:
+ - GlobalVariables_24.png
+
+-----
+
+TOPCASED org.topcased.modeler.uml copyright notice:
+
+#########################################################################
+# Copyright (c) 2008 Topcased
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# 
+# Contributors:
+#   Topcased contributors and others - initial API and implementation
+#########################################################################
