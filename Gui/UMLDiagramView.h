@@ -34,8 +34,6 @@ class UMLDiagramView : public QGraphicsView
 	public:
 		explicit UMLDiagramView(QWidget *parent = nullptr);
 
-		void appendViewActions(QWidget *target);
-
 		void setScene(UMLGraphicsScene *scene);
 
 		void setScale(qreal newScale);
@@ -58,12 +56,6 @@ class UMLDiagramView : public QGraphicsView
 		qreal currentScale() const;
 
 		UMLGraphicsScene *m_scene;
-
-		// Some actions implemented by this class
-		QAction *m_actionZoomIn;
-		QAction *m_actionZoomOut;
-		QAction *m_actionZoomOriginal;
-		QAction *m_actionZoomFit;
 
 		// is the user constructing an edge?
 		bool m_edgeConstructionInProgress;
